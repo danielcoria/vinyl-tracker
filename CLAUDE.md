@@ -6,7 +6,7 @@ Portfolio project, so code quality, tests, and a clean commit history matter as 
 
 ## Status
 
-M0 (scaffold) is done. The next milestone is **M1 (CI)**. Update this section and the milestone checklist as work lands.
+M0 (scaffold) and M1 (CI) are done. The next milestone is **M2 (database + records API)**. Update this section and the milestone checklist as work lands.
 
 ## Features
 
@@ -94,6 +94,7 @@ Derived values (stylus hours used, last-played date, dust status, stats) are **c
 - **Frontend:** organize by feature, not by file type. Server state goes through TanStack Query, with no duplicated server data in local state.
 - **Tests:** every service and route gets Vitest coverage. API tests run against an in-memory SQLite DB through `app.ts`. Add a Playwright spec when a user-facing flow is completed.
 - **Commits:** small and focused, with imperative-mood messages ("Add dust report endpoint"). One milestone may span many commits.
+- **CI:** `.github/workflows/ci.yml` runs format:check, lint, typecheck, test and build on Node 22 and 24 for every PR and every push to `main`. Keep it green: run the same scripts locally before pushing. CI has no secrets, so tests must never need a real `.env` or network access.
 - **Env:** a single `.env` at the repo root, loaded by `server/src/config.ts`. Document every variable in `.env.example`. Never commit `.env`, never log secret values, and never print or echo the contents of `.env`.
 
 ## Commands
@@ -115,7 +116,7 @@ Planned: `npm run test:e2e` (M9), `npm run db:migrate` / `npm run db:seed` (M2).
 ## Milestones
 
 - [x] M0 Scaffold: workspaces, TS/ESLint/Prettier, Vite app, Express `/api/health`, Vitest wired up
-- [ ] M1 CI early: GitHub Actions running lint + typecheck + unit tests on every push/PR
+- [x] M1 CI early: GitHub Actions running lint + typecheck + unit tests on every push/PR
 - [ ] M2 Database + records CRUD API (manual entry), migrations, seed data
 - [ ] M3 Collection UI: grid/list, detail page, add/edit form
 - [ ] M4 Discogs search + import (server proxy, rate limit, cache) + UI
