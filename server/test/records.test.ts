@@ -1,3 +1,11 @@
+// ============================================================================
+// records.test.ts: TESTS: EVERYTHING YOU CAN DO WITH RECORDS
+//
+// Adds, lists, searches, sorts, edits and deletes records through the real
+// API (on a temporary database) and checks every answer, including the
+// error cases (bad input, missing records, broken JSON).
+// ============================================================================
+
 import request from 'supertest';
 import { beforeEach, describe, expect, it } from 'vitest';
 import { apiErrorSchema, recordListSchema, recordSchema, type RecordInput } from '@vinyl/shared';

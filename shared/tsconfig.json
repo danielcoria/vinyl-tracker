@@ -1,3 +1,4 @@
+// tsconfig.json: TYPESCRIPT SETTINGS FOR shared/ (extends tsconfig.base.json)
 {
   "extends": "../tsconfig.base.json",
   "include": ["src"]

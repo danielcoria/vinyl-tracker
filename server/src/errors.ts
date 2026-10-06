@@ -1,3 +1,12 @@
+// ============================================================================
+// errors.ts: OUR OWN ERROR TYPES
+//
+// Code anywhere in the server can "throw" one of these, e.g.
+//   throw new NotFoundError("Record 5 not found")
+// and the error handler (middleware/error-handler.ts) turns it into the
+// right response for the website (here: status 404 with that message).
+// ============================================================================
+
 export class AppError extends Error {
   constructor(
     readonly status: number,

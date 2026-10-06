@@ -1,3 +1,4 @@
+// tsconfig.json: TYPESCRIPT SETTINGS FOR server/ (extends tsconfig.base.json)
 {
   "extends": "../tsconfig.base.json",
   "compilerOptions": {

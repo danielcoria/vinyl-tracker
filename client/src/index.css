@@ -1,3 +1,8 @@
+/* ============================================================================
+   index.css: STYLES FOR THE WEBSITE (colors, spacing, fonts)
+   CSS controls how things look. ".app" styles anything with className="app".
+   ============================================================================ */
+
 :root {
   font-family: system-ui, sans-serif;
   color-scheme: light dark;

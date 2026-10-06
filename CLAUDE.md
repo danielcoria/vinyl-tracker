@@ -90,6 +90,7 @@ Derived values (stylus hours used, last-played date, dust status, stats) are **c
 
 ## Conventions
 
+- **Beginner-friendly comments:** the owner is new to this stack. Every source file starts with a plain-language header comment (see existing files: a `// ====` block saying what the file is and does). Add inline comments where a React/Express/Drizzle/Zod concept appears for the first time. When files are added, moved or change purpose, update `docs/HOW-IT-WORKS.md` in the same commit.
 - **TypeScript strict mode** everywhere. No `any`. Use `unknown` and narrow it with Zod.
 - **API contracts live in `shared/`.** Define a Zod schema once and derive the TS type with `z.infer`. Don't redeclare types by hand on either side.
 - **REST JSON API** under `/api`. Use plural nouns (`/api/records`, `/api/spins`) and return errors as `{ error: { code, message } }` with the correct status.

@@ -1,3 +1,16 @@
+// ============================================================================
+// schema.ts: THE DATABASE TABLES
+//
+// A database is like a set of spreadsheets ("tables"). Each table has
+// columns, and each row is one item. Our tables:
+//   records        one row per record you own (title, year, label, condition...)
+//   artists        one row per artist
+//   record_artists links records to artists (a record can have several)
+//   record_tags    the genres and styles of each record
+// When this file changes, run "npm run db:generate -w server" to create a
+// "migration": a file of instructions that updates the real database to match.
+// ============================================================================
+
 import { sql } from 'drizzle-orm';
 import {
   index,

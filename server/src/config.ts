@@ -1,3 +1,13 @@
+// ============================================================================
+// config.ts: READS THE SETTINGS (from the .env file)
+//
+// Settings like the port number, where the database file lives, and the
+// secret Discogs token come from the .env file at the top of the project.
+// This is the ONLY file allowed to read them. It checks they are valid and
+// hands them to the rest of the app as a tidy "config" object.
+// Secret values are never printed, even when something is wrong.
+// ============================================================================
+
 import { existsSync } from 'node:fs';
 import path from 'node:path';
 import { z } from 'zod';

@@ -1,3 +1,11 @@
+// ============================================================================
+// health.test.ts: TESTS: THE "ARE YOU ALIVE?" CHECK AND 404s
+//
+// Supertest ("request(app)") sends pretend web requests to the server
+// without starting it for real, then we check the answers.
+// describe = a group of tests, it = one test, expect = the actual check.
+// ============================================================================
+
 import request from 'supertest';
 import { describe, expect, it } from 'vitest';
 import { apiErrorSchema, healthResponseSchema } from '@vinyl/shared';

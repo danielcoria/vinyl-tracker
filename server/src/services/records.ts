@@ -1,3 +1,18 @@
+// ============================================================================
+// records.ts: THE REAL WORK FOR RECORDS (the "service")
+//
+// Routes receive requests; services do the actual work. This file reads
+// and writes records in the database: list (with search and sort), get one,
+// create, update and delete.
+//
+// It uses Drizzle, a library that lets us write database queries in
+// TypeScript, e.g. db.select().from(records).where(...), instead of raw SQL
+// text (some complex parts still use SQL via the sql`...` helper).
+//
+// A "transaction" (db.transaction) groups several changes so they either ALL
+// happen or NONE do. That way a crash can never leave a half-saved record.
+// ============================================================================
+
 import { asc, desc, eq, inArray, notInArray, sql, type SQL } from 'drizzle-orm';
 import type { ParsedRecordInput, ParsedRecordListQuery, VinylRecord } from '@vinyl/shared';
 import type { Db } from '../db/client.js';

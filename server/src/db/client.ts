@@ -1,3 +1,11 @@
+// ============================================================================
+// client.ts: OPENS THE DATABASE
+//
+// SQLite stores the whole database in one file (data/vinyl.db). This opens
+// that file (creating it if needed), switches on safety checks, and applies
+// any migrations that have not run yet, so the tables are always up to date.
+// ============================================================================
+
 import { mkdirSync } from 'node:fs';
 import path from 'node:path';
 import Database from 'better-sqlite3';

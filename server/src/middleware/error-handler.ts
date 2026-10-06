@@ -1,3 +1,14 @@
+// ============================================================================
+// error-handler.ts: TURNS ERRORS INTO TIDY RESPONSES
+//
+// "Middleware" = a function that every request passes through.
+// These two run last:
+//   - notFoundHandler: nobody answered this address -> 404 Not Found
+//   - errorHandler: something threw an error -> pick the right status code
+//     (400 bad input, 404 missing, 500 our bug) and send the standard
+//     { error: { code, message } } format from shared/src/errors.ts.
+// ============================================================================
+
 import type { ErrorRequestHandler, RequestHandler } from 'express';
 import type { ApiError } from '@vinyl/shared';
 import { ZodError } from 'zod';

@@ -1,5 +1,11 @@
-// Applies pending migrations. The server also does this on startup;
-// this script exists for running it explicitly (e.g. before a deploy).
+// ============================================================================
+// migrate.ts: UPDATES THE DATABASE TABLES
+//
+// Run with: npm run db:migrate -w server
+// Applies any new migrations (from server/drizzle/) to your database.
+// You rarely need this by hand: the server does it every time it starts.
+// ============================================================================
+
 import { loadConfig } from '../config.js';
 import { createDb } from './client.js';
 

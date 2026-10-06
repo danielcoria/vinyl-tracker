@@ -1,3 +1,11 @@
+// ============================================================================
+// helpers.ts: SHORTCUTS FOR TESTS
+//
+// makeTestApp() gives each test a brand-new server with its own temporary,
+// in-memory database, so tests never touch your real data or each other.
+// recordInput() gives a ready-made valid record that tests can tweak.
+// ============================================================================
+
 import type { RecordInput } from '@vinyl/shared';
 import { createApp } from '../src/app.js';
 import { createDb } from '../src/db/client.js';

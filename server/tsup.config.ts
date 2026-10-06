@@ -1,3 +1,10 @@
+// ============================================================================
+// tsup.config.ts: SETTINGS FOR BUILDING THE SERVER
+//
+// npm run build turns our TypeScript into plain JavaScript in server/dist/,
+// which is what runs when the app is put online. tsup is the tool that does it.
+// ============================================================================
+
 import { defineConfig } from 'tsup';
 
 export default defineConfig({

@@ -1,3 +1,10 @@
+// ============================================================================
+// config.test.ts: TESTS: READING SETTINGS
+//
+// Checks default values, that an empty token counts as "missing", and that
+// error messages never include secret values.
+// ============================================================================
+
 import { describe, expect, it } from 'vitest';
 import { loadConfig } from '../src/config.js';
 

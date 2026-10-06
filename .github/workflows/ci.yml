@@ -1,3 +1,12 @@
+# ============================================================================
+# ci.yml: CI: AUTOMATIC CHECKS ON GITHUB
+#
+# Every time you push to main (or open a pull request), GitHub starts a
+# fresh computer, installs the project and runs: format check, lint,
+# typecheck, tests and build. A green check = everything passed.
+# See the results in the "Actions" tab of the repo on GitHub.
+# ============================================================================
+
 name: CI
 
 on:

@@ -1,6 +1,11 @@
-// Fills an empty database with sample records for local development.
-//   npm run db:seed            -> only seeds if there are no records yet
-//   npm run db:seed -- --reset -> deletes every record first
+// ============================================================================
+// seed.ts: FILLS THE DATABASE WITH SAMPLE RECORDS
+//
+// Gives you something to look at while building the app.
+//   npm run db:seed -w server            adds 11 sample albums (only if empty)
+//   npm run db:seed -w server -- --reset deletes all records first, then adds them
+// ============================================================================
+
 import { count } from 'drizzle-orm';
 import { recordInputSchema, type RecordInput } from '@vinyl/shared';
 import { loadConfig } from '../config.js';

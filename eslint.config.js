@@ -1,3 +1,11 @@
+// ============================================================================
+// eslint.config.js: SETTINGS FOR ESLINT (the code checker)
+//
+// ESLint reads the code looking for mistakes and bad habits (unused
+// variables, broken React rules...). Run it with: npm run lint
+// CI runs it too, so problems are caught before they reach main.
+// ============================================================================
+
 import js from '@eslint/js';
 import tseslint from 'typescript-eslint';
 import reactHooks from 'eslint-plugin-react-hooks';

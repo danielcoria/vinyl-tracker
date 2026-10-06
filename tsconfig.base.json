@@ -1,3 +1,7 @@
+// tsconfig.base.json: TYPESCRIPT SETTINGS SHARED BY ALL THREE FOLDERS
+// TypeScript = JavaScript plus "types" (e.g. this is a number, that is text),
+// so mistakes are caught before running the code (npm run typecheck).
+// "strict" turns on the most careful checking.
 {
   "compilerOptions": {
     "target": "ES2023",

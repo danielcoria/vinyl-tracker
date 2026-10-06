@@ -1,3 +1,15 @@
+// ============================================================================
+// records.ts: WHAT A RECORD LOOKS LIKE (the most important contract)
+//
+// This file describes:
+//   - recordInputSchema: what the website must send to add or edit a record,
+//     with rules (title required, year between 1900 and next year, etc.)
+//     and clean-up (trim spaces, turn empty text into null, drop duplicate tags)
+//   - recordSchema: what a record looks like when the server sends it back
+//   - recordListQuerySchema: the search/sort options for the record list
+// The server uses these to reject bad input; the website will use them for forms.
+// ============================================================================
+
 import { z } from 'zod';
 
 /** Goldmine grading, the standard scale collectors and Discogs use. */
