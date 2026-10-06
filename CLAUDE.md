@@ -6,7 +6,7 @@ Portfolio project, so code quality, tests, and a clean commit history matter as 
 
 ## Status
 
-M0 (scaffold) and M1 (CI) are done. The next milestone is **M2 (database + records API)**. Update this section and the milestone checklist as work lands.
+M0 (scaffold), M1 (CI) and M2 (database + records API) are done. The next milestone is **M3 (collection UI)**. Update this section and the milestone checklist as work lands.
 
 ## Features
 
@@ -54,12 +54,14 @@ server/
     app.ts       Express app factory (no listen(); used by tests)
     index.ts     entry point: loads config, calls listen()
     config.ts    env parsing (Zod), the only place that reads process.env
-    db/          Drizzle schema, migrations, seed script
+    paths.ts     SERVER_ROOT / REPO_ROOT; derive every filesystem path from these
+    db/          schema.ts, client.ts (createDb), migrate.ts, seed.ts
     routes/      thin Express routers: parse input, call a service, send the response
     services/    business logic + SQL queries (stats, dust, stylus live here)
     integrations/ discogs/, lastfm/: HTTP clients, rate limiting, response mapping
     middleware/  error handler, request validation
-  test/
+  drizzle/       generated SQL migrations (committed; never edit after commit)
+  test/          API tests via Supertest; helpers.ts gives an in-memory app
 shared/          Zod schemas + inferred TS types for API contracts. Ships .ts source (no
                  build step); Vite bundles it for the client, tsup bundles it into server/dist
 e2e/             Playwright specs + fixtures (Discogs mocked)
@@ -70,10 +72,15 @@ e2e/             Playwright specs + fixtures (Discogs mocked)
 
 Single user, no auth. Timestamps are ISO-8601 UTC strings. Durations are stored in seconds.
 
-- `records`: id, discogs_release_id (unique, nullable for manual entries), title, year, label, catalog_number, format, cover_image_url, runtime_seconds (summed from the Discogs tracklist and used as the default spin length), condition, notes, added_at
-- `artists`: id, discogs_artist_id (nullable), name
-- `record_artists`: record_id, artist_id, position
-- `record_tags`: record_id, kind (`genre` | `style`), name
+Built so far (M2), defined in `server/src/db/schema.ts`:
+
+- `records`: id, discogs_release_id (unique, nullable for manual entries; set only by the server, never from client input), title, year, label, catalog_number, format, cover_image_url, runtime_seconds (summed from the Discogs tracklist and used as the default spin length), media_condition, sleeve_condition (Goldmine grades `M`…`P`, see `CONDITION_GRADES`), notes, added_at, updated_at
+- `artists`: id, discogs_artist_id (unique, nullable), name (unique case-insensitively via an index on `lower(name)`). Artists are found-or-created by name; ones left with no records are deleted.
+- `record_artists`: record_id (cascade delete), artist_id, position (0 = primary artist, used for sort-by-artist)
+- `record_tags`: record_id (cascade delete), kind (`genre` | `style`), name
+
+Planned:
+
 - `styluses`: id, name, rated_hours, installed_at, retired_at (null = active; at most one active)
 - `spins`: id, record_id, stylus_id (nullable), played_at, duration_seconds, sides (e.g. `"A,B"`), notes
 - `settings`: key, value (dust threshold in days, Last.fm username, and so on)
@@ -89,11 +96,13 @@ Derived values (stylus hours used, last-played date, dust status, stats) are **c
 - **Layering:** routes → services → db. Routes never touch the DB directly. External APIs are reached only through `server/src/integrations/`.
 - **Secrets stay server-side.** The Discogs token and Last.fm key are read from env and never sent to the client. The client only calls our own API.
 - **Discogs:** always send a descriptive `User-Agent`, respect the 60 req/min limit, and cache responses. Tests never hit the real API; use recorded fixtures.
-- **Migrations:** schema changes go through Drizzle migrations. Never edit a migration that has been committed.
+- **Database:** `better-sqlite3` is synchronous, so services and Drizzle queries are sync (`.get()`, `.all()`, `.run()`, `db.transaction((tx) => …)`). Multi-table writes go in a transaction. `createDb(path)` enables foreign keys and runs migrations; tests use `createDb(':memory:')` via `test/helpers.ts`.
+- **Migrations:** edit `server/src/db/schema.ts`, then run `npm run db:generate -w server -- --name <what_changed>` and commit the generated SQL in `server/drizzle/`. The app applies pending migrations on startup. Never edit a migration that has been committed.
+- **Search:** LIKE patterns are escaped with `!` (`ESCAPE '!'`), not backslash, so user input like `%` matches literally.
 - **Naming:** camelCase in TS, snake_case in SQL columns, kebab-case filenames for non-components, PascalCase for React component files.
 - **Frontend:** organize by feature, not by file type. Server state goes through TanStack Query, with no duplicated server data in local state.
 - **Tests:** every service and route gets Vitest coverage. API tests run against an in-memory SQLite DB through `app.ts`. Add a Playwright spec when a user-facing flow is completed.
-- **Commits:** small and focused, with imperative-mood messages ("Add dust report endpoint"). One milestone may span many commits.
+- **Commits:** solo project, so commit directly to `main` (no feature branches or PRs unless asked). Write messages in plain, simple language: a short title saying what changed (e.g. "Add a page to edit records"), then a few short bullets in everyday words, with no jargon. Keep commits small; one milestone may span several.
 - **CI:** `.github/workflows/ci.yml` runs format:check, lint, typecheck, test and build on Node 22 and 24 for every PR and every push to `main`. Keep it green: run the same scripts locally before pushing. CI has no secrets, so tests must never need a real `.env` or network access.
 - **Env:** a single `.env` at the repo root, loaded by `server/src/config.ts`. Document every variable in `.env.example`. Never commit `.env`, never log secret values, and never print or echo the contents of `.env`.
 
@@ -109,15 +118,34 @@ npm run lint          # ESLint (flat config at root)
 npm run format        # Prettier write; format:check for CI
 npm run build         # server -> server/dist (tsup), client -> client/dist (Vite)
 npm test -w server    # one workspace only
+
+npm run db:seed -w server               # sample records into an empty dev DB (data/vinyl.db)
+npm run db:seed -w server -- --reset    # wipe records, then seed
+npm run db:generate -w server -- --name x  # new migration from schema.ts changes
+npm run db:migrate -w server            # apply migrations (the server also does this on start)
+npm run db:studio -w server             # Drizzle Studio, a browser UI for the dev DB
 ```
 
-Planned: `npm run test:e2e` (M9), `npm run db:migrate` / `npm run db:seed` (M2).
+Planned: `npm run test:e2e` (M9).
+
+## API
+
+| Method | Path                    | Notes                                                                                                            |
+| ------ | ----------------------- | ---------------------------------------------------------------------------------------------------------------- |
+| GET    | `/api/health`           | `{ status, uptimeSeconds }`                                                                                      |
+| GET    | `/api/records?q=&sort=` | `{ records }`. `q` matches title or artist; `sort` is `added` (default, newest first), `artist`, `title`, `year` |
+| GET    | `/api/records/:id`      | 404 if missing                                                                                                   |
+| POST   | `/api/records`          | Body: `recordInputSchema`. 201 + `Location` header                                                               |
+| PUT    | `/api/records/:id`      | Full replace, including artists and tags                                                                         |
+| DELETE | `/api/records/:id`      | 204                                                                                                              |
+
+Validation errors are 400 `VALIDATION` with `field: message` pairs joined by `; `.
 
 ## Milestones
 
 - [x] M0 Scaffold: workspaces, TS/ESLint/Prettier, Vite app, Express `/api/health`, Vitest wired up
 - [x] M1 CI early: GitHub Actions running lint + typecheck + unit tests on every push/PR
-- [ ] M2 Database + records CRUD API (manual entry), migrations, seed data
+- [x] M2 Database + records CRUD API (manual entry), migrations, seed data
 - [ ] M3 Collection UI: grid/list, detail page, add/edit form
 - [ ] M4 Discogs search + import (server proxy, rate limit, cache) + UI
 - [ ] M5 Listening log: log a spin, spin history

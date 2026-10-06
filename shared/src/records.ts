@@ -1,0 +1,113 @@
+import { z } from 'zod';
+
+/** Goldmine grading, the standard scale collectors and Discogs use. */
+export const CONDITION_GRADES = ['M', 'NM', 'VG+', 'VG', 'G+', 'G', 'F', 'P'] as const;
+export const conditionSchema = z.enum(CONDITION_GRADES);
+export type Condition = z.infer<typeof conditionSchema>;
+
+/** Optional free text: trimmed, and blank becomes null (forms send ''). */
+const optionalText = (max: number) =>
+  z
+    .string()
+    .trim()
+    .max(max)
+    .nullish()
+    .transform((value) => value || null);
+
+const tagList = z
+  .array(z.string().trim().min(1).max(100))
+  .max(30)
+  .default([])
+  // Drop case-insensitive duplicates, keeping the first spelling.
+  .transform((tags) =>
+    tags.filter((tag, i) => tags.findIndex((t) => t.toLowerCase() === tag.toLowerCase()) === i),
+  );
+
+/** Body for POST /api/records and PUT /api/records/:id (full replace). */
+export const recordInputSchema = z.object({
+  title: z.string().trim().min(1, 'Title is required').max(300),
+  /** Artist names in credit order. */
+  artists: z
+    .array(z.string().trim().min(1).max(200))
+    .min(1, 'At least one artist is required')
+    .max(10),
+  year: z
+    .number()
+    .int()
+    .min(1900)
+    .max(new Date().getFullYear() + 1)
+    .nullish()
+    .transform((value) => value ?? null),
+  label: optionalText(200),
+  catalogNumber: optionalText(100),
+  /** Free text as printed on Discogs, e.g. "LP", "2xLP", '7"'. */
+  format: optionalText(100),
+  coverImageUrl: z
+    .url()
+    .nullish()
+    .or(z.literal(''))
+    .transform((value) => value || null),
+  /** Total play time, used as the default length when logging a spin. */
+  runtimeSeconds: z
+    .number()
+    .int()
+    .positive()
+    .max(24 * 60 * 60)
+    .nullish()
+    .transform((value) => value ?? null),
+  mediaCondition: conditionSchema.nullish().transform((value) => value ?? null),
+  sleeveCondition: conditionSchema.nullish().transform((value) => value ?? null),
+  notes: optionalText(2000),
+  genres: tagList,
+  styles: tagList,
+});
+
+/** What the client sends (before defaults and transforms). */
+export type RecordInput = z.input<typeof recordInputSchema>;
+/** What the server works with after validation. */
+export type ParsedRecordInput = z.output<typeof recordInputSchema>;
+
+export const artistCreditSchema = z.object({
+  id: z.number().int(),
+  name: z.string(),
+});
+
+export const recordSchema = z.object({
+  id: z.number().int(),
+  discogsReleaseId: z.number().int().nullable(),
+  title: z.string(),
+  artists: z.array(artistCreditSchema),
+  year: z.number().int().nullable(),
+  label: z.string().nullable(),
+  catalogNumber: z.string().nullable(),
+  format: z.string().nullable(),
+  coverImageUrl: z.string().nullable(),
+  runtimeSeconds: z.number().int().nullable(),
+  mediaCondition: conditionSchema.nullable(),
+  sleeveCondition: conditionSchema.nullable(),
+  notes: z.string().nullable(),
+  genres: z.array(z.string()),
+  styles: z.array(z.string()),
+  addedAt: z.string(),
+  updatedAt: z.string(),
+});
+
+export type VinylRecord = z.infer<typeof recordSchema>;
+
+export const RECORD_SORTS = ['added', 'artist', 'title', 'year'] as const;
+
+/** Query string for GET /api/records. */
+export const recordListQuerySchema = z.object({
+  /** Case-insensitive match on title or any artist name. */
+  q: z.string().trim().max(200).optional(),
+  sort: z.enum(RECORD_SORTS).default('added'),
+});
+
+export type RecordListQuery = z.input<typeof recordListQuerySchema>;
+export type ParsedRecordListQuery = z.output<typeof recordListQuerySchema>;
+
+export const recordListSchema = z.object({
+  records: z.array(recordSchema),
+});
+
+export type RecordList = z.infer<typeof recordListSchema>;

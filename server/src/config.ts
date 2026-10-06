@@ -1,9 +1,9 @@
 import { existsSync } from 'node:fs';
-import { fileURLToPath } from 'node:url';
+import path from 'node:path';
 import { z } from 'zod';
+import { REPO_ROOT } from './paths.js';
 
-// Repo-root .env. Resolves the same from src/ (dev) and dist/ (build).
-const ENV_FILE = fileURLToPath(new URL('../../.env', import.meta.url));
+const ENV_FILE = path.join(REPO_ROOT, '.env');
 
 const emptyToUndefined = (value: unknown) => (value === '' ? undefined : value);
 
@@ -19,6 +19,7 @@ const envSchema = z.object({
 export type Config = {
   nodeEnv: 'development' | 'test' | 'production';
   port: number;
+  /** Absolute path, or ':memory:'. A relative DATABASE_PATH resolves from the repo root. */
   databasePath: string;
   discogs: { token: string | undefined; userAgent: string };
 };
@@ -40,7 +41,8 @@ export function loadConfig(env: NodeJS.ProcessEnv = process.env): Config {
   return {
     nodeEnv: e.NODE_ENV,
     port: e.PORT,
-    databasePath: e.DATABASE_PATH,
+    databasePath:
+      e.DATABASE_PATH === ':memory:' ? e.DATABASE_PATH : path.resolve(REPO_ROOT, e.DATABASE_PATH),
     discogs: { token: e.DISCOGS_TOKEN, userAgent: e.DISCOGS_USER_AGENT },
   };
 }
