@@ -517,3 +517,7 @@ textarea {
   display: flex;
   gap: 0.5rem;
 }
+
+.tag-group {
+  margin-bottom: 1rem;
+}
