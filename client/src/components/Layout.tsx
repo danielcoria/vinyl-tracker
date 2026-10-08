@@ -29,6 +29,7 @@ export function Layout() {
           <NavLink to="/" end>
             Collection
           </NavLink>
+          <NavLink to="/discogs">Add from Discogs</NavLink>
         </nav>
       </header>
 

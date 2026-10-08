@@ -89,6 +89,22 @@ function RecordDetail({ id }: { id: number }) {
             <Link to={`/records/${r.id}/edit`} className="button">
               Edit
             </Link>
+            {r.discogsReleaseId === null ? (
+              // Opens the Discogs search, already filled in with this record's artist and title.
+              <Link to={findOnDiscogsUrl(r)} className="button">
+                Find on Discogs
+              </Link>
+            ) : (
+              // target="_blank" opens Discogs in a new tab.
+              <a
+                href={`https://www.discogs.com/release/${r.discogsReleaseId}`}
+                className="button"
+                target="_blank"
+                rel="noreferrer"
+              >
+                View on Discogs ↗
+              </a>
+            )}
             <button
               type="button"
               className="button button-danger"
@@ -102,6 +118,12 @@ function RecordDetail({ id }: { id: number }) {
       </div>
     </article>
   );
+}
+
+/** The Discogs search page in "link" mode, searching for this record's artist and title. */
+function findOnDiscogsUrl(r: VinylRecord): string {
+  const q = [r.artists[0]?.name, r.title].filter(Boolean).join(' ');
+  return `/discogs?${new URLSearchParams({ link: String(r.id), q })}`;
 }
 
 /** The label/value pairs to show, skipping any the record doesn't have. */

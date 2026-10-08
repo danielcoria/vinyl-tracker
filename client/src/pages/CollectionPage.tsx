@@ -52,9 +52,14 @@ export function CollectionPage() {
           Your collection
           {records.data && !q && <span className="count">{records.data.length}</span>}
         </h1>
-        <Link to="/records/new" className="button button-primary">
-          + Add record
-        </Link>
+        <div className="actions-inline">
+          <Link to="/discogs" className="button button-primary">
+            + Add from Discogs
+          </Link>
+          <Link to="/records/new" className="button">
+            Add manually
+          </Link>
+        </div>
       </div>
 
       <div className="toolbar">
@@ -98,9 +103,14 @@ export function CollectionPage() {
           <div className="empty-state">
             <h2>Your shelf is empty</h2>
             <p>Add your first record to start tracking what you play.</p>
-            <Link to="/records/new" className="button button-primary">
-              + Add record
-            </Link>
+            <div className="actions-inline">
+              <Link to="/discogs" className="button button-primary">
+                + Add from Discogs
+              </Link>
+              <Link to="/records/new" className="button">
+                Add manually
+              </Link>
+            </div>
           </div>
         )
       ) : (

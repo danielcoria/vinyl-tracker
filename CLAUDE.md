@@ -6,7 +6,7 @@ Portfolio project, so code quality, tests, and a clean commit history matter as 
 
 ## Status
 
-M0–M3 are done (scaffold, CI, database + records API, collection UI). The next milestone is **M4 (Discogs search + import)**. Update this section and the milestone checklist as work lands.
+M0–M4 are done (scaffold, CI, database + records API, collection UI, Discogs search + import). The next milestone is **M5 (listening log)**. Update this section and the milestone checklist as work lands.
 
 ## Features
 
@@ -154,7 +154,7 @@ Validation errors are 400 `VALIDATION` with `field: message` pairs joined by `; 
 - [x] M1 CI early: GitHub Actions running lint + typecheck + unit tests on every push/PR
 - [x] M2 Database + records CRUD API (manual entry), migrations, seed data
 - [x] M3 Collection UI: grid/list, detail page, add/edit form
-- [ ] M4 Discogs search + import (server proxy, rate limit, cache) + UI
+- [x] M4 Discogs search + import (server proxy, rate limit, cache) + UI
 - [ ] M5 Listening log: log a spin, spin history
 - [ ] M6 Stats: most-played artists, genres by month (charts)
 - [ ] M7 Dust report

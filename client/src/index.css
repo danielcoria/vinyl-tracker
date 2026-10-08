@@ -18,6 +18,8 @@
   --accent-text: #ffffff;
   --danger: #b42318;
   --danger-bg: #fdecea;
+  --success: #166534;
+  --success-bg: #e8f5ec;
   --focus: #2563eb;
   --radius: 10px;
   --shadow: 0 1px 2px rgb(0 0 0 / 0.06), 0 4px 12px rgb(0 0 0 / 0.06);
@@ -46,6 +48,8 @@
     --accent-text: #1a0d06;
     --danger: #f97066;
     --danger-bg: #3a1714;
+    --success: #86efac;
+    --success-bg: #142a1b;
     --focus: #60a5fa;
     --shadow: 0 1px 2px rgb(0 0 0 / 0.4);
     color-scheme: dark;
@@ -520,4 +524,88 @@ textarea {
 
 .tag-group {
   margin-bottom: 1rem;
+}
+
+/* ---------- Discogs search ---------- */
+.actions-inline {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  justify-content: center;
+}
+
+.banner {
+  padding: 0.75rem 1rem;
+  border-radius: 8px;
+  background: var(--surface-2);
+  margin: 0 0 1rem;
+}
+
+.success-box {
+  padding: 0.75rem 1rem;
+  border-radius: 8px;
+  background: var(--success-bg);
+  color: var(--success);
+  margin: 0 0 1rem;
+}
+
+.success-box a {
+  color: inherit;
+  font-weight: 600;
+}
+
+.discogs-results {
+  display: grid;
+  gap: 0.75rem;
+  margin: 0 0 1.5rem;
+  padding: 0;
+  list-style: none;
+}
+
+/* Thumbnail | details | button, side by side. */
+.discogs-result {
+  display: grid;
+  grid-template-columns: 4.5rem 1fr auto;
+  gap: 1rem;
+  align-items: center;
+  padding: 0.75rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--surface);
+}
+
+@media (max-width: 34rem) {
+  .discogs-result {
+    grid-template-columns: 4rem 1fr;
+  }
+
+  .discogs-action {
+    grid-column: 1 / -1;
+  }
+}
+
+.discogs-info {
+  display: grid;
+  gap: 0.1rem;
+  min-width: 0;
+}
+
+.discogs-title {
+  font-weight: 600;
+}
+
+.discogs-artist {
+  color: var(--muted);
+}
+
+.discogs-meta {
+  font-size: 0.85rem;
+  color: var(--muted);
+}
+
+.pager {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
 }

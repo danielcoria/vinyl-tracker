@@ -7,12 +7,14 @@
 //   /records/new      -> NewRecordPage (add a record)
 //   /records/5        -> RecordDetailPage (record number 5)
 //   /records/5/edit   -> EditRecordPage (edit record number 5)
+//   /discogs          -> DiscogsPage (search Discogs and import)
 //   anything else     -> NotFoundPage
 // ============================================================================
 
 import { Route, Routes } from 'react-router';
 import { Layout } from './components/Layout';
 import { CollectionPage } from './pages/CollectionPage';
+import { DiscogsPage } from './pages/DiscogsPage';
 import { EditRecordPage } from './pages/EditRecordPage';
 import { NewRecordPage } from './pages/NewRecordPage';
 import { NotFoundPage } from './pages/NotFoundPage';
@@ -29,6 +31,7 @@ export function App() {
         {/* ":id" is a placeholder: /records/5 shows the page with id = "5". */}
         <Route path="records/:id" element={<RecordDetailPage />} />
         <Route path="records/:id/edit" element={<EditRecordPage />} />
+        <Route path="discogs" element={<DiscogsPage />} />
         <Route path="*" element={<NotFoundPage />} />
       </Route>
     </Routes>

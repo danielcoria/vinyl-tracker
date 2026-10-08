@@ -40,6 +40,29 @@ describe('RecordDetailPage', () => {
     expect(screen.getByRole('link', { name: 'Edit' })).toHaveAttribute('href', '/records/7/edit');
   });
 
+  it('offers to find the record on Discogs when it is not linked yet', async () => {
+    mockApi({ 'GET /api/records/7': () => json(RECORD) });
+
+    renderApp('/records/7');
+
+    expect(await screen.findByRole('link', { name: 'Find on Discogs' })).toHaveAttribute(
+      'href',
+      '/discogs?link=7&q=Miles+Davis+Bitches+Brew',
+    );
+  });
+
+  it('links to the Discogs page once the record is linked', async () => {
+    mockApi({ 'GET /api/records/7': () => json({ ...RECORD, discogsReleaseId: 123 }) });
+
+    renderApp('/records/7');
+
+    expect(await screen.findByRole('link', { name: 'View on Discogs ↗' })).toHaveAttribute(
+      'href',
+      'https://www.discogs.com/release/123',
+    );
+    expect(screen.queryByRole('link', { name: 'Find on Discogs' })).not.toBeInTheDocument();
+  });
+
   it('shows not found for a missing record', async () => {
     mockApi({ 'GET /api/records/99': () => apiError(404, 'NOT_FOUND', 'Record 99 not found') });
 
