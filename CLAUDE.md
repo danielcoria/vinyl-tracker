@@ -8,7 +8,7 @@ Portfolio project, so code quality, tests, and a clean commit history matter as 
 
 ## Status
 
-M0–M5 are done (scaffold, CI, database + records API, collection UI, Discogs search + import, listening log by side). The next milestone is **M6 (stats)**. Update this section and the milestone checklist as work lands.
+M0–M6 are done (scaffold, CI, database + records API, collection UI, Discogs search + import, listening log by side, stats). The next milestone is **M7 (dust report)**. Update this section and the milestone checklist as work lands.
 
 ## Features
 
@@ -110,7 +110,8 @@ Derived values (stylus hours used, last-played date, dust status, stats) are **c
 - **Search:** LIKE patterns are escaped with `!` (`ESCAPE '!'`), not backslash, so user input like `%` matches literally.
 - **Naming:** camelCase in TS, snake_case in SQL columns, kebab-case filenames for non-components, PascalCase for React component files.
 - **Frontend:** organize by feature, not by file type. Server state goes through TanStack Query, with no duplicated server data in local state.
-- **Listening log UI (M5):** `features/spins/`. A spin stores its START time: "I just finished" = now minus the length. All sides ticked is sent as `sides: null`. Length auto-fills from `playLength()` (track lengths, else the album runtime for a full play) until the user types one. `mockApi()` defaults: empty tracklists and an empty diary.
+- **Listening log UI (M5):** `features/spins/`. A spin stores its START time: "I just finished" = now minus the length. All sides ticked is sent as `sides: null`. Length auto-fills from `playLength()` (track lengths, else the album runtime for a full play) until the user types one. `mockApi()` defaults: empty tracklists and an empty diary. Website tests use a 3 s `findBy`/`waitFor` timeout (set in `test/setup.ts`) so they're not flaky on slower CI machines; jsdom gets a no-op `ResizeObserver` for charts.
+- **Charts (M6):** follow the dataviz skill. Categorical colors come from `features/stats/chart-colors.ts` (validated with its `validate_palette.js` against the app's card surfaces `#ffffff` / `#1f1b17`; light mode needs the table view as relief), assigned in fixed order and kept per entity across filters (`useStableSlots`). Every chart has a legend for 2+ series, a hover tooltip and a "Show as table" view. Recharts pages are lazy-loaded (`React.lazy` in `App.tsx`) to keep the main bundle small. After UI changes, screenshot the page (Playwright in the scratchpad, light + dark, 1100px + 390px) and look at it.
 - **Frontend patterns (M3):** routes are listed in `client/src/App.tsx` (React Router v8, declarative `<Routes>`); pages live in `pages/`, feature pieces in `features/<feature>/`. Data goes through hooks in `api/` (TanStack Query; mutations invalidate `["records", ...]` keys). Forms keep text in state and validate with the shared Zod schema before sending (see `features/collection/form-values.ts`). Show errors with `describeError()`. Page tests render the whole app with `renderApp(route)` from `test/render.tsx` and fake the server with `mockApi()` from `test/fake-api.ts`; `data-testid="location"` shows the current address.
 - **Tests:** every service and route gets Vitest coverage. API tests run against an in-memory SQLite DB through `app.ts`. Add a Playwright spec when a user-facing flow is completed.
 - **Commits:** solo project, so commit directly to `main` (no feature branches or PRs unless asked). Write messages in plain, simple language with no "you", "your" or "I": a short past-tense title saying what changed (e.g. "Added record delete button"), then a few short bullets in the same style (e.g. "- Added a search box for title and artist"), in everyday words with no jargon. Keep commits small; one milestone may span several.
@@ -170,7 +171,7 @@ Validation errors are 400 `VALIDATION` with `field: message` pairs joined by `; 
 - [x] M3 Collection UI: grid/list, detail page, add/edit form
 - [x] M4 Discogs search + import (server proxy, rate limit, cache) + UI
 - [x] M5 Listening log by side: save tracklists, log a spin (sides, start time, length), diary/history page
-- [ ] M6 Stats: most-played artists, genres by month (charts)
+- [x] M6 Stats: most-played artists, genres by month (charts)
 - [ ] M7 Dust report
 - [ ] M8 Stylus wear tracker
 - [ ] M9 Playwright E2E for core flows; add to CI

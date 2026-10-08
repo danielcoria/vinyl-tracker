@@ -30,6 +30,7 @@ export function Layout() {
             Collection
           </NavLink>
           <NavLink to="/diary">Diary</NavLink>
+          <NavLink to="/stats">Stats</NavLink>
           <NavLink to="/discogs">Add from Discogs</NavLink>
         </nav>
       </header>

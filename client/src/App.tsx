@@ -9,9 +9,11 @@
 //   /records/5/edit   -> EditRecordPage (edit record number 5)
 //   /discogs          -> DiscogsPage (search Discogs and import)
 //   /diary            -> DiaryPage (every logged play, newest first)
+//   /stats            -> StatsPage (totals, top artists/records, genres by month)
 //   anything else     -> NotFoundPage
 // ============================================================================
 
+import { lazy, Suspense } from 'react';
 import { Route, Routes } from 'react-router';
 import { Layout } from './components/Layout';
 import { CollectionPage } from './pages/CollectionPage';
@@ -21,6 +23,10 @@ import { EditRecordPage } from './pages/EditRecordPage';
 import { NewRecordPage } from './pages/NewRecordPage';
 import { NotFoundPage } from './pages/NotFoundPage';
 import { RecordDetailPage } from './pages/RecordDetailPage';
+
+// "Lazy" = only downloaded when someone opens the Stats page. It brings in the
+// chart library (Recharts), which is big, so other pages load faster without it.
+const StatsPage = lazy(() => import('./pages/StatsPage').then((m) => ({ default: m.StatsPage })));
 
 export function App() {
   return (
@@ -35,6 +41,15 @@ export function App() {
         <Route path="records/:id/edit" element={<EditRecordPage />} />
         <Route path="discogs" element={<DiscogsPage />} />
         <Route path="diary" element={<DiaryPage />} />
+        <Route
+          path="stats"
+          element={
+            // Shown for a moment while the Stats page downloads.
+            <Suspense fallback={<p className="muted">Loading…</p>}>
+              <StatsPage />
+            </Suspense>
+          }
+        />
         <Route path="*" element={<NotFoundPage />} />
       </Route>
     </Routes>

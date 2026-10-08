@@ -108,6 +108,7 @@ a {
 
 .site-header {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   justify-content: space-between;
   gap: 1rem;
@@ -134,7 +135,15 @@ a {
   background: radial-gradient(circle, var(--accent) 0 22%, #111 23% 100%);
 }
 
+/* On narrow screens the links drop below the name and wrap as whole links. */
+.site-header nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.15rem;
+}
+
 .site-header nav a {
+  white-space: nowrap;
   color: var(--muted);
   text-decoration: none;
   font-weight: 600;
@@ -755,4 +764,273 @@ textarea {
 .track-position {
   color: var(--muted);
   font-variant-numeric: tabular-nums;
+}
+
+/* ---------- Stats ---------- */
+.button-small {
+  padding: 0.3rem 0.7rem;
+  font-size: 0.85rem;
+}
+
+/* The period picker: one row of buttons, the chosen one filled in. */
+.segmented {
+  display: inline-flex;
+  margin-bottom: 1.5rem;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.segmented button {
+  padding: 0.45rem 0.9rem;
+  border: none;
+  border-right: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--muted);
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.segmented button:last-child {
+  border-right: none;
+}
+
+.segmented button[aria-pressed='true'] {
+  background: var(--surface-2);
+  color: var(--text);
+}
+
+.stats-body {
+  display: grid;
+  gap: 1.25rem;
+  transition: opacity 0.15s ease;
+}
+
+.stats-body.is-refreshing {
+  opacity: 0.55;
+}
+
+.stat-tiles {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(9rem, 1fr));
+  gap: 0.75rem;
+  margin: 0;
+}
+
+.stat-tile {
+  padding: 0.9rem 1rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--surface);
+}
+
+.stat-tile dt {
+  font-size: 0.85rem;
+  color: var(--muted);
+}
+
+.stat-tile dd {
+  margin: 0.2rem 0 0;
+  font-size: 1.75rem;
+  font-weight: 600;
+}
+
+.stats-columns {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(20rem, 1fr));
+  gap: 1.25rem;
+}
+
+.stats-card {
+  padding: 1rem 1.1rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--surface);
+  min-width: 0;
+}
+
+.stats-card h2 {
+  font-size: 1.05rem;
+}
+
+.card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  margin-bottom: 0.5rem;
+}
+
+.card-header h2 {
+  margin: 0;
+}
+
+.ranked-bars {
+  display: grid;
+  /* minmax(0, 1fr): let rows shrink so long names get "…" instead of widening the page. */
+  grid-template-columns: minmax(0, 1fr);
+  gap: 0.6rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.ranked-bars li {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.rank {
+  width: 1.4rem;
+  color: var(--muted);
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+  flex-shrink: 0;
+}
+
+.ranked-cover {
+  width: 2.25rem;
+  flex-shrink: 0;
+}
+
+.ranked-cover .cover {
+  box-shadow: none;
+  border-radius: 4px;
+}
+
+.ranked-main {
+  flex: 1;
+  min-width: 0;
+}
+
+.ranked-label {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 0.95rem;
+}
+
+.ranked-label a {
+  color: var(--text);
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.ranked-label a:hover {
+  text-decoration: underline;
+}
+
+.ranked-bar-row {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.85rem;
+}
+
+/* Thin bars, rounded at the end only, in the chart's first color. */
+.ranked-bar {
+  flex-shrink: 0;
+  height: 8px;
+  min-width: 2px;
+  border-radius: 0 4px 4px 0;
+  background: #2a78d6;
+}
+
+@media (prefers-color-scheme: dark) {
+  .ranked-bar {
+    background: #3987e5;
+  }
+}
+
+.ranked-value {
+  flex-shrink: 0;
+  white-space: nowrap;
+}
+
+.chart-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem 1rem;
+  margin: 0 0 0.75rem;
+  padding: 0;
+  list-style: none;
+  font-size: 0.85rem;
+  color: var(--muted);
+}
+
+.chart-legend li {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.legend-swatch {
+  width: 10px;
+  height: 10px;
+  border-radius: 2px;
+}
+
+.chart-tooltip {
+  padding: 0.6rem 0.75rem;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--surface);
+  box-shadow: var(--shadow);
+  font-size: 0.85rem;
+  display: grid;
+  gap: 0.25rem;
+}
+
+.chart-tooltip-title {
+  font-weight: 600;
+  margin-bottom: 0.15rem;
+}
+
+.chart-tooltip-row {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+}
+
+/* Tooltip rows are keyed with a short line, not a filled box. */
+.line-key {
+  width: 12px;
+  height: 2px;
+  border-radius: 1px;
+}
+
+.chart-tooltip-total {
+  margin-top: 0.2rem;
+  padding-top: 0.3rem;
+  border-top: 1px solid var(--border);
+}
+
+.table-scroll {
+  overflow-x: auto;
+}
+
+.data-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.9rem;
+}
+
+.data-table th,
+.data-table td {
+  padding: 0.4rem 0.6rem;
+  border-bottom: 1px solid var(--border);
+  text-align: right;
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+
+.data-table th:first-child {
+  text-align: left;
+}
+
+.data-table thead th {
+  color: var(--muted);
+  font-weight: 600;
 }

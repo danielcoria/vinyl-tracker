@@ -51,16 +51,17 @@ The terminal goes quiet after startup because both programs are just waiting. Th
 
 ### The screens
 
-| Address           | Screen                                                 | File                         |
-| ----------------- | ------------------------------------------------------ | ---------------------------- |
-| `/`               | Your collection: a grid with search and sort           | `pages/CollectionPage.tsx`   |
-| `/records/new`    | Add a record (a form)                                  | `pages/NewRecordPage.tsx`    |
-| `/records/5`      | Everything about record 5, with Edit and Delete        | `pages/RecordDetailPage.tsx` |
-| `/records/5/edit` | The same form as "add", filled in with record 5        | `pages/EditRecordPage.tsx`   |
-| `/discogs`        | Search Discogs and add a release with one click        | `pages/DiscogsPage.tsx`      |
-| `/discogs?link=5` | "Find on Discogs" for record 5: fills in its cover     | `pages/DiscogsPage.tsx`      |
-| `/diary`          | Your listening diary: every play, newest first, by day | `pages/DiaryPage.tsx`        |
-| anything else     | "Not found"                                            | `pages/NotFoundPage.tsx`     |
+| Address           | Screen                                                     | File                         |
+| ----------------- | ---------------------------------------------------------- | ---------------------------- |
+| `/`               | Your collection: a grid with search and sort               | `pages/CollectionPage.tsx`   |
+| `/records/new`    | Add a record (a form)                                      | `pages/NewRecordPage.tsx`    |
+| `/records/5`      | Everything about record 5, with Edit and Delete            | `pages/RecordDetailPage.tsx` |
+| `/records/5/edit` | The same form as "add", filled in with record 5            | `pages/EditRecordPage.tsx`   |
+| `/discogs`        | Search Discogs and add a release with one click            | `pages/DiscogsPage.tsx`      |
+| `/discogs?link=5` | "Find on Discogs" for record 5: fills in its cover         | `pages/DiscogsPage.tsx`      |
+| `/diary`          | Your listening diary: every play, newest first, by day     | `pages/DiaryPage.tsx`        |
+| `/stats`          | Totals, most-listened artists and records, genres by month | `pages/StatsPage.tsx`        |
+| anything else     | "Not found"                                                | `pages/NotFoundPage.tsx`     |
 
 ### What happens when you save the form
 
@@ -176,45 +177,52 @@ pages/ ─▶ features/collection/ ─▶ api/ ─▶ server
  screen)     cards, form, covers)    the server)
 ```
 
-| File                                           | What it does                                                                                                         |
-| ---------------------------------------------- | -------------------------------------------------------------------------------------------------------------------- |
-| `index.html`                                   | The single, nearly empty HTML page. React fills it in.                                                               |
-| `src/main.tsx`                                 | **Start here.** Plugs React into the page and sets up data fetching and the router.                                  |
-| `src/App.tsx`                                  | **The list of screens**: which page to show for each address.                                                        |
-| `src/components/Layout.tsx`                    | The frame around every screen: header with the app name, footer with the server status.                              |
-| `src/pages/CollectionPage.tsx`                 | The home screen: a grid of your records with search and sort.                                                        |
-| `src/pages/RecordDetailPage.tsx`               | One record's page, with Edit and Delete.                                                                             |
-| `src/pages/NewRecordPage.tsx`                  | The "Add a record" screen.                                                                                           |
-| `src/pages/EditRecordPage.tsx`                 | The "Edit record" screen.                                                                                            |
-| `src/pages/DiscogsPage.tsx`                    | Search Discogs. "Add to collection" imports a release; in link mode, "Use this release" fills in an existing record. |
-| `src/pages/DiaryPage.tsx`                      | The listening diary: every logged play, grouped by day.                                                              |
-| `src/pages/NotFoundPage.tsx`                   | Shown for addresses (or records) that don't exist.                                                                   |
-| `src/features/discogs/DiscogsResult.tsx`       | One release in the Discogs results: thumbnail, details, and a button.                                                |
-| `src/features/spins/RecordPlays.tsx`           | The listening part of a record's page: play count, "Log a play", its plays and its tracklist.                        |
-| `src/features/spins/LogSpinPanel.tsx`          | **The "Log a play" panel**: tick sides, choose when, and the length fills itself in.                                 |
-| `src/features/spins/SpinList.tsx`              | A list of plays (used on the Diary page and on record pages), with delete buttons.                                   |
-| `src/features/spins/Tracklist.tsx`             | A record's songs, grouped by side, with lengths.                                                                     |
-| `src/features/spins/sides.ts`                  | Groups tracks by side, adds up side lengths, and writes "Sides A & C".                                               |
-| `src/features/spins/dates.ts`                  | Shows times in your local time zone ("7:30 PM", "Monday, October 6").                                                |
-| `src/features/collection/RecordForm.tsx`       | **The add/edit form**: every field, the problem messages, and the Save button.                                       |
-| `src/features/collection/form-values.ts`       | Converts between what you type ("42:49") and what the server wants (2569 seconds), and checks it.                    |
-| `src/features/collection/TagInput.tsx`         | The box for genres and styles: type, press Enter, get a chip with an ×.                                              |
-| `src/features/collection/RecordCard.tsx`       | One record in the grid.                                                                                              |
-| `src/features/collection/RecordCover.tsx`      | The cover picture, or a drawn vinyl disc when there isn't one.                                                       |
-| `src/features/collection/format.ts`            | Turns data into text: artist lists, lengths ("42:49"), condition names ("Very Good Plus").                           |
-| `src/features/collection/useRecordId.ts`       | Reads the record number from the address (`/records/5` gives 5).                                                     |
-| `src/features/collection/useDebouncedValue.ts` | Waits until you stop typing before searching.                                                                        |
-| `src/api/client.ts`                            | The one place the website sends requests to the server, plus friendly error messages.                                |
-| `src/api/records.ts`                           | Hooks for records: `useRecords`, `useRecord`, `useCreateRecord`, `useUpdateRecord`, `useDeleteRecord`.               |
-| `src/api/discogs.ts`                           | Hooks for Discogs: `useDiscogsSearch`, `useImportRelease`, `useLinkRecord`. They only talk to our server.            |
-| `src/api/spins.ts`                             | Hooks for the diary: `useTracks`, `useSpins`, `useLogSpin`, `useDeleteSpin`.                                         |
-| `src/api/health.ts`                            | A hook (`useHealth`) for the server status shown in the footer.                                                      |
-| `src/index.css`                                | How everything looks, including light and dark mode.                                                                 |
-| `src/test/fake-api.ts`                         | A pretend server for tests, plus `makeRecord()` for sample data.                                                     |
-| `src/test/render.tsx`                          | Draws the whole app in a test, starting at any address.                                                              |
-| `src/test/setup.ts`                            | Runs before website tests.                                                                                           |
-| `*.test.ts`, `*.test.tsx`                      | Tests, next to the file they test.                                                                                   |
-| `vite.config.ts`                               | Settings for Vite, including forwarding `/api` requests to the server.                                               |
+| File                                           | What it does                                                                                                               |
+| ---------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------- |
+| `index.html`                                   | The single, nearly empty HTML page. React fills it in.                                                                     |
+| `src/main.tsx`                                 | **Start here.** Plugs React into the page and sets up data fetching and the router.                                        |
+| `src/App.tsx`                                  | **The list of screens**: which page to show for each address.                                                              |
+| `src/components/Layout.tsx`                    | The frame around every screen: header with the app name, footer with the server status.                                    |
+| `src/pages/CollectionPage.tsx`                 | The home screen: a grid of your records with search and sort.                                                              |
+| `src/pages/RecordDetailPage.tsx`               | One record's page, with Edit and Delete.                                                                                   |
+| `src/pages/NewRecordPage.tsx`                  | The "Add a record" screen.                                                                                                 |
+| `src/pages/EditRecordPage.tsx`                 | The "Edit record" screen.                                                                                                  |
+| `src/pages/DiscogsPage.tsx`                    | Search Discogs. "Add to collection" imports a release; in link mode, "Use this release" fills in an existing record.       |
+| `src/pages/DiaryPage.tsx`                      | The listening diary: every logged play, grouped by day.                                                                    |
+| `src/pages/StatsPage.tsx`                      | The Stats page: pick a period, see totals, top 10 lists and the genre chart. Loaded lazily (see below).                    |
+| `src/pages/NotFoundPage.tsx`                   | Shown for addresses (or records) that don't exist.                                                                         |
+| `src/features/discogs/DiscogsResult.tsx`       | One release in the Discogs results: thumbnail, details, and a button.                                                      |
+| `src/features/spins/RecordPlays.tsx`           | The listening part of a record's page: play count, "Log a play", its plays and its tracklist.                              |
+| `src/features/spins/LogSpinPanel.tsx`          | **The "Log a play" panel**: tick sides, choose when, and the length fills itself in.                                       |
+| `src/features/spins/SpinList.tsx`              | A list of plays (used on the Diary page and on record pages), with delete buttons.                                         |
+| `src/features/spins/Tracklist.tsx`             | A record's songs, grouped by side, with lengths.                                                                           |
+| `src/features/spins/sides.ts`                  | Groups tracks by side, adds up side lengths, and writes "Sides A & C".                                                     |
+| `src/features/spins/dates.ts`                  | Shows times in your local time zone ("7:30 PM", "Monday, October 6").                                                      |
+| `src/features/stats/GenresByMonth.tsx`         | **The genre chart** (stacked columns per month, a hover box, and "Show as table"). Drawn with Recharts.                    |
+| `src/features/stats/chart-colors.ts`           | The chart's colors, checked to be colorblind-safe in light and dark mode. A genre keeps its color when you switch periods. |
+| `src/features/stats/RankedBars.tsx`            | A top-10 list with a bar for each entry and the numbers at the end of the bar.                                             |
+| `src/features/stats/StatTiles.tsx`             | The row of big numbers (plays, hours, records, artists).                                                                   |
+| `src/features/stats/format.ts`                 | Writes times like "12.5 h" and "1 h 05 min", and months like "Oct".                                                        |
+| `src/features/collection/RecordForm.tsx`       | **The add/edit form**: every field, the problem messages, and the Save button.                                             |
+| `src/features/collection/form-values.ts`       | Converts between what you type ("42:49") and what the server wants (2569 seconds), and checks it.                          |
+| `src/features/collection/TagInput.tsx`         | The box for genres and styles: type, press Enter, get a chip with an ×.                                                    |
+| `src/features/collection/RecordCard.tsx`       | One record in the grid.                                                                                                    |
+| `src/features/collection/RecordCover.tsx`      | The cover picture, or a drawn vinyl disc when there isn't one.                                                             |
+| `src/features/collection/format.ts`            | Turns data into text: artist lists, lengths ("42:49"), condition names ("Very Good Plus").                                 |
+| `src/features/collection/useRecordId.ts`       | Reads the record number from the address (`/records/5` gives 5).                                                           |
+| `src/features/collection/useDebouncedValue.ts` | Waits until you stop typing before searching.                                                                              |
+| `src/api/client.ts`                            | The one place the website sends requests to the server, plus friendly error messages.                                      |
+| `src/api/records.ts`                           | Hooks for records: `useRecords`, `useRecord`, `useCreateRecord`, `useUpdateRecord`, `useDeleteRecord`.                     |
+| `src/api/discogs.ts`                           | Hooks for Discogs: `useDiscogsSearch`, `useImportRelease`, `useLinkRecord`. They only talk to our server.                  |
+| `src/api/spins.ts`                             | Hooks for the diary: `useTracks`, `useSpins`, `useLogSpin`, `useDeleteSpin`.                                               |
+| `src/api/stats.ts`                             | `useStats(period)`: turns "this year" into an exact start time in your time zone and fetches the numbers.                  |
+| `src/api/health.ts`                            | A hook (`useHealth`) for the server status shown in the footer.                                                            |
+| `src/index.css`                                | How everything looks, including light and dark mode.                                                                       |
+| `src/test/fake-api.ts`                         | A pretend server for tests, plus `makeRecord()` for sample data.                                                           |
+| `src/test/render.tsx`                          | Draws the whole app in a test, starting at any address.                                                                    |
+| `src/test/setup.ts`                            | Runs before website tests.                                                                                                 |
+| `*.test.ts`, `*.test.tsx`                      | Tests, next to the file they test.                                                                                         |
+| `vite.config.ts`                               | Settings for Vite, including forwarding `/api` requests to the server.                                                     |
 
 ### How importing from Discogs works
 
@@ -248,6 +256,7 @@ Records added by hand have no tracklist, so they log the whole record using the 
 - **Side**: one side of a vinyl disc (A, B; a double album also has C and D). Track positions like "A1" or "C3" say which side a song is on.
 - **Rate limit**: the most requests a service allows in a period of time. Discogs allows 60 a minute.
 - **Cache**: a short-term memory of answers, so the same question isn't asked twice.
+- **Lazy loading**: downloading part of the website only when it's needed. The Stats page and its chart library load the first time you open Stats, so other pages start faster.
 - **Query / mutation**: in TanStack Query, a query _reads_ data (the record list) and a mutation _changes_ it (add, edit, delete).
 - **Schema**: a description of what data must look like, used to check it.
 - **Migration**: a file of instructions that changes the database's tables.
