@@ -8,7 +8,7 @@ Portfolio project, so code quality, tests, and a clean commit history matter as 
 
 ## Status
 
-M0–M4 are done (scaffold, CI, database + records API, collection UI, Discogs search + import). The next milestone is **M5 (listening log)**. Update this section and the milestone checklist as work lands.
+M0–M5 are done (scaffold, CI, database + records API, collection UI, Discogs search + import, listening log by side). The next milestone is **M6 (stats)**. Update this section and the milestone checklist as work lands.
 
 ## Features
 
@@ -110,6 +110,7 @@ Derived values (stylus hours used, last-played date, dust status, stats) are **c
 - **Search:** LIKE patterns are escaped with `!` (`ESCAPE '!'`), not backslash, so user input like `%` matches literally.
 - **Naming:** camelCase in TS, snake_case in SQL columns, kebab-case filenames for non-components, PascalCase for React component files.
 - **Frontend:** organize by feature, not by file type. Server state goes through TanStack Query, with no duplicated server data in local state.
+- **Listening log UI (M5):** `features/spins/`. A spin stores its START time: "I just finished" = now minus the length. All sides ticked is sent as `sides: null`. Length auto-fills from `playLength()` (track lengths, else the album runtime for a full play) until the user types one. `mockApi()` defaults: empty tracklists and an empty diary.
 - **Frontend patterns (M3):** routes are listed in `client/src/App.tsx` (React Router v8, declarative `<Routes>`); pages live in `pages/`, feature pieces in `features/<feature>/`. Data goes through hooks in `api/` (TanStack Query; mutations invalidate `["records", ...]` keys). Forms keep text in state and validate with the shared Zod schema before sending (see `features/collection/form-values.ts`). Show errors with `describeError()`. Page tests render the whole app with `renderApp(route)` from `test/render.tsx` and fake the server with `mockApi()` from `test/fake-api.ts`; `data-testid="location"` shows the current address.
 - **Tests:** every service and route gets Vitest coverage. API tests run against an in-memory SQLite DB through `app.ts`. Add a Playwright spec when a user-facing flow is completed.
 - **Commits:** solo project, so commit directly to `main` (no feature branches or PRs unless asked). Write messages in plain, simple language with no "you", "your" or "I": a short past-tense title saying what changed (e.g. "Added record delete button"), then a few short bullets in the same style (e.g. "- Added a search box for title and artist"), in everyday words with no jargon. Keep commits small; one milestone may span several.
@@ -167,7 +168,7 @@ Validation errors are 400 `VALIDATION` with `field: message` pairs joined by `; 
 - [x] M2 Database + records CRUD API (manual entry), migrations, seed data
 - [x] M3 Collection UI: grid/list, detail page, add/edit form
 - [x] M4 Discogs search + import (server proxy, rate limit, cache) + UI
-- [ ] M5 Listening log by side: save tracklists, log a spin (sides, start time, length), diary/history page
+- [x] M5 Listening log by side: save tracklists, log a spin (sides, start time, length), diary/history page
 - [ ] M6 Stats: most-played artists, genres by month (charts)
 - [ ] M7 Dust report
 - [ ] M8 Stylus wear tracker

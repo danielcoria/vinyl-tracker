@@ -9,10 +9,11 @@
 //   });
 //
 // Every request is also written to `api.calls`, so tests can check what the
-// website sent. "GET /api/health" answers "ok" unless a test overrides it.
+// website sent. Unless a test overrides them: "GET /api/health" answers "ok",
+// tracklists are empty, and the diary has no plays.
 // ============================================================================
 
-import type { VinylRecord } from '@vinyl/shared';
+import type { Spin, Track, VinylRecord } from '@vinyl/shared';
 import { vi } from 'vitest';
 
 type Call = { method: string; path: string; search: URLSearchParams; body: unknown };
@@ -41,8 +42,14 @@ export function mockApi(routes: Record<string, Handler>) {
     calls.push(call);
 
     const handler = allRoutes[`${method} ${url.pathname}`];
-    if (!handler) return apiError(404, 'NOT_FOUND', `No fake route for ${method} ${url.pathname}`);
-    return handler(call);
+    if (handler) return handler(call);
+    // Sensible defaults so tests only list the routes they care about:
+    // no tracklist, and no plays in the diary.
+    if (method === 'GET' && /^\/api\/records\/\d+\/tracks$/.test(url.pathname)) {
+      return json({ tracks: [] });
+    }
+    if (method === 'GET' && url.pathname === '/api/spins') return json({ spins: [] });
+    return apiError(404, 'NOT_FOUND', `No fake route for ${method} ${url.pathname}`);
   });
 
   return { calls };
@@ -70,6 +77,33 @@ export function makeRecord(overrides: Partial<VinylRecord> = {}): VinylRecord {
     updatedAt: '2026-10-01T12:00:00.000Z',
     spinCount: 0,
     lastPlayedAt: null,
+    ...overrides,
+  };
+}
+
+/** Kind of Blue's real tracklist (sides A and B), as the server sends it. */
+export const KIND_OF_BLUE_TRACKS: Track[] = [
+  { id: 1, position: 'A1', side: 'A', title: 'So What', durationSeconds: 536 },
+  { id: 2, position: 'A2', side: 'A', title: 'Freddie Freeloader', durationSeconds: 572 },
+  { id: 3, position: 'A3', side: 'A', title: 'Blue In Green', durationSeconds: 327 },
+  { id: 4, position: 'B1', side: 'B', title: 'All Blues', durationSeconds: 694 },
+  { id: 5, position: 'B2', side: 'B', title: 'Flamenco Sketches', durationSeconds: 572 },
+];
+
+/** A logged play for tests. */
+export function makeSpin(overrides: Partial<Spin> = {}): Spin {
+  return {
+    id: 1,
+    playedAt: '2026-10-06T19:00:00.000Z',
+    durationSeconds: 1435,
+    sides: ['A'],
+    notes: null,
+    record: {
+      id: 1,
+      title: 'Kind of Blue',
+      artists: [{ id: 1, name: 'Miles Davis' }],
+      coverImageUrl: null,
+    },
     ...overrides,
   };
 }

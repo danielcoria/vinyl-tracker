@@ -51,15 +51,16 @@ The terminal goes quiet after startup because both programs are just waiting. Th
 
 ### The screens
 
-| Address           | Screen                                             | File                         |
-| ----------------- | -------------------------------------------------- | ---------------------------- |
-| `/`               | Your collection: a grid with search and sort       | `pages/CollectionPage.tsx`   |
-| `/records/new`    | Add a record (a form)                              | `pages/NewRecordPage.tsx`    |
-| `/records/5`      | Everything about record 5, with Edit and Delete    | `pages/RecordDetailPage.tsx` |
-| `/records/5/edit` | The same form as "add", filled in with record 5    | `pages/EditRecordPage.tsx`   |
-| `/discogs`        | Search Discogs and add a release with one click    | `pages/DiscogsPage.tsx`      |
-| `/discogs?link=5` | "Find on Discogs" for record 5: fills in its cover | `pages/DiscogsPage.tsx`      |
-| anything else     | "Not found"                                        | `pages/NotFoundPage.tsx`     |
+| Address           | Screen                                                 | File                         |
+| ----------------- | ------------------------------------------------------ | ---------------------------- |
+| `/`               | Your collection: a grid with search and sort           | `pages/CollectionPage.tsx`   |
+| `/records/new`    | Add a record (a form)                                  | `pages/NewRecordPage.tsx`    |
+| `/records/5`      | Everything about record 5, with Edit and Delete        | `pages/RecordDetailPage.tsx` |
+| `/records/5/edit` | The same form as "add", filled in with record 5        | `pages/EditRecordPage.tsx`   |
+| `/discogs`        | Search Discogs and add a release with one click        | `pages/DiscogsPage.tsx`      |
+| `/discogs?link=5` | "Find on Discogs" for record 5: fills in its cover     | `pages/DiscogsPage.tsx`      |
+| `/diary`          | Your listening diary: every play, newest first, by day | `pages/DiaryPage.tsx`        |
+| anything else     | "Not found"                                            | `pages/NotFoundPage.tsx`     |
 
 ### What happens when you save the form
 
@@ -183,8 +184,15 @@ pages/ ─▶ features/collection/ ─▶ api/ ─▶ server
 | `src/pages/NewRecordPage.tsx`                  | The "Add a record" screen.                                                                                           |
 | `src/pages/EditRecordPage.tsx`                 | The "Edit record" screen.                                                                                            |
 | `src/pages/DiscogsPage.tsx`                    | Search Discogs. "Add to collection" imports a release; in link mode, "Use this release" fills in an existing record. |
+| `src/pages/DiaryPage.tsx`                      | The listening diary: every logged play, grouped by day.                                                              |
 | `src/pages/NotFoundPage.tsx`                   | Shown for addresses (or records) that don't exist.                                                                   |
 | `src/features/discogs/DiscogsResult.tsx`       | One release in the Discogs results: thumbnail, details, and a button.                                                |
+| `src/features/spins/RecordPlays.tsx`           | The listening part of a record's page: play count, "Log a play", its plays and its tracklist.                        |
+| `src/features/spins/LogSpinPanel.tsx`          | **The "Log a play" panel**: tick sides, choose when, and the length fills itself in.                                 |
+| `src/features/spins/SpinList.tsx`              | A list of plays (used on the Diary page and on record pages), with delete buttons.                                   |
+| `src/features/spins/Tracklist.tsx`             | A record's songs, grouped by side, with lengths.                                                                     |
+| `src/features/spins/sides.ts`                  | Groups tracks by side, adds up side lengths, and writes "Sides A & C".                                               |
+| `src/features/spins/dates.ts`                  | Shows times in your local time zone ("7:30 PM", "Monday, October 6").                                                |
 | `src/features/collection/RecordForm.tsx`       | **The add/edit form**: every field, the problem messages, and the Save button.                                       |
 | `src/features/collection/form-values.ts`       | Converts between what you type ("42:49") and what the server wants (2569 seconds), and checks it.                    |
 | `src/features/collection/TagInput.tsx`         | The box for genres and styles: type, press Enter, get a chip with an ×.                                              |
@@ -196,6 +204,7 @@ pages/ ─▶ features/collection/ ─▶ api/ ─▶ server
 | `src/api/client.ts`                            | The one place the website sends requests to the server, plus friendly error messages.                                |
 | `src/api/records.ts`                           | Hooks for records: `useRecords`, `useRecord`, `useCreateRecord`, `useUpdateRecord`, `useDeleteRecord`.               |
 | `src/api/discogs.ts`                           | Hooks for Discogs: `useDiscogsSearch`, `useImportRelease`, `useLinkRecord`. They only talk to our server.            |
+| `src/api/spins.ts`                             | Hooks for the diary: `useTracks`, `useSpins`, `useLogSpin`, `useDeleteSpin`.                                         |
 | `src/api/health.ts`                            | A hook (`useHealth`) for the server status shown in the footer.                                                      |
 | `src/index.css`                                | How everything looks, including light and dark mode.                                                                 |
 | `src/test/fake-api.ts`                         | A pretend server for tests, plus `makeRecord()` for sample data.                                                     |
@@ -212,6 +221,16 @@ pages/ ─▶ features/collection/ ─▶ api/ ─▶ server
 4. You click **Add to collection**. Our server fetches the full release (artists, label, tracklist, cover), converts it into a record (adding up the track lengths for the total length), and saves it.
 5. Answers from Discogs are remembered for a while, and the server never sends more than 60 requests a minute (Discogs' limit).
 
+### How logging a play works
+
+1. On a record's page, press **Log a play**. Every side is ticked, so a full play is one more click.
+2. Untick the sides you didn't play. The length adds up the songs on the sides you kept (from the tracklist saved from Discogs).
+3. Choose when: "I just finished" (the play started one length ago), "I'm starting now", or a specific start time.
+4. The website sends it to `POST /api/spins`. The server checks the sides really are on that record, saves the play, and remembers which songs it covered (for song stats and Last.fm later).
+5. The record's play count, its list of plays and the Diary all refresh by themselves.
+
+Records added by hand have no tracklist, so they log the whole record using the album's length (or a length you type).
+
 ## Words you'll see a lot
 
 - **API**: the list of addresses the server answers, like `GET /api/records`. It's how the website and server talk.
@@ -222,6 +241,8 @@ pages/ ─▶ features/collection/ ─▶ api/ ─▶ server
 - **Hook**: a React function starting with `use` (like `useHealth`) that gives a component data or abilities.
 - **State**: a component's own memory (`useState`), like what you've typed into the form so far. When it changes, React redraws.
 - **Route**: a pairing of an address (like `/records/:id`) with the screen to show. `:id` is a placeholder for the record number.
+- **Spin**: one logged play of a record, an entry in the diary.
+- **Side**: one side of a vinyl disc (A, B; a double album also has C and D). Track positions like "A1" or "C3" say which side a song is on.
 - **Rate limit**: the most requests a service allows in a period of time. Discogs allows 60 a minute.
 - **Cache**: a short-term memory of answers, so the same question isn't asked twice.
 - **Query / mutation**: in TanStack Query, a query _reads_ data (the record list) and a mutation _changes_ it (add, edit, delete).

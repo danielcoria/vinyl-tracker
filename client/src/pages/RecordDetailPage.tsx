@@ -11,6 +11,7 @@ import { useDeleteRecord, useRecord } from '../api/records';
 import { CONDITION_LABELS, formatArtists, formatDuration } from '../features/collection/format';
 import { RecordCover } from '../features/collection/RecordCover';
 import { useRecordId } from '../features/collection/useRecordId';
+import { RecordPlays } from '../features/spins/RecordPlays';
 import { NotFoundPage } from './NotFoundPage';
 
 const MISSING_MESSAGE = "This record doesn't exist. It may have been deleted.";
@@ -116,6 +117,9 @@ function RecordDetail({ id }: { id: number }) {
           </div>
         </div>
       </div>
+
+      {/* Play count, "Log a play", this record's plays and its tracklist. */}
+      <RecordPlays record={r} />
     </article>
   );
 }

@@ -8,12 +8,14 @@
 //   /records/5        -> RecordDetailPage (record number 5)
 //   /records/5/edit   -> EditRecordPage (edit record number 5)
 //   /discogs          -> DiscogsPage (search Discogs and import)
+//   /diary            -> DiaryPage (every logged play, newest first)
 //   anything else     -> NotFoundPage
 // ============================================================================
 
 import { Route, Routes } from 'react-router';
 import { Layout } from './components/Layout';
 import { CollectionPage } from './pages/CollectionPage';
+import { DiaryPage } from './pages/DiaryPage';
 import { DiscogsPage } from './pages/DiscogsPage';
 import { EditRecordPage } from './pages/EditRecordPage';
 import { NewRecordPage } from './pages/NewRecordPage';
@@ -32,6 +34,7 @@ export function App() {
         <Route path="records/:id" element={<RecordDetailPage />} />
         <Route path="records/:id/edit" element={<EditRecordPage />} />
         <Route path="discogs" element={<DiscogsPage />} />
+        <Route path="diary" element={<DiaryPage />} />
         <Route path="*" element={<NotFoundPage />} />
       </Route>
     </Routes>

@@ -63,5 +63,7 @@ function refreshAfterChange(queryClient: ReturnType<typeof useQueryClient>, reco
   return Promise.all([
     queryClient.invalidateQueries({ queryKey: ['records', 'list'] }),
     queryClient.invalidateQueries({ queryKey: ['discogs', 'search'] }),
+    // Importing or linking can save a tracklist too.
+    queryClient.invalidateQueries({ queryKey: ['tracks', record.id] }),
   ]);
 }
