@@ -12,3 +12,4 @@ export * from './errors.js';
 export * from './records.js';
 export * from './discogs.js';
 export * from './spins.js';
+export * from './stats.js';

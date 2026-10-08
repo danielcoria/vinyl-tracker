@@ -19,6 +19,7 @@ import { errorHandler, notFoundHandler } from './middleware/error-handler.js';
 import { discogsRouter } from './routes/discogs.js';
 import { recordsRouter } from './routes/records.js';
 import { spinsRouter } from './routes/spins.js';
+import { statsRouter } from './routes/stats.js';
 
 /**
  * What the server needs from outside to work. Tests pass in a temporary
@@ -43,6 +44,8 @@ export function createApp({ db, discogs = null }: AppDeps) {
   app.use('/api/records', recordsRouter(db));
   // The listening diary: routes/spins.ts.
   app.use('/api/spins', spinsRouter(db));
+  // Totals and rankings for the Stats page: routes/stats.ts.
+  app.use('/api/stats', statsRouter(db));
   // Searching and importing from Discogs: routes/discogs.ts.
   app.use('/api/discogs', discogsRouter(db, discogs));
 
