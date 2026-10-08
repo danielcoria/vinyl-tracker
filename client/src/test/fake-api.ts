@@ -68,6 +68,8 @@ export function makeRecord(overrides: Partial<VinylRecord> = {}): VinylRecord {
     styles: ['Modal'],
     addedAt: '2026-10-01T12:00:00.000Z',
     updatedAt: '2026-10-01T12:00:00.000Z',
+    spinCount: 0,
+    lastPlayedAt: null,
     ...overrides,
   };
 }

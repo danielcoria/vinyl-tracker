@@ -10,6 +10,8 @@ import {
   cleanName,
   parseTrackDuration,
   releaseToRecordInput,
+  releaseToTracks,
+  sideOf,
   toSearchResult,
   totalRuntime,
 } from '../src/integrations/discogs/mapping.js';
@@ -145,5 +147,34 @@ describe('track lengths', () => {
   it('gives no total when any track is missing its length', () => {
     expect(totalRuntime([{ duration: '3:00' }, { duration: '' }])).toBeNull();
     expect(totalRuntime([])).toBeNull();
+  });
+});
+
+describe('tracklists', () => {
+  it('saves each song with its side and length', () => {
+    expect(releaseToTracks(release)).toEqual([
+      { position: 'A1', side: 'A', title: 'So What', durationSeconds: 536, sortOrder: 0 },
+      {
+        position: 'A2',
+        side: 'A',
+        title: 'Freddie Freeloader',
+        durationSeconds: 572,
+        sortOrder: 1,
+      },
+      { position: 'A3', side: 'A', title: 'Blue In Green', durationSeconds: 327, sortOrder: 2 },
+      { position: 'B1', side: 'B', title: 'All Blues', durationSeconds: 694, sortOrder: 3 },
+      { position: 'B2', side: 'B', title: 'Flamenco Sketches', durationSeconds: 572, sortOrder: 4 },
+    ]);
+  });
+
+  it('reads the side from the position', () => {
+    expect(sideOf('A1')).toBe('A');
+    expect(sideOf('c3')).toBe('C');
+    expect(sideOf('B')).toBe('B');
+    expect(sideOf('AA')).toBe('AA'); // a double A-side single
+    expect(sideOf('A1a')).toBe('A');
+    expect(sideOf('1')).toBeNull(); // CD-style numbering
+    expect(sideOf('Side A')).toBeNull();
+    expect(sideOf(undefined)).toBeNull();
   });
 });

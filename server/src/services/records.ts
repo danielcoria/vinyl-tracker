@@ -13,10 +13,10 @@
 // happen or NONE do. That way a crash can never leave a half-saved record.
 // ============================================================================
 
-import { asc, desc, eq, inArray, notInArray, sql, type SQL } from 'drizzle-orm';
+import { asc, count, desc, eq, inArray, max, notInArray, sql, type SQL } from 'drizzle-orm';
 import type { ParsedRecordInput, ParsedRecordListQuery, VinylRecord } from '@vinyl/shared';
 import type { Db } from '../db/client.js';
-import { artists, recordArtists, records, recordTags } from '../db/schema.js';
+import { artists, recordArtists, records, recordTags, spins } from '../db/schema.js';
 import { NotFoundError } from '../errors.js';
 
 // Drizzle's transaction handle has the same query API as the db itself.
@@ -184,7 +184,16 @@ function deleteOrphanArtists(tx: Tx) {
   tx.delete(artists).where(notInArray(artists.id, credited)).run();
 }
 
-/** Attaches artists, genres and styles in two queries instead of one per record. */
+/** Several records at once, by id (in no particular order). Missing ids are skipped. */
+export function getRecordsByIds(db: Db, ids: number[]): VinylRecord[] {
+  if (ids.length === 0) return [];
+  return hydrate(db, db.select().from(records).where(inArray(records.id, ids)).all());
+}
+
+/**
+ * Attaches artists, genres, styles and play counts in three queries instead of
+ * several per record.
+ */
 function hydrate(db: Db, rows: RecordRow[]): VinylRecord[] {
   if (rows.length === 0) return [];
   const ids = rows.map((row) => row.id);
@@ -225,5 +234,23 @@ function hydrate(db: Db, rows: RecordRow[]): VinylRecord[] {
     (kind === 'genre' ? details.genres : details.styles).push(name);
   }
 
-  return rows.map((row) => ({ ...row, ...detailsFor(row.id) }));
+  // How many times each record was played, and when it was last played.
+  const plays = db
+    .select({
+      recordId: spins.recordId,
+      spinCount: count(),
+      lastPlayedAt: max(spins.playedAt),
+    })
+    .from(spins)
+    .where(inArray(spins.recordId, ids))
+    .groupBy(spins.recordId)
+    .all();
+  const playsByRecord = new Map(plays.map((p) => [p.recordId, p]));
+
+  return rows.map((row) => ({
+    ...row,
+    ...detailsFor(row.id),
+    spinCount: playsByRecord.get(row.id)?.spinCount ?? 0,
+    lastPlayedAt: playsByRecord.get(row.id)?.lastPlayedAt ?? null,
+  }));
 }

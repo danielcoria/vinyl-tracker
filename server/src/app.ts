@@ -18,6 +18,7 @@ import type { DiscogsClient } from './integrations/discogs/client.js';
 import { errorHandler, notFoundHandler } from './middleware/error-handler.js';
 import { discogsRouter } from './routes/discogs.js';
 import { recordsRouter } from './routes/records.js';
+import { spinsRouter } from './routes/spins.js';
 
 /**
  * What the server needs from outside to work. Tests pass in a temporary
@@ -40,6 +41,8 @@ export function createApp({ db, discogs = null }: AppDeps) {
 
   // Every address starting with /api/records is handled in routes/records.ts.
   app.use('/api/records', recordsRouter(db));
+  // The listening diary: routes/spins.ts.
+  app.use('/api/spins', spinsRouter(db));
   // Searching and importing from Discogs: routes/discogs.ts.
   app.use('/api/discogs', discogsRouter(db, discogs));
 

@@ -5,6 +5,7 @@
 // what the website wants to do:
 //   GET    /api/records       -> list records (optionally ?q=search&sort=artist)
 //   GET    /api/records/5     -> get record number 5
+//   GET    /api/records/5/tracks -> record 5's tracklist (songs and sides)
 //   POST   /api/records       -> add a new record
 //   PUT    /api/records/5     -> replace record 5 with new details
 //   DELETE /api/records/5     -> delete record 5
@@ -14,7 +15,12 @@
 // ============================================================================
 
 import { Router } from 'express';
-import { recordInputSchema, recordListQuerySchema, type RecordList } from '@vinyl/shared';
+import {
+  recordInputSchema,
+  recordListQuerySchema,
+  type RecordList,
+  type TrackList,
+} from '@vinyl/shared';
 import { z } from 'zod';
 import type { Db } from '../db/client.js';
 import {
@@ -24,6 +30,7 @@ import {
   listRecords,
   updateRecord,
 } from '../services/records.js';
+import { getTracks } from '../services/tracks.js';
 
 // The `:id` part of the URL arrives as text ("5"). This turns it into a number
 // and rejects anything that isn't a positive whole number (e.g. "abc").
@@ -44,6 +51,13 @@ export function recordsRouter(db: Db) {
   // GET /api/records/:id
   router.get('/:id', (req, res) => {
     res.json(getRecord(db, idParam.parse(req.params.id)));
+  });
+
+  // GET /api/records/:id/tracks
+  router.get('/:id/tracks', (req, res) => {
+    const record = getRecord(db, idParam.parse(req.params.id)); // 404 if missing
+    const body: TrackList = { tracks: getTracks(db, record.id) };
+    res.json(body);
   });
 
   // POST /api/records: the new record's details are in req.body.

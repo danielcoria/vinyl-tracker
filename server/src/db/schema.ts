@@ -91,3 +91,62 @@ export const recordTags = sqliteTable(
     index('record_tags_kind_name_idx').on(t.kind, t.name),
   ],
 );
+
+/** The songs on a record, in order. Saved from Discogs when a record is imported or linked. */
+export const tracks = sqliteTable(
+  'tracks',
+  {
+    id: integer('id').primaryKey({ autoIncrement: true }),
+    recordId: integer('record_id')
+      .notNull()
+      .references(() => records.id, { onDelete: 'cascade' }),
+    /** As printed on the record: "A1", "B2"... ('' if Discogs has none). */
+    position: text('position').notNull(),
+    /** The side letter from the position ("A"), or null if there isn't one. */
+    side: text('side'),
+    title: text('title').notNull(),
+    durationSeconds: integer('duration_seconds'),
+    /** 0, 1, 2... keeps the tracks in the order they appear on the record. */
+    sortOrder: integer('sort_order').notNull(),
+  },
+  (t) => [index('tracks_record_idx').on(t.recordId, t.sortOrder)],
+);
+
+/** The listening diary: one row per time a record was played. */
+export const spins = sqliteTable(
+  'spins',
+  {
+    id: integer('id').primaryKey({ autoIncrement: true }),
+    recordId: integer('record_id')
+      .notNull()
+      .references(() => records.id, { onDelete: 'cascade' }),
+    /** When the play started (ISO-8601 UTC). */
+    playedAt: text('played_at').notNull(),
+    durationSeconds: integer('duration_seconds').notNull(),
+    /** Sides played, comma-separated in record order ("A,B"), or null for the whole record. */
+    sides: text('sides'),
+    notes: text('notes'),
+    createdAt: text('created_at').notNull().$defaultFn(now),
+  },
+  (t) => [
+    index('spins_played_at_idx').on(t.playedAt),
+    index('spins_record_idx').on(t.recordId, t.playedAt),
+  ],
+);
+
+/** Which tracks each spin covered (for song-level stats and scrobbling later). */
+export const spinTracks = sqliteTable(
+  'spin_tracks',
+  {
+    spinId: integer('spin_id')
+      .notNull()
+      .references(() => spins.id, { onDelete: 'cascade' }),
+    trackId: integer('track_id')
+      .notNull()
+      .references(() => tracks.id, { onDelete: 'cascade' }),
+  },
+  (t) => [
+    primaryKey({ columns: [t.spinId, t.trackId] }),
+    index('spin_tracks_track_idx').on(t.trackId),
+  ],
+);

@@ -121,6 +121,7 @@ Every code file also starts with a comment explaining what it does, so you can o
 | `src/health.ts`  | The shape of the "are you alive?" answer.                                                                                                  |
 | `src/errors.ts`  | The one format every error uses: `{ "error": { "code", "message" } }`.                                                                     |
 | `src/discogs.ts` | What Discogs search results and imports look like, as our server sends them to the website.                                                |
+| `src/spins.ts`   | What a track and a logged play ("spin") look like, and the rules for logging one (e.g. no plays in the future).                            |
 | `src/index.ts`   | Re-exports everything so other code can `import { … } from '@vinyl/shared'`.                                                               |
 
 ### `server/`: the kitchen
@@ -143,6 +144,9 @@ request ─▶ app.ts ─▶ routes/ ─▶ services/ ─▶ db/ ─▶ database
 | `src/middleware/error-handler.ts`                                          | Turns any error into the standard error response.                                                                   |
 | `src/routes/records.ts`                                                    | The record addresses: list, get, add, edit, delete. Short on purpose: check input, call the service, reply.         |
 | `src/services/records.ts`                                                  | **The real work**: searching, sorting, saving and deleting records in the database.                                 |
+| `src/routes/spins.ts`                                                      | The diary addresses: list plays, log a play, delete a play.                                                         |
+| `src/services/spins.ts`                                                    | **The listening diary**: logs a play (which sides, when, how long, which songs) and lists plays newest first.       |
+| `src/services/tracks.ts`                                                   | A record's tracklist: reads it, and saves it from Discogs (keeping one that logged plays depend on).                |
 | `src/routes/discogs.ts`                                                    | The Discogs addresses: search, import a release, link a record to a release.                                        |
 | `src/services/discogs.ts`                                                  | Searches Discogs, imports a release as a new record, or fills in an existing record (cover and empty details only). |
 | `src/integrations/discogs/client.ts`                                       | **Talks to Discogs.** Sends the token, remembers recent answers, stays under 60 requests a minute.                  |

@@ -82,12 +82,16 @@ Built so far (M2), defined in `server/src/db/schema.ts`:
 - `artists`: id, discogs_artist_id (unique, nullable), name (unique case-insensitively via an index on `lower(name)`). Artists are found-or-created by name; ones left with no records are deleted.
 - `record_artists`: record_id (cascade delete), artist_id, position (0 = primary artist, used for sort-by-artist)
 - `record_tags`: record_id (cascade delete), kind (`genre` | `style`), name
+- `tracks` (M5): record_id (cascade), position ("A1"), side ("A" or null), title, duration_seconds, sort_order. Saved from Discogs on import/link; a tracklist used by logged spins is never replaced.
+- `spins` (M5, the diary): record_id (cascade), played_at (start time), duration_seconds, sides ("A,B" in record order, or null = whole record), notes, created_at
+- `spin_tracks` (M5): spin_id, track_id. Which tracks a spin covered (for song stats and scrobbling later)
+- Records expose `spinCount` and `lastPlayedAt`, computed from `spins` in `hydrate()`, never stored.
 
 Planned:
 
 - `styluses`: id, name, rated_hours, installed_at, retired_at (null = active; at most one active)
-- `spins`: id, record_id, stylus_id (nullable), played_at, duration_seconds, sides (e.g. `"A,B"`), notes
 - `settings`: key, value (dust threshold in days, Last.fm username, and so on)
+- `styluses` will add a `stylus_id` column to `spins` (M8)
 - Later: `wishlist_items`, `lastfm_album_cache`, `price_snapshots` (record_id, captured_at, lowest_price, currency, num_for_sale)
 
 Derived values (stylus hours used, last-played date, dust status, stats) are **computed in queries, never stored**.
@@ -136,17 +140,21 @@ Planned: `npm run test:e2e` (M9).
 
 ## API
 
-| Method | Path                           | Notes                                                                                                                 |
-| ------ | ------------------------------ | --------------------------------------------------------------------------------------------------------------------- |
-| GET    | `/api/health`                  | `{ status, uptimeSeconds }`                                                                                           |
-| GET    | `/api/records?q=&sort=`        | `{ records }`. `q` matches title or artist; `sort` is `added` (default, newest first), `artist`, `title`, `year`      |
-| GET    | `/api/records/:id`             | 404 if missing                                                                                                        |
-| POST   | `/api/records`                 | Body: `recordInputSchema`. 201 + `Location` header                                                                    |
-| PUT    | `/api/records/:id`             | Full replace, including artists and tags                                                                              |
-| DELETE | `/api/records/:id`             | 204                                                                                                                   |
-| GET    | `/api/discogs/search?q=&page=` | `{ results, page, pages }`; each result has `inCollectionId` (record id if already imported). 20 per page, vinyl only |
-| POST   | `/api/discogs/import`          | `{ releaseId }`. 201 + new record; 409 `ALREADY_IN_COLLECTION` if imported before                                     |
-| POST   | `/api/discogs/link`            | `{ recordId, releaseId }`. Sets the release id and fills only empty fields + cover; never overwrites user data        |
+| Method | Path                           | Notes                                                                                                                                                                                                                      |
+| ------ | ------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| GET    | `/api/health`                  | `{ status, uptimeSeconds }`                                                                                                                                                                                                |
+| GET    | `/api/records?q=&sort=`        | `{ records }`. `q` matches title or artist; `sort` is `added` (default, newest first), `artist`, `title`, `year`                                                                                                           |
+| GET    | `/api/records/:id`             | 404 if missing                                                                                                                                                                                                             |
+| POST   | `/api/records`                 | Body: `recordInputSchema`. 201 + `Location` header                                                                                                                                                                         |
+| PUT    | `/api/records/:id`             | Full replace, including artists and tags                                                                                                                                                                                   |
+| DELETE | `/api/records/:id`             | 204                                                                                                                                                                                                                        |
+| GET    | `/api/records/:id/tracks`      | `{ tracks }` in record order: position, side (letter from the position, or null), title, durationSeconds                                                                                                                   |
+| GET    | `/api/spins?recordId=&limit=`  | `{ spins }` newest first (by playedAt), each with a short `record` summary. limit 1-200, default 50                                                                                                                        |
+| POST   | `/api/spins`                   | `{ recordId, sides?, playedAt?, durationSeconds, notes? }`. `playedAt` = start time (default now, not in the future). `sides` null = whole record; all sides ticked is stored as null too. 400 `NO_SIDES` / `UNKNOWN_SIDE` |
+| DELETE | `/api/spins/:id`               | 204                                                                                                                                                                                                                        |
+| GET    | `/api/discogs/search?q=&page=` | `{ results, page, pages }`; each result has `inCollectionId` (record id if already imported). 20 per page, vinyl only                                                                                                      |
+| POST   | `/api/discogs/import`          | `{ releaseId }`. 201 + new record; 409 `ALREADY_IN_COLLECTION` if imported before                                                                                                                                          |
+| POST   | `/api/discogs/link`            | `{ recordId, releaseId }`. Sets the release id and fills only empty fields + cover; never overwrites user data                                                                                                             |
 
 Discogs routes answer 503 `DISCOGS_NOT_CONFIGURED` without a token. Discogs failures map to `DISCOGS_NOT_FOUND` (404), `DISCOGS_BUSY` (503, our 60/min limit or theirs), `DISCOGS_AUTH` / `DISCOGS_UNAVAILABLE` / `DISCOGS_BAD_RESPONSE` (502). Server tests use `fakeDiscogs()` from `test/discogs-helpers.ts` with recorded fixtures; never call the real API in tests.
 

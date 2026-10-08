@@ -184,3 +184,34 @@ describe('POST /api/discogs/link', () => {
     expect(errorCode(res.body)).toBe('NOT_FOUND');
   });
 });
+
+describe('tracklists from Discogs', () => {
+  it('saves the tracklist when importing', async () => {
+    const { app } = setup();
+    const imported = await request(app)
+      .post('/api/discogs/import')
+      .send({ releaseId: KIND_OF_BLUE_RELEASE_ID });
+
+    const res = await request(app).get(`/api/records/${imported.body.id}/tracks`);
+
+    expect(res.body.tracks.map((t: { position: string; side: string }) => t.side)).toEqual([
+      'A',
+      'A',
+      'A',
+      'B',
+      'B',
+    ]);
+  });
+
+  it('saves the tracklist when linking an existing record', async () => {
+    const { app } = setup();
+    const mine = await request(app).post('/api/records').send(recordInput());
+
+    await request(app)
+      .post('/api/discogs/link')
+      .send({ recordId: mine.body.id, releaseId: KIND_OF_BLUE_RELEASE_ID });
+
+    const res = await request(app).get(`/api/records/${mine.body.id}/tracks`);
+    expect(res.body.tracks).toHaveLength(5);
+  });
+});

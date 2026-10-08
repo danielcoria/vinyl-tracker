@@ -8,6 +8,13 @@
       "when": 1791233641977,
       "tag": "0000_init_records",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "6",
+      "when": 1791436605956,
+      "tag": "0001_listening_log",
+      "breakpoints": true
     }
   ]
 }

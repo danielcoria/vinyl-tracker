@@ -114,6 +114,9 @@ export const recordSchema = z.object({
   styles: z.array(z.string()),
   addedAt: z.string(),
   updatedAt: z.string(),
+  /** Worked out from the listening diary (never stored): how many plays, and the latest. */
+  spinCount: z.number().int(),
+  lastPlayedAt: z.string().nullable(),
 });
 
 export type VinylRecord = z.infer<typeof recordSchema>;

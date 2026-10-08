@@ -80,19 +80,46 @@ export function parseTrackDuration(text: string | undefined): number | null {
     .reduce((total, n) => total * 60 + n, 0);
 }
 
-/**
- * Adds up the length of every track. Returns null if any track has no
- * duration, because a partial total would be misleading.
- */
-export function totalRuntime(tracklist: RawTrack[]): number | null {
+/** Only the real tracks, in order: section headings skipped, medleys split into their parts. */
+function playableTracks(tracklist: RawTrack[]): Omit<RawTrack, 'sub_tracks'>[] {
   // Headings are section titles, not tracks. An "index" groups sub-tracks (a medley).
-  const tracks = tracklist.flatMap((track) => {
+  return tracklist.flatMap((track) => {
     if (track.type_ === 'heading') return [];
     if (track.type_ === 'index') {
       return track.sub_tracks && track.sub_tracks.length > 0 ? track.sub_tracks : [track];
     }
     return [track];
   });
+}
+
+/**
+ * The side a track is on, from its position: "A1" -> "A", "c3" -> "C",
+ * "AA" (a double A-side) -> "AA". CD-style positions like "1" have no side.
+ */
+export function sideOf(position: string | undefined): string | null {
+  const letters = position?.trim().match(/^([A-Za-z]{1,2})(?![A-Za-z])/);
+  return letters?.[1] ? letters[1].toUpperCase() : null;
+}
+
+/** The tracklist in the shape we save: position, side, title and length of each song. */
+export function releaseToTracks(release: RawRelease) {
+  return playableTracks(release.tracklist).map((track, index) => ({
+    position: track.position?.trim() ?? '',
+    side: sideOf(track.position),
+    title: track.title?.trim() || 'Untitled',
+    durationSeconds: parseTrackDuration(track.duration),
+    sortOrder: index,
+  }));
+}
+
+export type MappedTrack = ReturnType<typeof releaseToTracks>[number];
+
+/**
+ * Adds up the length of every track. Returns null if any track has no
+ * duration, because a partial total would be misleading.
+ */
+export function totalRuntime(tracklist: RawTrack[]): number | null {
+  const tracks = playableTracks(tracklist);
   if (tracks.length === 0) return null;
 
   let total = 0;

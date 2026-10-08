@@ -2,10 +2,11 @@
 // discogs.ts (service): SEARCH DISCOGS, IMPORT A RELEASE, LINK A RECORD
 //
 //   searchDiscogs   search, and mark results that are already in the collection
-//   importRelease   add a Discogs release to the collection as a new record
+//   importRelease   add a Discogs release to the collection as a new record,
+//                   with its tracklist
 //   linkRecord      connect a record you already have to its Discogs release:
-//                   fills in the cover and any empty details, but never
-//                   overwrites what you typed yourself
+//                   fills in the cover, the tracklist and any empty details,
+//                   but never overwrites what you typed yourself
 // ============================================================================
 
 import { eq, inArray } from 'drizzle-orm';
@@ -19,8 +20,13 @@ import type { Db } from '../db/client.js';
 import { records } from '../db/schema.js';
 import { ConflictError } from '../errors.js';
 import type { DiscogsClient } from '../integrations/discogs/client.js';
-import { releaseToRecordInput, toSearchResult } from '../integrations/discogs/mapping.js';
+import {
+  releaseToRecordInput,
+  releaseToTracks,
+  toSearchResult,
+} from '../integrations/discogs/mapping.js';
 import { createRecord, getRecord, updateRecord } from './records.js';
+import { replaceTracks } from './tracks.js';
 
 export async function searchDiscogs(
   db: Db,
@@ -60,7 +66,9 @@ export async function importRelease(
   assertNotInCollection(db, releaseId);
   const release = await discogs.getRelease(releaseId);
   const input = recordInputSchema.parse(releaseToRecordInput(release));
-  return createRecord(db, input, { discogsReleaseId: releaseId });
+  const record = createRecord(db, input, { discogsReleaseId: releaseId });
+  replaceTracks(db, record.id, releaseToTracks(release));
+  return record;
 }
 
 export async function linkRecord(
@@ -93,6 +101,9 @@ export async function linkRecord(
 
   updateRecord(db, recordId, merged);
   db.update(records).set({ discogsReleaseId: releaseId }).where(eq(records.id, recordId)).run();
+  // Linking again (same release) is also how a record gets its tracklist if it was linked
+  // before tracklists were saved. A tracklist already used by logged plays is kept.
+  replaceTracks(db, recordId, releaseToTracks(release));
   return getRecord(db, recordId);
 }
 
