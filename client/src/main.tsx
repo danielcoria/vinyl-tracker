@@ -8,6 +8,7 @@
 import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { BrowserRouter } from 'react-router';
 import { App } from './App';
 import './index.css';
 
@@ -22,10 +23,13 @@ if (!root) throw new Error('Missing #root element');
 // Draw the app. The tags wrapping <App /> add features to everything inside them:
 //   <StrictMode>          extra warnings during development (no effect in production)
 //   <QueryClientProvider> lets any component inside fetch data with TanStack Query
+//   <BrowserRouter>       watches the address bar so App can show the right screen
 createRoot(root).render(
   <StrictMode>
     <QueryClientProvider client={queryClient}>
-      <App />
+      <BrowserRouter>
+        <App />
+      </BrowserRouter>
     </QueryClientProvider>
   </StrictMode>,
 );

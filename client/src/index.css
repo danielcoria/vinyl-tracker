@@ -1,23 +1,519 @@
 /* ============================================================================
    index.css: STYLES FOR THE WEBSITE (colors, spacing, fonts)
-   CSS controls how things look. ".app" styles anything with className="app".
+   CSS controls how things look. ".record-card" styles anything with
+   className="record-card". Colors are defined once as variables (--name) at
+   the top, with a second set for dark mode.
    ============================================================================ */
 
+/* ---------- Colors and sizes (light mode) ---------- */
 :root {
-  font-family: system-ui, sans-serif;
-  color-scheme: light dark;
+  --bg: #f6f2ec;
+  --surface: #ffffff;
+  --surface-2: #efe9e0;
+  --text: #1f1b16;
+  --muted: #6e665c;
+  --border: #e0d8cc;
+  --accent: #b4441b;
+  --accent-hover: #963615;
+  --accent-text: #ffffff;
+  --danger: #b42318;
+  --danger-bg: #fdecea;
+  --focus: #2563eb;
+  --radius: 10px;
+  --shadow: 0 1px 2px rgb(0 0 0 / 0.06), 0 4px 12px rgb(0 0 0 / 0.06);
+
+  font-family:
+    system-ui,
+    -apple-system,
+    'Segoe UI',
+    Roboto,
+    sans-serif;
+  line-height: 1.5;
+  color-scheme: light;
+}
+
+/* ---------- Dark mode (follows your computer's setting) ---------- */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #15120f;
+    --surface: #1f1b17;
+    --surface-2: #2a251f;
+    --text: #f3eee7;
+    --muted: #a69c90;
+    --border: #36302a;
+    --accent: #f0703a;
+    --accent-hover: #f58a5a;
+    --accent-text: #1a0d06;
+    --danger: #f97066;
+    --danger-bg: #3a1714;
+    --focus: #60a5fa;
+    --shadow: 0 1px 2px rgb(0 0 0 / 0.4);
+    color-scheme: dark;
+  }
+}
+
+/* ---------- Basics ---------- */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
 }
 
 body {
   margin: 0;
+  background: var(--bg);
+  color: var(--text);
 }
 
-.app {
-  max-width: 48rem;
+h1,
+h2,
+h3 {
+  line-height: 1.2;
+  margin: 0 0 0.5rem;
+}
+
+a {
+  color: var(--accent);
+}
+
+:focus-visible {
+  outline: 2px solid var(--focus);
+  outline-offset: 2px;
+}
+
+.muted {
+  color: var(--muted);
+}
+
+/* Hidden on screen but still read out by screen readers. */
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+/* ---------- Page frame: header, main area, footer ---------- */
+.layout {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.site-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.75rem max(1rem, calc((100% - 72rem) / 2));
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  font-weight: 700;
+  font-size: 1.1rem;
+  color: var(--text);
+  text-decoration: none;
+}
+
+/* A tiny record as the logo. */
+.brand-mark {
+  width: 1.6rem;
+  height: 1.6rem;
+  border-radius: 50%;
+  background: radial-gradient(circle, var(--accent) 0 22%, #111 23% 100%);
+}
+
+.site-header nav a {
+  color: var(--muted);
+  text-decoration: none;
+  font-weight: 600;
+  padding: 0.35rem 0.6rem;
+  border-radius: 6px;
+}
+
+.site-header nav a.active {
+  color: var(--text);
+  background: var(--surface-2);
+}
+
+.page {
+  flex: 1;
+  width: 100%;
+  max-width: 72rem;
   margin: 0 auto;
-  padding: 2rem 1rem;
+  padding: 1.5rem 1rem 3rem;
 }
 
-.tagline {
-  opacity: 0.75;
+.site-footer {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 0.5rem;
+  padding: 1rem max(1rem, calc((100% - 72rem) / 2));
+  font-size: 0.85rem;
+  color: var(--muted);
+  border-top: 1px solid var(--border);
+}
+
+/* ---------- Buttons ---------- */
+.button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  padding: 0.55rem 1rem;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--surface);
+  color: var(--text);
+  font: inherit;
+  font-weight: 600;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.button:hover {
+  background: var(--surface-2);
+}
+
+.button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.button-primary {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: var(--accent-text);
+}
+
+.button-primary:hover {
+  background: var(--accent-hover);
+}
+
+.button-danger {
+  color: var(--danger);
+}
+
+.button-danger:hover {
+  background: var(--danger-bg);
+}
+
+/* Small "×" style buttons inside forms. */
+.button-icon {
+  padding: 0.3rem 0.55rem;
+  font-weight: 400;
+}
+
+/* ---------- Collection page ---------- */
+.page-header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.page-header h1 {
+  margin: 0;
+}
+
+.count {
+  margin-left: 0.6rem;
+  padding: 0.1rem 0.55rem;
+  border-radius: 999px;
+  background: var(--surface-2);
+  color: var(--muted);
+  font-size: 0.9rem;
+  vertical-align: middle;
+}
+
+.toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  align-items: center;
+  margin-bottom: 1.5rem;
+}
+
+.search {
+  flex: 1 1 16rem;
+}
+
+.sort {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: var(--muted);
+  font-size: 0.9rem;
+}
+
+/* Fills the row with as many 10rem-wide cards as fit. */
+.record-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(10rem, 1fr));
+  gap: 1.25rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.record-card {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  color: var(--text);
+  text-decoration: none;
+}
+
+.record-card .cover {
+  margin-bottom: 0.5rem;
+  transition: transform 0.15s ease;
+}
+
+.record-card:hover .cover {
+  transform: translateY(-3px);
+}
+
+.record-card-title {
+  font-weight: 600;
+}
+
+.record-card-artist,
+.record-card-meta {
+  font-size: 0.9rem;
+  color: var(--muted);
+}
+
+/* ---------- Covers: a picture, or a drawn vinyl disc ---------- */
+.cover {
+  display: block;
+  width: 100%;
+  aspect-ratio: 1;
+  object-fit: cover;
+  border-radius: 6px;
+  background: var(--surface-2);
+  box-shadow: var(--shadow);
+}
+
+.cover-placeholder {
+  display: grid;
+  place-items: center;
+  background: linear-gradient(145deg, var(--surface-2), var(--border));
+}
+
+/* Grooves are repeating rings; the center label color comes from --label-hue. */
+.vinyl {
+  width: 82%;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background:
+    radial-gradient(circle, var(--bg) 0 3%, transparent 3.5%),
+    radial-gradient(circle, hsl(var(--label-hue, 20) 60% 55%) 0 30%, transparent 30.5%),
+    repeating-radial-gradient(circle, #161616 0 2px, #222 2px 4px);
+  box-shadow: 0 2px 8px rgb(0 0 0 / 0.35);
+}
+
+/* ---------- Empty, loading and error states ---------- */
+.empty-state {
+  text-align: center;
+  padding: 3rem 1rem;
+  border: 1px dashed var(--border);
+  border-radius: var(--radius);
+}
+
+.empty-state p {
+  color: var(--muted);
+}
+
+.error-box {
+  padding: 0.75rem 1rem;
+  border-radius: 8px;
+  background: var(--danger-bg);
+  color: var(--danger);
+  margin-bottom: 1rem;
+}
+
+.error-box p {
+  margin: 0 0 0.5rem;
+}
+
+.error-box p:last-child {
+  margin-bottom: 0;
+}
+
+/* ---------- Record detail page ---------- */
+.back-link {
+  display: inline-block;
+  margin-bottom: 1rem;
+  color: var(--muted);
+  text-decoration: none;
+}
+
+.back-link:hover {
+  color: var(--text);
+}
+
+.record-detail {
+  display: grid;
+  grid-template-columns: minmax(0, 20rem) 1fr;
+  gap: 2rem;
+  align-items: start;
+}
+
+@media (max-width: 40rem) {
+  .record-detail {
+    grid-template-columns: 1fr;
+  }
+}
+
+.record-detail .artist {
+  font-size: 1.2rem;
+  color: var(--muted);
+  margin: 0 0 1.25rem;
+}
+
+.facts {
+  display: grid;
+  grid-template-columns: max-content 1fr;
+  gap: 0.4rem 1.25rem;
+  margin: 0 0 1.25rem;
+}
+
+.facts dt {
+  color: var(--muted);
+}
+
+.facts dd {
+  margin: 0;
+}
+
+.tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.15rem 0.6rem;
+  border-radius: 999px;
+  background: var(--surface-2);
+  font-size: 0.85rem;
+}
+
+.tag button {
+  border: none;
+  background: none;
+  color: var(--muted);
+  cursor: pointer;
+  font: inherit;
+  padding: 0 0.1rem;
+}
+
+.notes {
+  white-space: pre-wrap;
+  padding: 0.75rem 1rem;
+  border-left: 3px solid var(--border);
+  color: var(--muted);
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: 1.5rem;
+}
+
+/* ---------- Forms ---------- */
+input,
+select,
+textarea {
+  width: 100%;
+  padding: 0.55rem 0.7rem;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--surface);
+  color: var(--text);
+  font: inherit;
+}
+
+.sort select {
+  width: auto;
+}
+
+textarea {
+  min-height: 6rem;
+  resize: vertical;
+}
+
+[aria-invalid='true'] {
+  border-color: var(--danger);
+}
+
+.record-form {
+  display: grid;
+  gap: 1.25rem;
+  max-width: 44rem;
+}
+
+.form-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(12rem, 1fr));
+  gap: 1rem;
+}
+
+.field {
+  display: grid;
+  gap: 0.3rem;
+  align-content: start;
+}
+
+.field > label,
+.field > .label {
+  font-weight: 600;
+  font-size: 0.95rem;
+}
+
+.hint {
+  font-size: 0.85rem;
+  color: var(--muted);
+}
+
+.field-error {
+  font-size: 0.85rem;
+  color: var(--danger);
+}
+
+.list-inputs {
+  display: grid;
+  gap: 0.5rem;
+}
+
+.list-input-row {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.tag-input {
+  display: grid;
+  gap: 0.5rem;
+}
+
+.form-actions {
+  display: flex;
+  gap: 0.5rem;
 }

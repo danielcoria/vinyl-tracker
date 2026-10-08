@@ -39,5 +39,10 @@ export default tseslint.config(
       'react-refresh/only-export-components': ['warn', { allowConstantExport: true }],
     },
   },
+  {
+    // Fast refresh (instant reload of edited components) never applies to test files.
+    files: ['client/src/test/**', 'client/**/*.test.{ts,tsx}'],
+    rules: { 'react-refresh/only-export-components': 'off' },
+  },
   prettier,
 );
