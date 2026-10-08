@@ -1,10 +1,6 @@
 // ============================================================================
 // App.tsx: THE MAIN SCREEN (a React "component")
 //
-// A component is just a function that returns what should appear on screen.
-// The HTML-looking code inside `return (...)` is called JSX. It looks like
-// HTML, but you can drop JavaScript values into it using { curly braces }.
-//
 // Right now this screen only shows the title and whether the server is
 // reachable. In M3 it becomes the record collection.
 // ============================================================================

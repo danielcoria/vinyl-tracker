@@ -3,10 +3,6 @@
 //
 // When you open the site, the browser loads index.html, which loads this file.
 // Its only job is to "plug" our React app into the page.
-//
-// React in one sentence: you describe what the page should look like using
-// "components" (functions that return HTML-like code called JSX), and React
-// draws them on the screen and keeps them up to date when data changes.
 // ============================================================================
 
 import { StrictMode } from 'react';
