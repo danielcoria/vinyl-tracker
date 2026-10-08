@@ -8,6 +8,7 @@
 
 import { Link, useSearchParams } from 'react-router';
 import { RECORD_SORTS, type RecordListQuery } from '@vinyl/shared';
+import { describeError } from '../api/client';
 import { useRecords } from '../api/records';
 import { RecordCard } from '../features/collection/RecordCard';
 import { useDebouncedValue } from '../features/collection/useDebouncedValue';
@@ -85,7 +86,7 @@ export function CollectionPage() {
         <p className="muted">Loading your records…</p>
       ) : records.isError ? (
         <div className="error-box" role="alert">
-          <p>Couldn't load your records: {records.error.message}</p>
+          <p>Couldn't load your records: {describeError(records.error)}</p>
           <button type="button" className="button" onClick={() => records.refetch()}>
             Try again
           </button>

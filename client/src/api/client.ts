@@ -69,3 +69,15 @@ export async function apiSend<T>(
 export async function apiDelete(path: string): Promise<void> {
   await request(path, { method: 'DELETE' });
 }
+
+/** A message for people explaining what went wrong. */
+export function describeError(error: Error): string {
+  // The server answered with a problem: use its explanation.
+  if (error instanceof ApiRequestError) return error.message;
+  // `fetch` fails with a TypeError when it can't connect at all.
+  if (error instanceof TypeError) {
+    return "Couldn't reach the server. Check that it's running (npm run dev).";
+  }
+  // Anything else (e.g. the answer had an unexpected shape) is a bug on our side.
+  return `Something went wrong: ${error.message}`;
+}

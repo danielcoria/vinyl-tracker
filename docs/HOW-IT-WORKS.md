@@ -44,10 +44,27 @@ The terminal goes quiet after startup because both programs are just waiting. Th
 
 1. The browser loads `client/index.html`, an almost-empty page.
 2. That page loads `client/src/main.tsx`, which starts React.
-3. React draws the `App` component (`client/src/App.tsx`).
-4. `App` asks the server "are you alive?" by calling `GET /api/health`.
+3. React draws `App` (`client/src/App.tsx`), which looks at the address bar and picks a screen. For `/` that's the collection page.
+4. The collection page asks the server for your records by calling `GET /api/records`.
 5. Vite forwards anything starting with `/api` to the server on port 3001.
-6. The server answers `{ "status": "ok" }` and the page shows **API: ok**.
+6. The server reads the database and answers with the records as JSON, and React draws a card for each one.
+
+### The screens
+
+| Address           | Screen                                          | File                         |
+| ----------------- | ----------------------------------------------- | ---------------------------- |
+| `/`               | Your collection: a grid with search and sort    | `pages/CollectionPage.tsx`   |
+| `/records/new`    | Add a record (a form)                           | `pages/NewRecordPage.tsx`    |
+| `/records/5`      | Everything about record 5, with Edit and Delete | `pages/RecordDetailPage.tsx` |
+| `/records/5/edit` | The same form as "add", filled in with record 5 | `pages/EditRecordPage.tsx`   |
+| anything else     | "Not found"                                     | `pages/NotFoundPage.tsx`     |
+
+### What happens when you save the form
+
+1. You press **Add record**. The form (`RecordForm.tsx`) checks what you typed using the **same rules the server uses** (from `shared/src/records.ts`). Problems appear next to each field and nothing is sent.
+2. If everything is fine, the page sends it: `POST /api/records` for a new record, `PUT /api/records/5` for an edit.
+3. The server checks it again (never trust the browser), saves it, and sends back the saved record.
+4. TanStack Query marks the record list as out of date, so the collection refreshes by itself, and you're taken to the record's page.
 
 ## The tools, in one line each
 
@@ -133,17 +150,42 @@ request ─▶ app.ts ─▶ routes/ ─▶ services/ ─▶ db/ ─▶ database
 
 ### `client/`: the dining room
 
-| File                | What it does                                                                  |
-| ------------------- | ----------------------------------------------------------------------------- |
-| `index.html`        | The single, nearly empty HTML page. React fills it in.                        |
-| `src/main.tsx`      | **Start here.** Plugs React into the page and sets up data fetching.          |
-| `src/App.tsx`       | The main screen. Right now: title plus server status. In M3: your collection. |
-| `src/api/client.ts` | The one place the website sends requests to the server.                       |
-| `src/api/health.ts` | A "hook" (`useHealth`) that components call to get the server status.         |
-| `src/index.css`     | How things look.                                                              |
-| `src/App.test.tsx`  | Tests for the main screen, using a fake server.                               |
-| `src/test/setup.ts` | Runs before website tests.                                                    |
-| `vite.config.ts`    | Settings for Vite, including forwarding `/api` requests to the server.        |
+The website is organized in layers too:
+
+```
+pages/ ─▶ features/collection/ ─▶ api/ ─▶ server
+(one per    (pieces of screens:     (talks to
+ screen)     cards, form, covers)    the server)
+```
+
+| File                                           | What it does                                                                                           |
+| ---------------------------------------------- | ------------------------------------------------------------------------------------------------------ |
+| `index.html`                                   | The single, nearly empty HTML page. React fills it in.                                                 |
+| `src/main.tsx`                                 | **Start here.** Plugs React into the page and sets up data fetching and the router.                    |
+| `src/App.tsx`                                  | **The list of screens**: which page to show for each address.                                          |
+| `src/components/Layout.tsx`                    | The frame around every screen: header with the app name, footer with the server status.                |
+| `src/pages/CollectionPage.tsx`                 | The home screen: a grid of your records with search and sort.                                          |
+| `src/pages/RecordDetailPage.tsx`               | One record's page, with Edit and Delete.                                                               |
+| `src/pages/NewRecordPage.tsx`                  | The "Add a record" screen.                                                                             |
+| `src/pages/EditRecordPage.tsx`                 | The "Edit record" screen.                                                                              |
+| `src/pages/NotFoundPage.tsx`                   | Shown for addresses (or records) that don't exist.                                                     |
+| `src/features/collection/RecordForm.tsx`       | **The add/edit form**: every field, the problem messages, and the Save button.                         |
+| `src/features/collection/form-values.ts`       | Converts between what you type ("42:49") and what the server wants (2569 seconds), and checks it.      |
+| `src/features/collection/TagInput.tsx`         | The box for genres and styles: type, press Enter, get a chip with an ×.                                |
+| `src/features/collection/RecordCard.tsx`       | One record in the grid.                                                                                |
+| `src/features/collection/RecordCover.tsx`      | The cover picture, or a drawn vinyl disc when there isn't one.                                         |
+| `src/features/collection/format.ts`            | Turns data into text: artist lists, lengths ("42:49"), condition names ("Very Good Plus").             |
+| `src/features/collection/useRecordId.ts`       | Reads the record number from the address (`/records/5` gives 5).                                       |
+| `src/features/collection/useDebouncedValue.ts` | Waits until you stop typing before searching.                                                          |
+| `src/api/client.ts`                            | The one place the website sends requests to the server, plus friendly error messages.                  |
+| `src/api/records.ts`                           | Hooks for records: `useRecords`, `useRecord`, `useCreateRecord`, `useUpdateRecord`, `useDeleteRecord`. |
+| `src/api/health.ts`                            | A hook (`useHealth`) for the server status shown in the footer.                                        |
+| `src/index.css`                                | How everything looks, including light and dark mode.                                                   |
+| `src/test/fake-api.ts`                         | A pretend server for tests, plus `makeRecord()` for sample data.                                       |
+| `src/test/render.tsx`                          | Draws the whole app in a test, starting at any address.                                                |
+| `src/test/setup.ts`                            | Runs before website tests.                                                                             |
+| `*.test.ts`, `*.test.tsx`                      | Tests, next to the file they test.                                                                     |
+| `vite.config.ts`                               | Settings for Vite, including forwarding `/api` requests to the server.                                 |
 
 ## Words you'll see a lot
 
@@ -153,6 +195,9 @@ request ─▶ app.ts ─▶ routes/ ─▶ services/ ─▶ db/ ─▶ database
 - **Status code**: a number on every response. `200` OK, `201` created, `204` done with nothing to send back, `400` your input was wrong, `404` not found, `500` the server has a bug.
 - **Component**: a React function that returns part of the page.
 - **Hook**: a React function starting with `use` (like `useHealth`) that gives a component data or abilities.
+- **State**: a component's own memory (`useState`), like what you've typed into the form so far. When it changes, React redraws.
+- **Route**: a pairing of an address (like `/records/:id`) with the screen to show. `:id` is a placeholder for the record number.
+- **Query / mutation**: in TanStack Query, a query _reads_ data (the record list) and a mutation _changes_ it (add, edit, delete).
 - **Schema**: a description of what data must look like, used to check it.
 - **Migration**: a file of instructions that changes the database's tables.
 - **Commit**: a saved snapshot of the code on your computer. **Push**: uploading commits to GitHub.

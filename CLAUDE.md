@@ -6,7 +6,7 @@ Portfolio project, so code quality, tests, and a clean commit history matter as 
 
 ## Status
 
-M0 (scaffold), M1 (CI) and M2 (database + records API) are done. The next milestone is **M3 (collection UI)**. Update this section and the milestone checklist as work lands.
+M0–M3 are done (scaffold, CI, database + records API, collection UI). The next milestone is **M4 (Discogs search + import)**. Update this section and the milestone checklist as work lands.
 
 ## Features
 
@@ -102,6 +102,7 @@ Derived values (stylus hours used, last-played date, dust status, stats) are **c
 - **Search:** LIKE patterns are escaped with `!` (`ESCAPE '!'`), not backslash, so user input like `%` matches literally.
 - **Naming:** camelCase in TS, snake_case in SQL columns, kebab-case filenames for non-components, PascalCase for React component files.
 - **Frontend:** organize by feature, not by file type. Server state goes through TanStack Query, with no duplicated server data in local state.
+- **Frontend patterns (M3):** routes are listed in `client/src/App.tsx` (React Router v8, declarative `<Routes>`); pages live in `pages/`, feature pieces in `features/<feature>/`. Data goes through hooks in `api/` (TanStack Query; mutations invalidate `["records", ...]` keys). Forms keep text in state and validate with the shared Zod schema before sending (see `features/collection/form-values.ts`). Show errors with `describeError()`. Page tests render the whole app with `renderApp(route)` from `test/render.tsx` and fake the server with `mockApi()` from `test/fake-api.ts`; `data-testid="location"` shows the current address.
 - **Tests:** every service and route gets Vitest coverage. API tests run against an in-memory SQLite DB through `app.ts`. Add a Playwright spec when a user-facing flow is completed.
 - **Commits:** solo project, so commit directly to `main` (no feature branches or PRs unless asked). Write messages in plain, simple language: a short title saying what changed (e.g. "Add a page to edit records"), then a few short bullets in everyday words, with no jargon. Keep commits small; one milestone may span several.
 - **CI:** `.github/workflows/ci.yml` runs format:check, lint, typecheck, test and build on Node 22 and 24 for every PR and every push to `main`. Keep it green: run the same scripts locally before pushing. CI has no secrets, so tests must never need a real `.env` or network access.
@@ -147,7 +148,7 @@ Validation errors are 400 `VALIDATION` with `field: message` pairs joined by `; 
 - [x] M0 Scaffold: workspaces, TS/ESLint/Prettier, Vite app, Express `/api/health`, Vitest wired up
 - [x] M1 CI early: GitHub Actions running lint + typecheck + unit tests on every push/PR
 - [x] M2 Database + records CRUD API (manual entry), migrations, seed data
-- [ ] M3 Collection UI: grid/list, detail page, add/edit form
+- [x] M3 Collection UI: grid/list, detail page, add/edit form
 - [ ] M4 Discogs search + import (server proxy, rate limit, cache) + UI
 - [ ] M5 Listening log: log a spin, spin history
 - [ ] M6 Stats: most-played artists, genres by month (charts)

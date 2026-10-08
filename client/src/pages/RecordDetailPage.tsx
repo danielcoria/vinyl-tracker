@@ -6,7 +6,7 @@
 
 import { Link, useNavigate } from 'react-router';
 import type { Condition, VinylRecord } from '@vinyl/shared';
-import { ApiRequestError } from '../api/client';
+import { ApiRequestError, describeError } from '../api/client';
 import { useDeleteRecord, useRecord } from '../api/records';
 import { CONDITION_LABELS, formatArtists, formatDuration } from '../features/collection/format';
 import { RecordCover } from '../features/collection/RecordCover';
@@ -34,7 +34,7 @@ function RecordDetail({ id }: { id: number }) {
     }
     return (
       <div className="error-box" role="alert">
-        <p>Couldn't load this record: {record.error.message}</p>
+        <p>Couldn't load this record: {describeError(record.error)}</p>
       </div>
     );
   }
@@ -81,7 +81,7 @@ function RecordDetail({ id }: { id: number }) {
 
           {deleteRecord.isError && (
             <div className="error-box" role="alert">
-              <p>Couldn't delete this record: {deleteRecord.error.message}</p>
+              <p>Couldn't delete this record: {describeError(deleteRecord.error)}</p>
             </div>
           )}
 
