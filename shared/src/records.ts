@@ -22,49 +22,61 @@ const optionalText = (max: number) =>
   z
     .string()
     .trim()
-    .max(max)
+    .max(max, `Keep this under ${max} characters`)
     .nullish()
     .transform((value) => value || null);
 
 const tagList = z
-  .array(z.string().trim().min(1).max(100))
-  .max(30)
+  .array(z.string().trim().min(1).max(100, 'Keep each tag under 100 characters'))
+  .max(30, 'Use 30 tags or fewer')
   .default([])
   // Drop case-insensitive duplicates, keeping the first spelling.
   .transform((tags) =>
     tags.filter((tag, i) => tags.findIndex((t) => t.toLowerCase() === tag.toLowerCase()) === i),
   );
 
+// The messages below are shown to people in the add/edit form, so they're
+// written in plain words rather than Zod's technical defaults.
+
 /** Body for POST /api/records and PUT /api/records/:id (full replace). */
 export const recordInputSchema = z.object({
-  title: z.string().trim().min(1, 'Title is required').max(300),
+  title: z
+    .string()
+    .trim()
+    .min(1, 'Title is required')
+    .max(300, 'Keep the title under 300 characters'),
   /** Artist names in credit order. */
   artists: z
-    .array(z.string().trim().min(1).max(200))
+    .array(z.string().trim().min(1, 'Artist name is required').max(200))
     .min(1, 'At least one artist is required')
-    .max(10),
+    .max(10, 'Use 10 artists or fewer'),
   year: z
-    .number()
-    .int()
-    .min(1900)
-    .max(new Date().getFullYear() + 1)
+    .number({ error: 'Year must be a number' })
+    .int('Year must be a whole number')
+    .min(1900, 'Year must be 1900 or later')
+    .max(new Date().getFullYear() + 1, "Year can't be in the future")
     .nullish()
     .transform((value) => value ?? null),
   label: optionalText(200),
   catalogNumber: optionalText(100),
   /** Free text as printed on Discogs, e.g. "LP", "2xLP", '7"'. */
   format: optionalText(100),
+  // Blank is allowed (no cover); anything else must be a full http(s) address.
   coverImageUrl: z
-    .url()
+    .string()
+    .trim()
+    .refine(
+      (value) => value === '' || (URL.canParse(value) && /^https?:\/\//.test(value)),
+      'Enter a full web address, starting with https://',
+    )
     .nullish()
-    .or(z.literal(''))
     .transform((value) => value || null),
   /** Total play time, used as the default length when logging a spin. */
   runtimeSeconds: z
     .number()
     .int()
-    .positive()
-    .max(24 * 60 * 60)
+    .positive('Length must be more than zero')
+    .max(24 * 60 * 60, 'Length must be under 24 hours')
     .nullish()
     .transform((value) => value ?? null),
   mediaCondition: conditionSchema.nullish().transform((value) => value ?? null),

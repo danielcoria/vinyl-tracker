@@ -102,8 +102,21 @@ describe('POST /api/records', () => {
     expect(error.code).toBe('VALIDATION');
     expect(error.message).toContain('title: Title is required');
     expect(error.message).toContain('artists: At least one artist is required');
-    expect(error.message).toContain('year:');
+    expect(error.message).toContain('year: Year must be 1900 or later');
     expect(error.message).toContain('mediaCondition:');
+  });
+
+  it('accepts http(s) cover addresses and rejects anything else', async () => {
+    const ok = await create({ coverImageUrl: 'https://example.com/cover.jpg' });
+    expect(ok.coverImageUrl).toBe('https://example.com/cover.jpg');
+
+    for (const coverImageUrl of ['not a url', 'javascript:alert(1)', 'ftp://example.com/a.jpg']) {
+      const res = await request(ctx.app).post('/api/records').send(recordInput({ coverImageUrl }));
+      expect(res.status).toBe(400);
+      expect(errorOf(res.body).message).toBe(
+        'coverImageUrl: Enter a full web address, starting with https://',
+      );
+    }
   });
 
   it('rejects a malformed JSON body', async () => {
