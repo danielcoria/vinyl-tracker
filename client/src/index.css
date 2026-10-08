@@ -1034,3 +1034,40 @@ textarea {
   color: var(--muted);
   font-weight: 600;
 }
+
+/* ---------- Dust report ---------- */
+.dust-summary {
+  font-size: 1.05rem;
+  margin: 0 0 1.5rem;
+}
+
+.dust-summary select {
+  width: auto;
+  margin: 0 0.25rem;
+  padding: 0.25rem 0.5rem;
+}
+
+.dust-section {
+  margin-bottom: 2.25rem;
+}
+
+.dust-section h2 {
+  font-size: 1.15rem;
+  margin-bottom: 1rem;
+}
+
+/* Forgotten records look a little faded, and come back to full color on hover. */
+.dust-card .cover {
+  filter: saturate(0.55);
+  opacity: 0.85;
+  transition:
+    filter 0.15s ease,
+    opacity 0.15s ease,
+    transform 0.15s ease;
+}
+
+.dust-card:hover .cover,
+.dust-card:focus-visible .cover {
+  filter: none;
+  opacity: 1;
+}

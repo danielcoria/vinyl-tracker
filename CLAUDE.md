@@ -8,7 +8,7 @@ Portfolio project, so code quality, tests, and a clean commit history matter as 
 
 ## Status
 
-M0–M6 are done (scaffold, CI, database + records API, collection UI, Discogs search + import, listening log by side, stats). The next milestone is **M7 (dust report)**. Update this section and the milestone checklist as work lands.
+M0–M7 are done (scaffold, CI, database + records API, collection UI, Discogs search + import, listening log by side, stats, dust report). The next milestone is **M8 (stylus wear tracker)**. Update this section and the milestone checklist as work lands.
 
 ## Features
 
@@ -172,7 +172,7 @@ Validation errors are 400 `VALIDATION` with `field: message` pairs joined by `; 
 - [x] M4 Discogs search + import (server proxy, rate limit, cache) + UI
 - [x] M5 Listening log by side: save tracklists, log a spin (sides, start time, length), diary/history page
 - [x] M6 Stats: most-played artists, genres by month (charts)
-- [ ] M7 Dust report
+- [x] M7 Dust report
 - [ ] M8 Stylus wear tracker
 - [ ] M9 Playwright E2E for core flows; add to CI
 - [ ] M10 Deploy (CD): Docker image + host with a persistent volume for SQLite

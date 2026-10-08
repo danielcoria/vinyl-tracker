@@ -51,17 +51,18 @@ The terminal goes quiet after startup because both programs are just waiting. Th
 
 ### The screens
 
-| Address           | Screen                                                     | File                         |
-| ----------------- | ---------------------------------------------------------- | ---------------------------- |
-| `/`               | Your collection: a grid with search and sort               | `pages/CollectionPage.tsx`   |
-| `/records/new`    | Add a record (a form)                                      | `pages/NewRecordPage.tsx`    |
-| `/records/5`      | Everything about record 5, with Edit and Delete            | `pages/RecordDetailPage.tsx` |
-| `/records/5/edit` | The same form as "add", filled in with record 5            | `pages/EditRecordPage.tsx`   |
-| `/discogs`        | Search Discogs and add a release with one click            | `pages/DiscogsPage.tsx`      |
-| `/discogs?link=5` | "Find on Discogs" for record 5: fills in its cover         | `pages/DiscogsPage.tsx`      |
-| `/diary`          | Your listening diary: every play, newest first, by day     | `pages/DiaryPage.tsx`        |
-| `/stats`          | Totals, most-listened artists and records, genres by month | `pages/StatsPage.tsx`        |
-| anything else     | "Not found"                                                | `pages/NotFoundPage.tsx`     |
+| Address           | Screen                                                          | File                         |
+| ----------------- | --------------------------------------------------------------- | ---------------------------- |
+| `/`               | Your collection: a grid with search and sort                    | `pages/CollectionPage.tsx`   |
+| `/records/new`    | Add a record (a form)                                           | `pages/NewRecordPage.tsx`    |
+| `/records/5`      | Everything about record 5, with Edit and Delete                 | `pages/RecordDetailPage.tsx` |
+| `/records/5/edit` | The same form as "add", filled in with record 5                 | `pages/EditRecordPage.tsx`   |
+| `/discogs`        | Search Discogs and add a release with one click                 | `pages/DiscogsPage.tsx`      |
+| `/discogs?link=5` | "Find on Discogs" for record 5: fills in its cover              | `pages/DiscogsPage.tsx`      |
+| `/diary`          | Your listening diary: every play, newest first, by day          | `pages/DiaryPage.tsx`        |
+| `/stats`          | Totals, most-listened artists and records, genres by month      | `pages/StatsPage.tsx`        |
+| `/dust`           | Records gathering dust and never played, plus "Pick one for me" | `pages/DustPage.tsx`         |
+| anything else     | "Not found"                                                     | `pages/NotFoundPage.tsx`     |
 
 ### What happens when you save the form
 
@@ -195,6 +196,7 @@ pages/ ─▶ features/collection/ ─▶ api/ ─▶ server
 | `src/pages/DiscogsPage.tsx`                    | Search Discogs. "Add to collection" imports a release; in link mode, "Use this release" fills in an existing record.       |
 | `src/pages/DiaryPage.tsx`                      | The listening diary: every logged play, grouped by day.                                                                    |
 | `src/pages/StatsPage.tsx`                      | The Stats page: pick a period, see totals, top 10 lists and the genre chart. Loaded lazily (see below).                    |
+| `src/pages/DustPage.tsx`                       | The dust report: forgotten records, the days setting, and "Pick one for me".                                               |
 | `src/pages/NotFoundPage.tsx`                   | Shown for addresses (or records) that don't exist.                                                                         |
 | `src/features/discogs/DiscogsResult.tsx`       | One release in the Discogs results: thumbnail, details, and a button.                                                      |
 | `src/features/spins/RecordPlays.tsx`           | The listening part of a record's page: play count, "Log a play", its plays and its tracklist.                              |
@@ -208,6 +210,8 @@ pages/ ─▶ features/collection/ ─▶ api/ ─▶ server
 | `src/features/stats/RankedBars.tsx`            | A top-10 list with a bar for each entry and the numbers at the end of the bar.                                             |
 | `src/features/stats/StatTiles.tsx`             | The row of big numbers (plays, hours, records, artists).                                                                   |
 | `src/features/stats/format.ts`                 | Writes times like "12.5 h" and "1 h 05 min", and months like "Oct".                                                        |
+| `src/features/dust/DustGrid.tsx`               | A grid of forgotten records, each saying "Last played 4 months ago" or "Added 2 years ago".                                |
+| `src/features/dust/time-ago.ts`                | Turns a number of days into words like "4 months ago".                                                                     |
 | `src/features/collection/RecordForm.tsx`       | **The add/edit form**: every field, the problem messages, and the Save button.                                             |
 | `src/features/collection/form-values.ts`       | Converts between what you type ("42:49") and what the server wants (2569 seconds), and checks it.                          |
 | `src/features/collection/TagInput.tsx`         | The box for genres and styles: type, press Enter, get a chip with an ×.                                                    |
@@ -221,6 +225,7 @@ pages/ ─▶ features/collection/ ─▶ api/ ─▶ server
 | `src/api/discogs.ts`                           | Hooks for Discogs: `useDiscogsSearch`, `useImportRelease`, `useLinkRecord`. They only talk to our server.                  |
 | `src/api/spins.ts`                             | Hooks for the diary: `useTracks`, `useSpins`, `useLogSpin`, `useDeleteSpin`.                                               |
 | `src/api/stats.ts`                             | `useStats(period)`: turns "this year" into an exact start time in your time zone and fetches the numbers.                  |
+| `src/api/dust.ts`                              | Hooks for the dust report and settings: `useDustReport`, `useSettings`, `useUpdateSettings`.                               |
 | `src/api/health.ts`                            | A hook (`useHealth`) for the server status shown in the footer.                                                            |
 | `src/index.css`                                | How everything looks, including light and dark mode.                                                                       |
 | `src/test/fake-api.ts`                         | A pretend server for tests, plus `makeRecord()` for sample data.                                                           |

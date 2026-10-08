@@ -10,6 +10,7 @@
 //   /discogs          -> DiscogsPage (search Discogs and import)
 //   /diary            -> DiaryPage (every logged play, newest first)
 //   /stats            -> StatsPage (totals, top artists/records, genres by month)
+//   /dust             -> DustPage (records you haven't played in a while)
 //   anything else     -> NotFoundPage
 // ============================================================================
 
@@ -19,6 +20,7 @@ import { Layout } from './components/Layout';
 import { CollectionPage } from './pages/CollectionPage';
 import { DiaryPage } from './pages/DiaryPage';
 import { DiscogsPage } from './pages/DiscogsPage';
+import { DustPage } from './pages/DustPage';
 import { EditRecordPage } from './pages/EditRecordPage';
 import { NewRecordPage } from './pages/NewRecordPage';
 import { NotFoundPage } from './pages/NotFoundPage';
@@ -41,6 +43,7 @@ export function App() {
         <Route path="records/:id/edit" element={<EditRecordPage />} />
         <Route path="discogs" element={<DiscogsPage />} />
         <Route path="diary" element={<DiaryPage />} />
+        <Route path="dust" element={<DustPage />} />
         <Route
           path="stats"
           element={

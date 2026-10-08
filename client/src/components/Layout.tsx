@@ -31,6 +31,7 @@ export function Layout() {
           </NavLink>
           <NavLink to="/diary">Diary</NavLink>
           <NavLink to="/stats">Stats</NavLink>
+          <NavLink to="/dust">Dust</NavLink>
           <NavLink to="/discogs">Add from Discogs</NavLink>
         </nav>
       </header>
