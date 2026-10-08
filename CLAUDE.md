@@ -1,6 +1,8 @@
 # Vinyl Tracker
 
-A collection tracker and **listening log for physical records**. Spotify and Last.fm only see digital streams; nothing records it when a record goes on a turntable. This app does. Every feature should support that angle.
+**A Letterboxd for physical music.** Track the records you own, keep a diary of what you play (by side), and later rate, review, share a public profile and get suggestions based on your own shelf. Discogs supplies record details; Last.fm supplies streaming history.
+
+Similar apps exist for single pieces (vinyl scrobblers, spin loggers with stylus tracking, e.g. Discrobble, Dead Format, Spindle, Spun It, VinylScape), so the pitch is the combination: one web app that does the collection, the diary, the vinyl-specific tools and the social/discovery layer, with features built on data only this app has (what you own + what you actually play).
 
 Portfolio project, so code quality, tests, and a clean commit history matter as much as features.
 
@@ -10,21 +12,23 @@ M0–M4 are done (scaffold, CI, database + records API, collection UI, Discogs s
 
 ## Features
 
-Core:
+Built or in progress:
 
-- **Collection**: add records manually or import them from the Discogs API (search, then import release details).
-- **Listening log**: log a "spin" (record, when, how long, which sides).
+- **Collection**: add records manually or import them from Discogs (search, then import), including the tracklist.
+- **Listening log (the diary)**: log a "spin" by side (A, B, C...): when it started, how long, which sides, which tracks. A full play is one click (all sides ticked). Song-level picking may come later; spins already store the tracks they covered.
+
+Planned:
+
 - **Stats**: most-played artists, genres/styles by month.
-
-Vinyl-specific (the differentiators):
-
-- **Dust report**: records you own but haven't played in N days, or have never played.
-- **Stylus wear tracker**: adds up logged spin minutes against the active stylus's rated lifespan and warns when it's time to replace it.
-
-Later:
-
-- **Streaming vs. shelf**: compares Last.fm top albums with the collection ("streamed 200×, not on your shelf") and turns the gaps into wishlist suggestions.
-- **Collection value over time**: periodic Discogs marketplace price snapshots, shown as a chart.
+- **Dust report**: records you own but haven't played in N days, or never.
+- **Stylus wear tracker**: logged play time against the stylus's rated lifespan.
+- **Accounts**: sign up / log in; every user has their own collection and diary. The app is single-user until then; records will gain a user owner and spins inherit it through their record.
+- **Public profiles** (owner's top priority among the new features): a shareable page of someone's shelf, most-played records and year in records.
+- **Ratings and reviews**: Letterboxd-style, attached to records and to diary entries (spins).
+- **"What should I play tonight?"**: suggests records from your own shelf by time available, genre and how long since they were last played.
+- **Streaming vs. shelf with prices**: Last.fm top albums you don't own, with the current Discogs marketplace price ("streamed 214×, about $28 on vinyl"); optional Last.fm scrobbling of logged spins (per track, needs a tracklist; Last.fm only accepts recent timestamps).
+- **Recommendations** based on what you own.
+- **Collection value over time**: periodic Discogs price snapshots, charted.
 
 ## Stack
 
@@ -155,12 +159,17 @@ Validation errors are 400 `VALIDATION` with `field: message` pairs joined by `; 
 - [x] M2 Database + records CRUD API (manual entry), migrations, seed data
 - [x] M3 Collection UI: grid/list, detail page, add/edit form
 - [x] M4 Discogs search + import (server proxy, rate limit, cache) + UI
-- [ ] M5 Listening log: log a spin, spin history
+- [ ] M5 Listening log by side: save tracklists, log a spin (sides, start time, length), diary/history page
 - [ ] M6 Stats: most-played artists, genres by month (charts)
 - [ ] M7 Dust report
 - [ ] M8 Stylus wear tracker
 - [ ] M9 Playwright E2E for core flows; add to CI
 - [ ] M10 Deploy (CD): Docker image + host with a persistent volume for SQLite
-- [ ] M11 Streaming vs. shelf (Last.fm) + wishlist
-- [ ] M12 Collection value over time (scheduled price snapshots)
-- [ ] M13 Polish: README with screenshots/GIF, demo data, architecture notes
+- [ ] M11 Accounts: sign up, log in, sessions, per-user collections (migrate existing data to a first user)
+- [ ] M12 Public profiles: shareable shelf, most-played, year in records
+- [ ] M13 Ratings and reviews (on records and on diary entries)
+- [ ] M14 "What should I play tonight?" picker
+- [ ] M15 Streaming vs. shelf with Discogs prices (Last.fm) + wishlist; optional scrobbling
+- [ ] M16 Recommendations based on what you own
+- [ ] M17 Collection value over time (scheduled price snapshots)
+- [ ] M18 Polish: README with screenshots/GIF, demo data, architecture notes
