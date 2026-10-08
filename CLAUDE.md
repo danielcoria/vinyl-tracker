@@ -132,14 +132,19 @@ Planned: `npm run test:e2e` (M9).
 
 ## API
 
-| Method | Path                    | Notes                                                                                                            |
-| ------ | ----------------------- | ---------------------------------------------------------------------------------------------------------------- |
-| GET    | `/api/health`           | `{ status, uptimeSeconds }`                                                                                      |
-| GET    | `/api/records?q=&sort=` | `{ records }`. `q` matches title or artist; `sort` is `added` (default, newest first), `artist`, `title`, `year` |
-| GET    | `/api/records/:id`      | 404 if missing                                                                                                   |
-| POST   | `/api/records`          | Body: `recordInputSchema`. 201 + `Location` header                                                               |
-| PUT    | `/api/records/:id`      | Full replace, including artists and tags                                                                         |
-| DELETE | `/api/records/:id`      | 204                                                                                                              |
+| Method | Path                           | Notes                                                                                                                 |
+| ------ | ------------------------------ | --------------------------------------------------------------------------------------------------------------------- |
+| GET    | `/api/health`                  | `{ status, uptimeSeconds }`                                                                                           |
+| GET    | `/api/records?q=&sort=`        | `{ records }`. `q` matches title or artist; `sort` is `added` (default, newest first), `artist`, `title`, `year`      |
+| GET    | `/api/records/:id`             | 404 if missing                                                                                                        |
+| POST   | `/api/records`                 | Body: `recordInputSchema`. 201 + `Location` header                                                                    |
+| PUT    | `/api/records/:id`             | Full replace, including artists and tags                                                                              |
+| DELETE | `/api/records/:id`             | 204                                                                                                                   |
+| GET    | `/api/discogs/search?q=&page=` | `{ results, page, pages }`; each result has `inCollectionId` (record id if already imported). 20 per page, vinyl only |
+| POST   | `/api/discogs/import`          | `{ releaseId }`. 201 + new record; 409 `ALREADY_IN_COLLECTION` if imported before                                     |
+| POST   | `/api/discogs/link`            | `{ recordId, releaseId }`. Sets the release id and fills only empty fields + cover; never overwrites user data        |
+
+Discogs routes answer 503 `DISCOGS_NOT_CONFIGURED` without a token. Discogs failures map to `DISCOGS_NOT_FOUND` (404), `DISCOGS_BUSY` (503, our 60/min limit or theirs), `DISCOGS_AUTH` / `DISCOGS_UNAVAILABLE` / `DISCOGS_BAD_RESPONSE` (502). Server tests use `fakeDiscogs()` from `test/discogs-helpers.ts` with recorded fixtures; never call the real API in tests.
 
 Validation errors are 400 `VALIDATION` with `field: message` pairs joined by `; `.
 

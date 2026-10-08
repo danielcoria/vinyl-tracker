@@ -1,0 +1,147 @@
+{
+  "id": 2772432,
+  "title": "Kind Of Blue",
+  "year": 2010,
+  "country": "France",
+  "artists": [
+    {
+      "name": "Miles Davis",
+      "anv": "",
+      "join": "",
+      "role": "",
+      "tracks": "",
+      "id": 23755,
+      "resource_url": "https://api.discogs.com/artists/23755",
+      "thumbnail_url": "https://i.discogs.com/-ov32suDuJlZACym6tbwfcu4dFWYrGXmvlnWi1qrwh0/rs:fit/g:sm/q:90/h:600/w:600/czM6Ly9kaXNjb2dz/LWRhdGFiYXNlLWlt/YWdlcy9BLTIzNzU1/LTE3NTY0ODc2NjMt/NDA3My5qcGVn.jpeg"
+    }
+  ],
+  "labels": [
+    {
+      "name": "Columbia",
+      "catno": "CS 8163",
+      "entity_type": "1",
+      "entity_type_name": "Label",
+      "id": 1866,
+      "resource_url": "https://api.discogs.com/labels/1866",
+      "thumbnail_url": "https://i.discogs.com/JuO51-lZvasOtw8-yLUjsen-4O17uPH1A9SILCO-lG4/rs:fit/g:sm/q:90/h:300/w:299/czM6Ly9kaXNjb2dz/LWRhdGFiYXNlLWlt/YWdlcy9MLTE4NjYt/MTIzMzE5MzU1Ny5q/cGVn.jpeg"
+    }
+  ],
+  "formats": [
+    {
+      "name": "Vinyl",
+      "qty": "1",
+      "descriptions": ["LP", "Album", "Reissue", "Stereo"],
+      "text": "180 gram"
+    }
+  ],
+  "genres": ["Jazz"],
+  "styles": ["Modal"],
+  "tracklist": [
+    {
+      "position": "A1",
+      "type_": "track",
+      "title": "So What",
+      "duration": "8:56"
+    },
+    {
+      "position": "A2",
+      "type_": "track",
+      "title": "Freddie Freeloader",
+      "duration": "9:32"
+    },
+    {
+      "position": "A3",
+      "type_": "track",
+      "title": "Blue In Green",
+      "duration": "5:27"
+    },
+    {
+      "position": "B1",
+      "type_": "track",
+      "title": "All Blues",
+      "duration": "11:34"
+    },
+    {
+      "position": "B2",
+      "type_": "track",
+      "title": "Flamenco Sketches",
+      "duration": "9:32"
+    }
+  ],
+  "images": [
+    {
+      "type": "primary",
+      "uri": "https://i.discogs.com/HocOgI_8yE8Ggm3X0gCbXOy0IjNiP_rNr2a24dizxz4/rs:fit/g:sm/q:90/h:500/w:500/czM6Ly9kaXNjb2dz/LWRhdGFiYXNlLWlt/YWdlcy9SLTI3NzI0/MzItMTMwMjg0NjQ4/OC5qcGVn.jpeg",
+      "resource_url": "https://i.discogs.com/HocOgI_8yE8Ggm3X0gCbXOy0IjNiP_rNr2a24dizxz4/rs:fit/g:sm/q:90/h:500/w:500/czM6Ly9kaXNjb2dz/LWRhdGFiYXNlLWlt/YWdlcy9SLTI3NzI0/MzItMTMwMjg0NjQ4/OC5qcGVn.jpeg",
+      "uri150": "https://i.discogs.com/QP6-9bENVcMw1-tYIu-2GaG0YgFuf7otB5WUmaMJm9w/rs:fit/g:sm/q:40/h:150/w:150/czM6Ly9kaXNjb2dz/LWRhdGFiYXNlLWlt/YWdlcy9SLTI3NzI0/MzItMTMwMjg0NjQ4/OC5qcGVn.jpeg",
+      "width": 500,
+      "height": 500
+    },
+    {
+      "type": "secondary",
+      "uri": "https://i.discogs.com/YJgBfAEKEZK_bIYwrp0mvYyRgL6cVm4tL_fS67mu4YQ/rs:fit/g:sm/q:90/h:600/w:595/czM6Ly9kaXNjb2dz/LWRhdGFiYXNlLWlt/YWdlcy9SLTI3NzI0/MzItMTUxNDY2NDY2/OS0xMzUzLmpwZWc.jpeg",
+      "resource_url": "https://i.discogs.com/YJgBfAEKEZK_bIYwrp0mvYyRgL6cVm4tL_fS67mu4YQ/rs:fit/g:sm/q:90/h:600/w:595/czM6Ly9kaXNjb2dz/LWRhdGFiYXNlLWlt/YWdlcy9SLTI3NzI0/MzItMTUxNDY2NDY2/OS0xMzUzLmpwZWc.jpeg",
+      "uri150": "https://i.discogs.com/pJdIgKgeEc2RNcKrHzYHifHgETerISp5FXaEaehDFIo/rs:fit/g:sm/q:40/h:150/w:150/czM6Ly9kaXNjb2dz/LWRhdGFiYXNlLWlt/YWdlcy9SLTI3NzI0/MzItMTUxNDY2NDY2/OS0xMzUzLmpwZWc.jpeg",
+      "width": 595,
+      "height": 600
+    },
+    {
+      "type": "secondary",
+      "uri": "https://i.discogs.com/K-0QyXbOJ0WBkDgM_eBaa51LmA4x4omw_pUazWEz8Z8/rs:fit/g:sm/q:90/h:579/w:600/czM6Ly9kaXNjb2dz/LWRhdGFiYXNlLWlt/YWdlcy9SLTI3NzI0/MzItMTMwMTU3MTEx/Mi5qcGVn.jpeg",
+      "resource_url": "https://i.discogs.com/K-0QyXbOJ0WBkDgM_eBaa51LmA4x4omw_pUazWEz8Z8/rs:fit/g:sm/q:90/h:579/w:600/czM6Ly9kaXNjb2dz/LWRhdGFiYXNlLWlt/YWdlcy9SLTI3NzI0/MzItMTMwMTU3MTEx/Mi5qcGVn.jpeg",
+      "uri150": "https://i.discogs.com/YckxquK6yocL2fWXtA4vyw3HexbkHsZ5mdOH7BjJHu0/rs:fit/g:sm/q:40/h:150/w:150/czM6Ly9kaXNjb2dz/LWRhdGFiYXNlLWlt/YWdlcy9SLTI3NzI0/MzItMTMwMTU3MTEx/Mi5qcGVn.jpeg",
+      "width": 600,
+      "height": 579
+    },
+    {
+      "type": "secondary",
+      "uri": "https://i.discogs.com/yBeJvKcogPm--Mj9JRJN2SJmXpL9XWJ98a_f68CaVx0/rs:fit/g:sm/q:90/h:599/w:600/czM6Ly9kaXNjb2dz/LWRhdGFiYXNlLWlt/YWdlcy9SLTI3NzI0/MzItMTMwMTU3MTA1/Ny5qcGVn.jpeg",
+      "resource_url": "https://i.discogs.com/yBeJvKcogPm--Mj9JRJN2SJmXpL9XWJ98a_f68CaVx0/rs:fit/g:sm/q:90/h:599/w:600/czM6Ly9kaXNjb2dz/LWRhdGFiYXNlLWlt/YWdlcy9SLTI3NzI0/MzItMTMwMTU3MTA1/Ny5qcGVn.jpeg",
+      "uri150": "https://i.discogs.com/NtZew90Bs5pRYW6cn5TkPxUFX-_nczkYI1NFwzSMuVc/rs:fit/g:sm/q:40/h:150/w:150/czM6Ly9kaXNjb2dz/LWRhdGFiYXNlLWlt/YWdlcy9SLTI3NzI0/MzItMTMwMTU3MTA1/Ny5qcGVn.jpeg",
+      "width": 600,
+      "height": 599
+    },
+    {
+      "type": "secondary",
+      "uri": "https://i.discogs.com/v9xreiP0C1YdgWQFuzkvbv6UFle7Rn8e3fjJ0bAzZwY/rs:fit/g:sm/q:90/h:599/w:600/czM6Ly9kaXNjb2dz/LWRhdGFiYXNlLWlt/YWdlcy9SLTI3NzI0/MzItMTUzMzEyNDc2/MC05MTAzLmpwZWc.jpeg",
+      "resource_url": "https://i.discogs.com/v9xreiP0C1YdgWQFuzkvbv6UFle7Rn8e3fjJ0bAzZwY/rs:fit/g:sm/q:90/h:599/w:600/czM6Ly9kaXNjb2dz/LWRhdGFiYXNlLWlt/YWdlcy9SLTI3NzI0/MzItMTUzMzEyNDc2/MC05MTAzLmpwZWc.jpeg",
+      "uri150": "https://i.discogs.com/uljJ1tLuO5GbBqReyvI9UGnLqDK-42n5n-YBKa-zvvk/rs:fit/g:sm/q:40/h:150/w:150/czM6Ly9kaXNjb2dz/LWRhdGFiYXNlLWlt/YWdlcy9SLTI3NzI0/MzItMTUzMzEyNDc2/MC05MTAzLmpwZWc.jpeg",
+      "width": 600,
+      "height": 599
+    },
+    {
+      "type": "secondary",
+      "uri": "https://i.discogs.com/_Pgv9Yx1y4a0RM0tM0T6sdd_0slFDV74Q0rJdEe7BNw/rs:fit/g:sm/q:90/h:600/w:304/czM6Ly9kaXNjb2dz/LWRhdGFiYXNlLWlt/YWdlcy9SLTI3NzI0/MzItMTU0NzM4MDM1/NS03NTcxLm1wbw.jpeg",
+      "resource_url": "https://i.discogs.com/_Pgv9Yx1y4a0RM0tM0T6sdd_0slFDV74Q0rJdEe7BNw/rs:fit/g:sm/q:90/h:600/w:304/czM6Ly9kaXNjb2dz/LWRhdGFiYXNlLWlt/YWdlcy9SLTI3NzI0/MzItMTU0NzM4MDM1/NS03NTcxLm1wbw.jpeg",
+      "uri150": "https://i.discogs.com/P1NHgrx8qRxwZmsXhk1ImhL6nQO-7Mdu7senp9L8y6g/rs:fit/g:sm/q:40/h:150/w:150/czM6Ly9kaXNjb2dz/LWRhdGFiYXNlLWlt/YWdlcy9SLTI3NzI0/MzItMTU0NzM4MDM1/NS03NTcxLm1wbw.jpeg",
+      "width": 304,
+      "height": 600
+    },
+    {
+      "type": "secondary",
+      "uri": "https://i.discogs.com/wFuUaFD7yBH_D1T_l3VcIj6NffD3JJU-okcbgwFYdJw/rs:fit/g:sm/q:90/h:600/w:304/czM6Ly9kaXNjb2dz/LWRhdGFiYXNlLWlt/YWdlcy9SLTI3NzI0/MzItMTU0NzM4MDM1/OC02NzcwLm1wbw.jpeg",
+      "resource_url": "https://i.discogs.com/wFuUaFD7yBH_D1T_l3VcIj6NffD3JJU-okcbgwFYdJw/rs:fit/g:sm/q:90/h:600/w:304/czM6Ly9kaXNjb2dz/LWRhdGFiYXNlLWlt/YWdlcy9SLTI3NzI0/MzItMTU0NzM4MDM1/OC02NzcwLm1wbw.jpeg",
+      "uri150": "https://i.discogs.com/K1D97kgnklnbVEYHwyDoLgLAdMKfuxckpu7yoKE056U/rs:fit/g:sm/q:40/h:150/w:150/czM6Ly9kaXNjb2dz/LWRhdGFiYXNlLWlt/YWdlcy9SLTI3NzI0/MzItMTU0NzM4MDM1/OC02NzcwLm1wbw.jpeg",
+      "width": 304,
+      "height": 600
+    },
+    {
+      "type": "secondary",
+      "uri": "https://i.discogs.com/fX3k7fu3vPqyQW3GEI0wDcqO33XANiGCbkvvcAFQqgI/rs:fit/g:sm/q:90/h:600/w:297/czM6Ly9kaXNjb2dz/LWRhdGFiYXNlLWlt/YWdlcy9SLTI3NzI0/MzItMTU0NzM4MDM1/OS02OTM4Lm1wbw.jpeg",
+      "resource_url": "https://i.discogs.com/fX3k7fu3vPqyQW3GEI0wDcqO33XANiGCbkvvcAFQqgI/rs:fit/g:sm/q:90/h:600/w:297/czM6Ly9kaXNjb2dz/LWRhdGFiYXNlLWlt/YWdlcy9SLTI3NzI0/MzItMTU0NzM4MDM1/OS02OTM4Lm1wbw.jpeg",
+      "uri150": "https://i.discogs.com/LjLX5YO34FkiGazX_5UxmYP_TDObgU9LW66VPjVmGBw/rs:fit/g:sm/q:40/h:150/w:150/czM6Ly9kaXNjb2dz/LWRhdGFiYXNlLWlt/YWdlcy9SLTI3NzI0/MzItMTU0NzM4MDM1/OS02OTM4Lm1wbw.jpeg",
+      "width": 297,
+      "height": 600
+    },
+    {
+      "type": "secondary",
+      "uri": "https://i.discogs.com/FTZpehObAoGIuZtX5vX7TzpS5eZWAcyNFZKiCRCu0rs/rs:fit/g:sm/q:90/h:600/w:591/czM6Ly9kaXNjb2dz/LWRhdGFiYXNlLWlt/YWdlcy9SLTI3NzI0/MzItMTU0NzM4MDM2/MC01NDQ4Lm1wbw.jpeg",
+      "resource_url": "https://i.discogs.com/FTZpehObAoGIuZtX5vX7TzpS5eZWAcyNFZKiCRCu0rs/rs:fit/g:sm/q:90/h:600/w:591/czM6Ly9kaXNjb2dz/LWRhdGFiYXNlLWlt/YWdlcy9SLTI3NzI0/MzItMTU0NzM4MDM2/MC01NDQ4Lm1wbw.jpeg",
+      "uri150": "https://i.discogs.com/oflhWyPLfVnUTl6lBaFVgLuMVAjB01FFI9gzHD0tA60/rs:fit/g:sm/q:40/h:150/w:150/czM6Ly9kaXNjb2dz/LWRhdGFiYXNlLWlt/YWdlcy9SLTI3NzI0/MzItMTU0NzM4MDM2/MC01NDQ4Lm1wbw.jpeg",
+      "width": 591,
+      "height": 600
+    }
+  ],
+  "thumb": "https://i.discogs.com/QP6-9bENVcMw1-tYIu-2GaG0YgFuf7otB5WUmaMJm9w/rs:fit/g:sm/q:40/h:150/w:150/czM6Ly9kaXNjb2dz/LWRhdGFiYXNlLWlt/YWdlcy9SLTI3NzI0/MzItMTMwMjg0NjQ4/OC5qcGVn.jpeg",
+  "uri": "https://www.discogs.com/release/2772432-Miles-Davis-Kind-Of-Blue"
+}

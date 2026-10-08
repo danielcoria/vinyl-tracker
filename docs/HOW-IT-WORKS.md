@@ -118,6 +118,7 @@ Every code file also starts with a comment explaining what it does, so you can o
 | `src/records.ts` | **What a record looks like**: the rules for adding or editing one (title required, valid year, condition grades…) and the shape sent back. |
 | `src/health.ts`  | The shape of the "are you alive?" answer.                                                                                                  |
 | `src/errors.ts`  | The one format every error uses: `{ "error": { "code", "message" } }`.                                                                     |
+| `src/discogs.ts` | What Discogs search results and imports look like, as our server sends them to the website.                                                |
 | `src/index.ts`   | Re-exports everything so other code can `import { … } from '@vinyl/shared'`.                                                               |
 
 ### `server/`: the kitchen
@@ -140,12 +141,19 @@ request ─▶ app.ts ─▶ routes/ ─▶ services/ ─▶ db/ ─▶ database
 | `src/middleware/error-handler.ts`                                          | Turns any error into the standard error response.                                                                   |
 | `src/routes/records.ts`                                                    | The record addresses: list, get, add, edit, delete. Short on purpose: check input, call the service, reply.         |
 | `src/services/records.ts`                                                  | **The real work**: searching, sorting, saving and deleting records in the database.                                 |
+| `src/routes/discogs.ts`                                                    | The Discogs addresses: search, import a release, link a record to a release.                                        |
+| `src/services/discogs.ts`                                                  | Searches Discogs, imports a release as a new record, or fills in an existing record (cover and empty details only). |
+| `src/integrations/discogs/client.ts`                                       | **Talks to Discogs.** Sends the token, remembers recent answers, stays under 60 requests a minute.                  |
+| `src/integrations/discogs/mapping.ts`                                      | Converts Discogs data to our format: cleans names, picks the format, adds up track lengths.                         |
+| `src/integrations/discogs/schemas.ts`                                      | The fields we read from Discogs, checked so surprises are caught early.                                             |
+| `src/integrations/discogs/rate-limiter.ts`, `ttl-cache.ts`                 | The 60-a-minute limit and the memory of recent answers.                                                             |
 | `src/db/schema.ts`                                                         | **The database tables** and their columns.                                                                          |
 | `src/db/client.ts`                                                         | Opens the database file and makes sure its tables are up to date.                                                   |
 | `src/db/seed.ts`                                                           | Adds 11 sample albums for development.                                                                              |
 | `src/db/migrate.ts`                                                        | Applies database updates by hand (the server also does it on start).                                                |
 | `drizzle/`                                                                 | **Migrations**: generated files of instructions that create and update the tables. Committed; never edited by hand. |
 | `test/`                                                                    | Automatic tests. `helpers.ts` gives each test its own temporary database.                                           |
+| `test/fixtures/discogs/`                                                   | Real Discogs answers saved as files, so tests never contact Discogs or need a token.                                |
 | `drizzle.config.ts`, `tsup.config.ts`, `vitest.config.ts`, `tsconfig.json` | Settings for the database tools, the build, the tests and TypeScript.                                               |
 
 ### `client/`: the dining room

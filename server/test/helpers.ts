@@ -7,13 +7,16 @@
 // ============================================================================
 
 import type { RecordInput } from '@vinyl/shared';
-import { createApp } from '../src/app.js';
+import { createApp, type AppDeps } from '../src/app.js';
 import { createDb } from '../src/db/client.js';
 
-/** A fresh app on its own in-memory database, fully migrated. */
-export function makeTestApp() {
+/**
+ * A fresh app on its own in-memory database, fully migrated.
+ * Pass `discogs` (see discogs-helpers.ts) to turn on the Discogs features.
+ */
+export function makeTestApp({ discogs = null }: Pick<AppDeps, 'discogs'> = {}) {
   const db = createDb(':memory:');
-  return { app: createApp({ db }), db };
+  return { app: createApp({ db, discogs }), db };
 }
 
 export function recordInput(overrides: Partial<RecordInput> = {}): RecordInput {

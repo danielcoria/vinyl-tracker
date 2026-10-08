@@ -23,3 +23,10 @@ export class NotFoundError extends AppError {
     super(404, 'NOT_FOUND', message);
   }
 }
+
+/** The request clashes with what's already saved, e.g. importing a record twice. */
+export class ConflictError extends AppError {
+  constructor(code: string, message: string) {
+    super(409, code, message);
+  }
+}
