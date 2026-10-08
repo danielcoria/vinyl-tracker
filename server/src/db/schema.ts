@@ -150,3 +150,12 @@ export const spinTracks = sqliteTable(
     index('spin_tracks_track_idx').on(t.trackId),
   ],
 );
+
+/**
+ * App settings, one row per setting (e.g. key "dustThresholdDays", value "90").
+ * Values are stored as JSON text; services/settings.ts checks and fills in defaults.
+ */
+export const settings = sqliteTable('settings', {
+  key: text('key').primaryKey(),
+  value: text('value').notNull(),
+});

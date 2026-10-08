@@ -17,6 +17,7 @@ import type { Db } from './db/client.js';
 import type { DiscogsClient } from './integrations/discogs/client.js';
 import { errorHandler, notFoundHandler } from './middleware/error-handler.js';
 import { discogsRouter } from './routes/discogs.js';
+import { dustRouter, settingsRouter } from './routes/dust.js';
 import { recordsRouter } from './routes/records.js';
 import { spinsRouter } from './routes/spins.js';
 import { statsRouter } from './routes/stats.js';
@@ -46,6 +47,9 @@ export function createApp({ db, discogs = null }: AppDeps) {
   app.use('/api/spins', spinsRouter(db));
   // Totals and rankings for the Stats page: routes/stats.ts.
   app.use('/api/stats', statsRouter(db));
+  // The dust report and app settings: routes/dust.ts.
+  app.use('/api/dust', dustRouter(db));
+  app.use('/api/settings', settingsRouter(db));
   // Searching and importing from Discogs: routes/discogs.ts.
   app.use('/api/discogs', discogsRouter(db, discogs));
 

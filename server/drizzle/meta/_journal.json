@@ -15,6 +15,13 @@
       "when": 1791436605956,
       "tag": "0001_listening_log",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "6",
+      "when": 1791488022972,
+      "tag": "0002_settings",
+      "breakpoints": true
     }
   ]
 }

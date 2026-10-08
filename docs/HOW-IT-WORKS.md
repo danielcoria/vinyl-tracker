@@ -117,15 +117,17 @@ Every code file also starts with a comment explaining what it does, so you can o
 
 ### `shared/`: the contracts
 
-| File             | What it does                                                                                                                               |
-| ---------------- | ------------------------------------------------------------------------------------------------------------------------------------------ |
-| `src/records.ts` | **What a record looks like**: the rules for adding or editing one (title required, valid year, condition grades…) and the shape sent back. |
-| `src/health.ts`  | The shape of the "are you alive?" answer.                                                                                                  |
-| `src/errors.ts`  | The one format every error uses: `{ "error": { "code", "message" } }`.                                                                     |
-| `src/discogs.ts` | What Discogs search results and imports look like, as our server sends them to the website.                                                |
-| `src/spins.ts`   | What a track and a logged play ("spin") look like, and the rules for logging one (e.g. no plays in the future).                            |
-| `src/stats.ts`   | What the Stats page gets: totals, top artists and records, and genres by month.                                                            |
-| `src/index.ts`   | Re-exports everything so other code can `import { … } from '@vinyl/shared'`.                                                               |
+| File              | What it does                                                                                                                               |
+| ----------------- | ------------------------------------------------------------------------------------------------------------------------------------------ |
+| `src/records.ts`  | **What a record looks like**: the rules for adding or editing one (title required, valid year, condition grades…) and the shape sent back. |
+| `src/health.ts`   | The shape of the "are you alive?" answer.                                                                                                  |
+| `src/errors.ts`   | The one format every error uses: `{ "error": { "code", "message" } }`.                                                                     |
+| `src/discogs.ts`  | What Discogs search results and imports look like, as our server sends them to the website.                                                |
+| `src/spins.ts`    | What a track and a logged play ("spin") look like, and the rules for logging one (e.g. no plays in the future).                            |
+| `src/stats.ts`    | What the Stats page gets: totals, top artists and records, and genres by month.                                                            |
+| `src/dust.ts`     | What the dust report looks like: records gathering dust and never played.                                                                  |
+| `src/settings.ts` | The app's settings (like how many days counts as "dusty") and their defaults.                                                              |
+| `src/index.ts`    | Re-exports everything so other code can `import { … } from '@vinyl/shared'`.                                                               |
 
 ### `server/`: the kitchen
 
@@ -152,6 +154,9 @@ request ─▶ app.ts ─▶ routes/ ─▶ services/ ─▶ db/ ─▶ database
 | `src/services/tracks.ts`                                                   | A record's tracklist: reads it, and saves it from Discogs (keeping one that logged plays depend on).                |
 | `src/routes/stats.ts`                                                      | The Stats address: numbers for a chosen period.                                                                     |
 | `src/services/stats.ts`                                                    | **Adds up the diary**: totals, most-listened artists and records, listening time per genre per month.               |
+| `src/routes/dust.ts`                                                       | The dust report and settings addresses.                                                                             |
+| `src/services/dust.ts`                                                     | **The dust report**: finds records not played in N days, and records never played.                                  |
+| `src/services/settings.ts`                                                 | Reads and saves settings, using defaults for anything not saved yet.                                                |
 | `src/routes/discogs.ts`                                                    | The Discogs addresses: search, import a release, link a record to a release.                                        |
 | `src/services/discogs.ts`                                                  | Searches Discogs, imports a release as a new record, or fills in an existing record (cover and empty details only). |
 | `src/integrations/discogs/client.ts`                                       | **Talks to Discogs.** Sends the token, remembers recent answers, stays under 60 requests a minute.                  |

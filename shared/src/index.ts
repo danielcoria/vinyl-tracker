@@ -13,3 +13,5 @@ export * from './records.js';
 export * from './discogs.js';
 export * from './spins.js';
 export * from './stats.js';
+export * from './settings.js';
+export * from './dust.js';

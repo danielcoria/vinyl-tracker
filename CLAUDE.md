@@ -86,11 +86,11 @@ Built so far (M2), defined in `server/src/db/schema.ts`:
 - `spins` (M5, the diary): record_id (cascade), played_at (start time), duration_seconds, sides ("A,B" in record order, or null = whole record), notes, created_at
 - `spin_tracks` (M5): spin_id, track_id. Which tracks a spin covered (for song stats and scrobbling later)
 - Records expose `spinCount` and `lastPlayedAt`, computed from `spins` in `hydrate()`, never stored.
+- `settings` (M7): key, value (JSON text). Read through `services/settings.ts`, which validates each value against `settingsSchema` and falls back to `DEFAULT_SETTINGS`. Add new settings to the shared schema + defaults.
 
 Planned:
 
 - `styluses`: id, name, rated_hours, installed_at, retired_at (null = active; at most one active)
-- `settings`: key, value (dust threshold in days, Last.fm username, and so on)
 - `styluses` will add a `stylus_id` column to `spins` (M8)
 - Later: `wishlist_items`, `lastfm_album_cache`, `price_snapshots` (record_id, captured_at, lowest_price, currency, num_for_sale)
 
