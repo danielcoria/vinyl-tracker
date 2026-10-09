@@ -159,3 +159,23 @@ export const settings = sqliteTable('settings', {
   key: text('key').primaryKey(),
   value: text('value').notNull(),
 });
+
+/**
+ * Turntable styluses (needles). One is "active" (retiredAt is null); installing a
+ * new one retires the previous. Wear isn't stored: it's worked out from the plays
+ * logged between installedAt and retiredAt (see services/styluses.ts).
+ */
+export const styluses = sqliteTable(
+  'styluses',
+  {
+    id: integer('id').primaryKey({ autoIncrement: true }),
+    name: text('name').notNull(),
+    /** The maker's rated lifespan, in hours of play. */
+    ratedHours: integer('rated_hours').notNull(),
+    /** Hours it already had when added to the app (e.g. a used stylus). */
+    initialHours: integer('initial_hours').notNull().default(0),
+    installedAt: text('installed_at').notNull(),
+    retiredAt: text('retired_at'),
+  },
+  (t) => [index('styluses_installed_at_idx').on(t.installedAt)],
+);

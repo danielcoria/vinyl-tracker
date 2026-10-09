@@ -21,6 +21,7 @@ import { dustRouter, settingsRouter } from './routes/dust.js';
 import { recordsRouter } from './routes/records.js';
 import { spinsRouter } from './routes/spins.js';
 import { statsRouter } from './routes/stats.js';
+import { stylusesRouter } from './routes/styluses.js';
 
 /**
  * What the server needs from outside to work. Tests pass in a temporary
@@ -50,6 +51,8 @@ export function createApp({ db, discogs = null }: AppDeps) {
   // The dust report and app settings: routes/dust.ts.
   app.use('/api/dust', dustRouter(db));
   app.use('/api/settings', settingsRouter(db));
+  // Stylus wear tracker: routes/styluses.ts.
+  app.use('/api/styluses', stylusesRouter(db));
   // Searching and importing from Discogs: routes/discogs.ts.
   app.use('/api/discogs', discogsRouter(db, discogs));
 

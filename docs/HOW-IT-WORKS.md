@@ -128,6 +128,7 @@ Every code file also starts with a comment explaining what it does, so you can o
 | `src/stats.ts`    | What the Stats page gets: totals, top artists and records, and genres by month.                                                            |
 | `src/dust.ts`     | What the dust report looks like: records gathering dust and never played.                                                                  |
 | `src/settings.ts` | The app's settings (like how many days counts as "dusty") and their defaults.                                                              |
+| `src/styluses.ts` | What a stylus (turntable needle) looks like, with its wear and status.                                                                     |
 | `src/index.ts`    | Re-exports everything so other code can `import { … } from '@vinyl/shared'`.                                                               |
 
 ### `server/`: the kitchen
@@ -158,6 +159,8 @@ request ─▶ app.ts ─▶ routes/ ─▶ services/ ─▶ db/ ─▶ database
 | `src/routes/dust.ts`                                                       | The dust report and settings addresses.                                                                             |
 | `src/services/dust.ts`                                                     | **The dust report**: finds records not played in N days, and records never played.                                  |
 | `src/services/settings.ts`                                                 | Reads and saves settings, using defaults for anything not saved yet.                                                |
+| `src/routes/styluses.ts`                                                   | The stylus addresses: list, install a new one, edit, delete.                                                        |
+| `src/services/styluses.ts`                                                 | **The stylus wear tracker**: adds up the plays logged while each stylus was installed.                              |
 | `src/routes/discogs.ts`                                                    | The Discogs addresses: search, import a release, link a record to a release.                                        |
 | `src/services/discogs.ts`                                                  | Searches Discogs, imports a release as a new record, or fills in an existing record (cover and empty details only). |
 | `src/integrations/discogs/client.ts`                                       | **Talks to Discogs.** Sends the token, remembers recent answers, stays under 60 requests a minute.                  |
