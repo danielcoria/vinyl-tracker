@@ -8,7 +8,7 @@ Portfolio project, so code quality, tests, and a clean commit history matter as 
 
 ## Status
 
-M0–M9 are done (scaffold, CI, database + records API, collection UI, Discogs search + import, listening log by side, stats, dust report, stylus wear tracker, end-to-end tests). The next milestone is **M10 (deploy)**. Update this section and the milestone checklist as work lands.
+M0–M9 are done (scaffold, CI, database + records API, collection UI, Discogs search + import, listening log by side, stats, dust report, stylus wear tracker, end-to-end tests). M10 (deploy) is in progress: the app is production-ready (Docker image, password lock, server delivers the website), but no host is chosen yet (the owner wants a free one; see docs/DEPLOY.md). After that comes **M11 (accounts)**. Update this section and the milestone checklist as work lands.
 
 ## Features
 
@@ -117,6 +117,7 @@ Derived values (stylus hours used, last-played date, dust status, stats) are **c
 - **Tests:** every service and route gets Vitest coverage. API tests run against an in-memory SQLite DB through `app.ts`. Add a Playwright spec when a user-facing flow is completed.
 - **Commits:** solo project, so commit directly to `main` (no feature branches or PRs unless asked). Write messages in plain, simple language with no "you", "your" or "I": a short past-tense title saying what changed (e.g. "Added record delete button"), then a few short bullets in the same style (e.g. "- Added a search box for title and artist"), in everyday words with no jargon. Keep commits small; one milestone may span several.
 - **CI:** `.github/workflows/ci.yml` runs format:check, lint, typecheck, test and build on Node 22 and 24, plus a separate `e2e` job (Playwright, Chromium), for every PR and every push to `main`. Keep it green: run the same scripts locally before pushing. CI has no secrets, so tests must never need a real `.env` or network access.
+- **Production (M10):** `NODE_ENV=production` makes the server deliver `client/dist` (`middleware/serve-client.ts`, SPA fallback; hashed assets cached a year, index.html no-cache). `APP_PASSWORD` turns on a site-wide Basic Auth lock (`middleware/password-lock.ts`; `/api/health` stays open; 10 wrong guesses per address per 15 min → 429) until real accounts in M11. Helmet sets security headers incl. a CSP (`img-src https:` for Discogs covers, inline styles allowed for React/Recharts, no `upgrade-insecure-requests` so the build works on http://localhost). `TRUST_PROXY=true` behind a host proxy. The Docker image (`Dockerfile`) is verified by the `docker` CI job via `scripts/docker-smoke-test.sh`; Docker isn't installed locally.
 - **Env:** a single `.env` at the repo root, loaded by `server/src/config.ts`. Document every variable in `.env.example`. Never commit `.env`, never log secret values, and never print or echo the contents of `.env`.
 
 ## Commands
@@ -130,6 +131,7 @@ npm run typecheck     # tsc in every workspace
 npm run lint          # ESLint (flat config at root)
 npm run format        # Prettier write; format:check for CI
 npm run build         # server -> server/dist (tsup), client -> client/dist (Vite)
+npm start             # run the built app (NODE_ENV=production also serves the website)
 npm test -w server    # one workspace only
 
 npm run db:seed -w server               # sample records into an empty dev DB (data/vinyl.db)

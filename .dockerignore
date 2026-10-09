@@ -1,0 +1,16 @@
+# .dockerignore: FILES DOCKER LEAVES OUT WHEN BUILDING THE IMAGE
+# Secrets, local data and anything rebuilt inside the image anyway.
+
+.git
+.github
+**/node_modules
+**/dist
+data
+*.db
+*.db-*
+.env
+.env.*
+e2e/.tmp
+e2e/test-results
+e2e/playwright-report
+coverage

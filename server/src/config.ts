@@ -21,11 +21,19 @@ const envSchema = z.object({
   NODE_ENV: z.enum(['development', 'test', 'production']).default('development'),
   PORT: z.coerce.number().int().positive().default(3001),
   DATABASE_PATH: z.string().default('./data/vinyl.db'),
-  // Optional until the Discogs integration lands (M4); that code checks for it.
+  // Without a token, the Discogs features say "not set up" instead of working.
   DISCOGS_TOKEN: z.preprocess(emptyToUndefined, z.string().optional()),
   DISCOGS_USER_AGENT: z.string().default('VinylTracker/0.1'),
   // Only changed by the end-to-end tests, which point it at a fake Discogs.
   DISCOGS_API_URL: z.url().default('https://api.discogs.com'),
+  // When set, the whole site asks for this password (until accounts arrive in M11).
+  APP_PASSWORD: z.preprocess(
+    emptyToUndefined,
+    z.string().min(8, 'APP_PASSWORD must be at least 8 characters').optional(),
+  ),
+  // "true" when running behind a host's proxy, so each visitor's real address is
+  // seen (the password lock slows down wrong guesses per address).
+  TRUST_PROXY: z.enum(['true', 'false']).default('false'),
 });
 
 export type Config = {
@@ -34,6 +42,9 @@ export type Config = {
   /** Absolute path, or ':memory:'. A relative DATABASE_PATH resolves from the repo root. */
   databasePath: string;
   discogs: { token: string | undefined; userAgent: string; apiUrl: string };
+  /** The site-wide password, or undefined for no lock (local development). */
+  appPassword: string | undefined;
+  trustProxy: boolean;
 };
 
 /** The only place that reads process.env. */
@@ -56,5 +67,7 @@ export function loadConfig(env: NodeJS.ProcessEnv = process.env): Config {
     databasePath:
       e.DATABASE_PATH === ':memory:' ? e.DATABASE_PATH : path.resolve(REPO_ROOT, e.DATABASE_PATH),
     discogs: { token: e.DISCOGS_TOKEN, userAgent: e.DISCOGS_USER_AGENT, apiUrl: e.DISCOGS_API_URL },
+    appPassword: e.APP_PASSWORD,
+    trustProxy: e.TRUST_PROXY === 'true',
   };
 }

@@ -8,10 +8,13 @@
 // After that the server just waits. That's why the terminal goes quiet.
 // ============================================================================
 
+import { existsSync } from 'node:fs';
+import path from 'node:path';
 import { createApp } from './app.js';
 import { loadConfig } from './config.js';
 import { createDb } from './db/client.js';
 import { DiscogsClient } from './integrations/discogs/client.js';
+import { REPO_ROOT } from './paths.js';
 
 const config = loadConfig(); // 1. settings from .env
 const db = createDb(config.databasePath); // 2. open (or create) data/vinyl.db
@@ -23,7 +26,19 @@ const discogs = config.discogs.token
       apiUrl: config.discogs.apiUrl,
     })
   : null;
-const app = createApp({ db, discogs }); // build the server with what it needs
+// In production the server also delivers the built website (npm run build).
+const builtWebsite = path.join(REPO_ROOT, 'client', 'dist');
+const clientDist =
+  config.nodeEnv === 'production' && existsSync(path.join(builtWebsite, 'index.html'))
+    ? builtWebsite
+    : null;
+const app = createApp({
+  db,
+  discogs,
+  password: config.appPassword,
+  clientDist,
+  trustProxy: config.trustProxy,
+}); // build the server with what it needs
 
 // 3. Start listening on port 3001. The function inside runs once it's ready.
 app.listen(config.port, () => {
@@ -31,4 +46,8 @@ app.listen(config.port, () => {
   console.log(`Database: ${config.databasePath}`);
   // Only say whether the token exists. Never print the token itself.
   console.log(`Discogs token: ${config.discogs.token ? 'configured' : 'missing'}`);
+  console.log(`Password lock: ${config.appPassword ? 'on' : 'off'}`);
+  console.log(
+    `Website: ${clientDist ? `served from ${clientDist}` : 'not served here (use npm run dev)'}`,
+  );
 });

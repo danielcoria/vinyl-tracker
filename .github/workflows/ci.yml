@@ -5,6 +5,7 @@
 # fresh computer, installs the project and runs two jobs side by side:
 #   check  format check, lint, typecheck, tests and build (on Node 22 and 24)
 #   e2e    the end-to-end tests: a real browser clicking through the real app
+#   docker builds the Docker image and checks it runs, locks, and keeps its data
 # A green check = everything passed.
 # See the results in the "Actions" tab of the repo on GitHub.
 # ============================================================================
@@ -98,3 +99,16 @@ jobs:
             e2e/playwright-report/
             e2e/test-results/
           retention-days: 7
+
+  docker:
+    name: Docker image (build and smoke test)
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v7
+
+      # Builds the image, then starts it and checks the health check, the
+      # password lock, the website, saving data, and that data survives a restart.
+      - name: Build and test the Docker image
+        run: bash scripts/docker-smoke-test.sh

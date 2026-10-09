@@ -100,22 +100,25 @@ Every code file also starts with a comment explaining what it does, so you can o
 
 ### Project root
 
-| File                       | What it does                                                                                      |
-| -------------------------- | ------------------------------------------------------------------------------------------------- |
-| `package.json`             | Names the three workspaces and defines the main commands (`dev`, `test`, `lint`…).                |
-| `package-lock.json`        | The exact version of every installed library, so everyone gets the same ones. Never edit by hand. |
-| `.env`                     | **Your secrets** (the Discogs token). Ignored by Git, so it never goes to GitHub.                 |
-| `.env.example`             | A blank copy of `.env` that _is_ committed, so others know which settings exist.                  |
-| `.gitignore`               | Files Git should never save: `node_modules/`, `.env`, the database, build output.                 |
-| `.gitattributes`           | Makes line endings the same on Windows and Linux, so CI doesn't complain.                         |
-| `.nvmrc`                   | Which Node.js version this project uses (24).                                                     |
-| `tsconfig.base.json`       | TypeScript settings shared by all three folders.                                                  |
-| `eslint.config.js`         | Rules for the code checker.                                                                       |
-| `.prettierrc.json`         | Formatting preferences (single quotes, semicolons, 100-character lines).                          |
-| `.prettierignore`          | Files Prettier should skip.                                                                       |
-| `.github/workflows/ci.yml` | The automatic checks GitHub runs on every push.                                                   |
-| `CLAUDE.md`                | Project notes for Claude Code (the AI assistant): goals, conventions, milestones.                 |
-| `README.md`                | The project's front page on GitHub.                                                               |
+| File                           | What it does                                                                                      |
+| ------------------------------ | ------------------------------------------------------------------------------------------------- |
+| `package.json`                 | Names the three workspaces and defines the main commands (`dev`, `test`, `lint`…).                |
+| `package-lock.json`            | The exact version of every installed library, so everyone gets the same ones. Never edit by hand. |
+| `.env`                         | **Your secrets** (the Discogs token). Ignored by Git, so it never goes to GitHub.                 |
+| `.env.example`                 | A blank copy of `.env` that _is_ committed, so others know which settings exist.                  |
+| `.gitignore`                   | Files Git should never save: `node_modules/`, `.env`, the database, build output.                 |
+| `.gitattributes`               | Makes line endings the same on Windows and Linux, so CI doesn't complain.                         |
+| `.nvmrc`                       | Which Node.js version this project uses (24).                                                     |
+| `tsconfig.base.json`           | TypeScript settings shared by all three folders.                                                  |
+| `eslint.config.js`             | Rules for the code checker.                                                                       |
+| `.prettierrc.json`             | Formatting preferences (single quotes, semicolons, 100-character lines).                          |
+| `.prettierignore`              | Files Prettier should skip.                                                                       |
+| `.github/workflows/ci.yml`     | The automatic checks GitHub runs on every push.                                                   |
+| `Dockerfile`, `.dockerignore`  | Packs the whole app into one Docker image that any host can run (see `docs/DEPLOY.md`).           |
+| `scripts/docker-smoke-test.sh` | Builds the Docker image and checks it really works (run by GitHub on every push).                 |
+| `docs/DEPLOY.md`               | How the app runs online: the image, its settings, the permanent disk, HTTPS.                      |
+| `CLAUDE.md`                    | Project notes for Claude Code (the AI assistant): goals, conventions, milestones.                 |
+| `README.md`                    | The project's front page on GitHub.                                                               |
 
 ### `shared/`: the contracts
 
@@ -162,6 +165,8 @@ request ─▶ app.ts ─▶ routes/ ─▶ services/ ─▶ db/ ─▶ database
 | `src/services/settings.ts`                                                 | Reads and saves settings, using defaults for anything not saved yet.                                                |
 | `src/routes/styluses.ts`                                                   | The stylus addresses: list, install a new one, edit, delete.                                                        |
 | `src/services/styluses.ts`                                                 | **The stylus wear tracker**: adds up the plays logged while each stylus was installed.                              |
+| `src/middleware/password-lock.ts`                                          | **The site password** (online only): the browser asks for it, and wrong guesses are slowed down.                    |
+| `src/middleware/serve-client.ts`                                           | Online, the server also delivers the built website, so only one program runs.                                       |
 | `src/routes/discogs.ts`                                                    | The Discogs addresses: search, import a release, link a record to a release.                                        |
 | `src/services/discogs.ts`                                                  | Searches Discogs, imports a release as a new record, or fills in an existing record (cover and empty details only). |
 | `src/integrations/discogs/client.ts`                                       | **Talks to Discogs.** Sends the token, remembers recent answers, stays under 60 requests a minute.                  |
@@ -291,6 +296,8 @@ Records added by hand have no tracklist, so they log the whole record using the 
 - **Spin**: one logged play of a record, an entry in the diary.
 - **Side**: one side of a vinyl disc (A, B; a double album also has C and D). Track positions like "A1" or "C3" say which side a song is on.
 - **End-to-end (e2e) test**: a test that uses the whole app the way a person would, in a real browser.
+- **Docker image**: the app packed together with everything it needs to run, so it runs the same way on any computer or host.
+- **Production**: the copy of the app running online for real use (as opposed to "development" on your computer).
 - **Rate limit**: the most requests a service allows in a period of time. Discogs allows 60 a minute.
 - **Cache**: a short-term memory of answers, so the same question isn't asked twice.
 - **Lazy loading**: downloading part of the website only when it's needed. The Stats page and its chart library load the first time you open Stats, so other pages start faster.
