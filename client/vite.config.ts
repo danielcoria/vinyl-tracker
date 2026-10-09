@@ -21,7 +21,8 @@ export default defineConfig({
     // "Proxy": when the website asks for anything starting with /api, Vite
     // forwards it to our server on port 3001. So the website never needs the
     // Discogs token; only the server has it.
-    proxy: { '/api': 'http://localhost:3001' },
+    // API_URL lets the end-to-end tests use a server on a different port.
+    proxy: { '/api': process.env.API_URL ?? 'http://localhost:3001' },
   },
   test: {
     // Tests run in Node, not a real browser. jsdom fakes a browser page so

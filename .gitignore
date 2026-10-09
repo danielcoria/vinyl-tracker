@@ -18,6 +18,7 @@ data/
 *.db-shm
 
 # Test output
+e2e/.tmp/
 coverage/
 playwright-report/
 test-results/

@@ -17,7 +17,11 @@ const config = loadConfig(); // 1. settings from .env
 const db = createDb(config.databasePath); // 2. open (or create) data/vinyl.db
 // The Discogs connection, if there's a token. Without one, Discogs features say "not set up".
 const discogs = config.discogs.token
-  ? new DiscogsClient({ token: config.discogs.token, userAgent: config.discogs.userAgent })
+  ? new DiscogsClient({
+      token: config.discogs.token,
+      userAgent: config.discogs.userAgent,
+      apiUrl: config.discogs.apiUrl,
+    })
   : null;
 const app = createApp({ db, discogs }); // build the server with what it needs
 

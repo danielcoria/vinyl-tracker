@@ -24,6 +24,8 @@ const envSchema = z.object({
   // Optional until the Discogs integration lands (M4); that code checks for it.
   DISCOGS_TOKEN: z.preprocess(emptyToUndefined, z.string().optional()),
   DISCOGS_USER_AGENT: z.string().default('VinylTracker/0.1'),
+  // Only changed by the end-to-end tests, which point it at a fake Discogs.
+  DISCOGS_API_URL: z.url().default('https://api.discogs.com'),
 });
 
 export type Config = {
@@ -31,7 +33,7 @@ export type Config = {
   port: number;
   /** Absolute path, or ':memory:'. A relative DATABASE_PATH resolves from the repo root. */
   databasePath: string;
-  discogs: { token: string | undefined; userAgent: string };
+  discogs: { token: string | undefined; userAgent: string; apiUrl: string };
 };
 
 /** The only place that reads process.env. */
@@ -53,6 +55,6 @@ export function loadConfig(env: NodeJS.ProcessEnv = process.env): Config {
     port: e.PORT,
     databasePath:
       e.DATABASE_PATH === ':memory:' ? e.DATABASE_PATH : path.resolve(REPO_ROOT, e.DATABASE_PATH),
-    discogs: { token: e.DISCOGS_TOKEN, userAgent: e.DISCOGS_USER_AGENT },
+    discogs: { token: e.DISCOGS_TOKEN, userAgent: e.DISCOGS_USER_AGENT, apiUrl: e.DISCOGS_API_URL },
   };
 }

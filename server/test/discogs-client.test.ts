@@ -7,7 +7,7 @@
 // ============================================================================
 
 import { describe, expect, it } from 'vitest';
-import { DiscogsError } from '../src/integrations/discogs/client.js';
+import { DiscogsClient, DiscogsError } from '../src/integrations/discogs/client.js';
 import { fakeDiscogs, KIND_OF_BLUE_RELEASE_ID } from './discogs-helpers.js';
 
 /** A clock tests can move forward by hand. */
@@ -106,5 +106,24 @@ describe('DiscogsClient', () => {
     });
 
     await expect(client.getRelease(1)).rejects.toMatchObject({ code: 'DISCOGS_UNAVAILABLE' });
+  });
+});
+
+describe('DiscogsClient address', () => {
+  it('can be pointed somewhere else (the end-to-end tests use a fake Discogs)', async () => {
+    const urls: string[] = [];
+    const client = new DiscogsClient({
+      token: 't',
+      userAgent: 'ua',
+      apiUrl: 'http://localhost:3199',
+      fetch: (async (input: string | URL | Request) => {
+        urls.push(String(input));
+        return Response.json({ pagination: { page: 1, pages: 1 }, results: [] });
+      }) as typeof fetch,
+    });
+
+    await client.search('blue', 1);
+
+    expect(urls[0]).toMatch(/^http:\/\/localhost:3199\/database\/search\?/);
   });
 });

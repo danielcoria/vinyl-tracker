@@ -262,6 +262,21 @@ pages/ ─▶ features/collection/ ─▶ api/ ─▶ server
 
 Records added by hand have no tracklist, so they log the whole record using the album's length (or a length you type).
 
+### `e2e/`: tests that use the whole app like a person
+
+"End-to-end" (e2e) tests start everything (a fake Discogs, the real server on a fresh empty database, and the real website) and then drive a real Chrome browser through it: typing, clicking, checking what appears. Run them with `npm run test:e2e`. Your own records are never touched.
+
+| File                        | What it does                                                                                     |
+| --------------------------- | ------------------------------------------------------------------------------------------------ |
+| `playwright.config.ts`      | Settings: which three programs to start (and on which ports), and the browser to use.            |
+| `support/fake-discogs.mjs`  | A pretend Discogs that answers with real saved Discogs data, so tests need no token or internet. |
+| `support/start-server.mjs`  | Starts the real server on a brand-new database (`e2e/.tmp/e2e.db`).                              |
+| `tests/fixtures.ts`         | Shared shortcuts, like adding a record or importing Kind of Blue through the API.                |
+| `tests/collection.spec.ts`  | Add a record by hand, find it, edit it, delete it; and the form's error messages.                |
+| `tests/discogs.spec.ts`     | Search Discogs, add a pressing, and check its tracklist.                                         |
+| `tests/diary.spec.ts`       | Log side A, then see it in the Diary and Stats, then delete it.                                  |
+| `tests/vinyl-tools.spec.ts` | The dust report and the stylus warning (including hiding it with ×).                             |
+
 ## Words you'll see a lot
 
 - **API**: the list of addresses the server answers, like `GET /api/records`. It's how the website and server talk.
@@ -275,6 +290,7 @@ Records added by hand have no tracklist, so they log the whole record using the 
 - **Stylus**: the needle that rides in the record's groove. It wears down with use; a worn one sounds worse and can damage records.
 - **Spin**: one logged play of a record, an entry in the diary.
 - **Side**: one side of a vinyl disc (A, B; a double album also has C and D). Track positions like "A1" or "C3" say which side a song is on.
+- **End-to-end (e2e) test**: a test that uses the whole app the way a person would, in a real browser.
 - **Rate limit**: the most requests a service allows in a period of time. Discogs allows 60 a minute.
 - **Cache**: a short-term memory of answers, so the same question isn't asked twice.
 - **Lazy loading**: downloading part of the website only when it's needed. The Stats page and its chart library load the first time you open Stats, so other pages start faster.
@@ -287,15 +303,16 @@ Records added by hand have no tracklist, so they log the whole record using the 
 
 Run these from the project folder:
 
-| Command                                | What it does                                              |
-| -------------------------------------- | --------------------------------------------------------- |
-| `npm run dev`                          | Start the server and website. Open http://localhost:5173. |
-| `npm test`                             | Run all automatic tests.                                  |
-| `npm run lint`                         | Check code for mistakes.                                  |
-| `npm run typecheck`                    | Check TypeScript types.                                   |
-| `npm run format`                       | Auto-format all code.                                     |
-| `npm run db:seed -w server`            | Add sample albums (only if the database is empty).        |
-| `npm run db:seed -w server -- --reset` | Delete all records, then add the sample albums.           |
-| `npm run db:studio -w server`          | Open a browser tool for looking inside the database.      |
+| Command                                | What it does                                                        |
+| -------------------------------------- | ------------------------------------------------------------------- |
+| `npm run dev`                          | Start the server and website. Open http://localhost:5173.           |
+| `npm test`                             | Run all automatic tests.                                            |
+| `npm run test:e2e`                     | Run the end-to-end tests (a real browser clicking through the app). |
+| `npm run lint`                         | Check code for mistakes.                                            |
+| `npm run typecheck`                    | Check TypeScript types.                                             |
+| `npm run format`                       | Auto-format all code.                                               |
+| `npm run db:seed -w server`            | Add sample albums (only if the database is empty).                  |
+| `npm run db:seed -w server -- --reset` | Delete all records, then add the sample albums.                     |
+| `npm run db:studio -w server`          | Open a browser tool for looking inside the database.                |
 
 (`-w server` means "run this inside the server workspace".)

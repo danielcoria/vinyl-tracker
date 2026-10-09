@@ -16,7 +16,7 @@ import { RateLimiter } from './rate-limiter.js';
 import { rawReleaseSchema, rawSearchSchema, type RawRelease, type RawSearch } from './schemas.js';
 import { TtlCache } from './ttl-cache.js';
 
-const BASE_URL = 'https://api.discogs.com';
+const DEFAULT_API_URL = 'https://api.discogs.com';
 const MINUTE = 60 * 1000;
 const SEARCH_TTL = 10 * MINUTE;
 const RELEASE_TTL = 24 * 60 * MINUTE; // release details rarely change
@@ -26,6 +26,8 @@ export class DiscogsError extends AppError {}
 
 export type DiscogsClientOptions = {
   token: string;
+  /** Where Discogs lives. Only the end-to-end tests change it (to a fake Discogs). */
+  apiUrl?: string;
   userAgent: string;
   /** Lets tests replace the real network with recorded answers. */
   fetch?: typeof fetch;
@@ -71,7 +73,7 @@ export class DiscogsClient {
 
     let res: Response;
     try {
-      res = await this.fetch(`${BASE_URL}${path}`, {
+      res = await this.fetch(`${this.options.apiUrl ?? DEFAULT_API_URL}${path}`, {
         headers: {
           Authorization: `Discogs token=${this.options.token}`,
           'User-Agent': this.options.userAgent,
