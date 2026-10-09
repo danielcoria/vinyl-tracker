@@ -28,6 +28,16 @@ function serverWithTracks(tracks = KIND_OF_BLUE_TRACKS) {
   return { api, logged };
 }
 
+/**
+ * Clicks "Log a play" once it can be clicked. It's disabled until the tracklist
+ * has loaded (so the sides can be shown), just like for a real visitor.
+ */
+async function openLogPanel(user: ReturnType<typeof renderApp>['user']) {
+  const button = await screen.findByRole('button', { name: '▶ Log a play' });
+  await waitFor(() => expect(button).toBeEnabled());
+  await user.click(button);
+}
+
 const posted = (api: ReturnType<typeof mockApi>) =>
   api.calls.find((c) => c.method === 'POST' && c.path === '/api/spins')?.body as
     Record<string, unknown> | undefined;
@@ -37,7 +47,7 @@ describe('Log a play', () => {
     const { api } = serverWithTracks();
     const { user } = renderApp('/records/1');
 
-    await user.click(await screen.findByRole('button', { name: '▶ Log a play' }));
+    await openLogPanel(user);
     const panel = screen.getByRole('form', { name: 'Log a play' });
     // Both sides start ticked, with their lengths, and the total is filled in.
     expect(within(panel).getByRole('checkbox', { name: /Side A/ })).toBeChecked();
@@ -62,7 +72,7 @@ describe('Log a play', () => {
     const { api } = serverWithTracks();
     const { user } = renderApp('/records/1');
 
-    await user.click(await screen.findByRole('button', { name: '▶ Log a play' }));
+    await openLogPanel(user);
     await user.click(screen.getByRole('checkbox', { name: /Side B/ }));
     expect(screen.getByLabelText('Length')).toHaveValue('23:55');
     await user.click(screen.getByRole('radio', { name: "I'm starting now" }));
@@ -76,7 +86,7 @@ describe('Log a play', () => {
     const { api } = serverWithTracks();
     const { user } = renderApp('/records/1');
 
-    await user.click(await screen.findByRole('button', { name: '▶ Log a play' }));
+    await openLogPanel(user);
     await user.click(screen.getByRole('radio', { name: 'Pick a start time' }));
     const time = screen.getByLabelText('Start time');
     await user.clear(time);
@@ -99,7 +109,7 @@ describe('Log a play', () => {
     const { api } = serverWithTracks();
     const { user } = renderApp('/records/1');
 
-    await user.click(await screen.findByRole('button', { name: '▶ Log a play' }));
+    await openLogPanel(user);
     await user.click(screen.getByRole('checkbox', { name: /Side A/ }));
     await user.click(screen.getByRole('checkbox', { name: /Side B/ }));
     await user.click(screen.getByRole('button', { name: 'Log play' }));
@@ -112,7 +122,7 @@ describe('Log a play', () => {
     const { api } = serverWithTracks([]);
     const { user } = renderApp('/records/1');
 
-    await user.click(await screen.findByRole('button', { name: '▶ Log a play' }));
+    await openLogPanel(user);
     expect(screen.queryByRole('checkbox')).not.toBeInTheDocument();
     // No tracklist, so the album's length is used.
     expect(screen.getByLabelText('Length')).toHaveValue('45:44');

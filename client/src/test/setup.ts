@@ -2,7 +2,7 @@
 // setup.ts: RUNS BEFORE EVERY WEBSITE TEST
 //
 // Adds extra checks like toBeInTheDocument(), and after each test clears the
-// fake page and removes any fake `fetch`, so tests start fresh.
+// fake page, removes any fake `fetch` and empties sessionStorage, so tests start fresh.
 // ============================================================================
 
 import '@testing-library/jest-dom/vitest';
@@ -25,5 +25,6 @@ globalThis.ResizeObserver ??= class {
 afterEach(() => {
   cleanup();
   vi.unstubAllGlobals();
+  window.sessionStorage.clear();
   vi.restoreAllMocks();
 });

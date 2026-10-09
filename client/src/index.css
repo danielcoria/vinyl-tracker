@@ -1204,6 +1204,22 @@ textarea {
   margin-left: auto;
 }
 
+/* The × that hides the banner. */
+.banner-close {
+  border: none;
+  background: none;
+  color: inherit;
+  font-size: 1.25rem;
+  line-height: 1;
+  padding: 0.15rem 0.35rem;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.banner-close:hover {
+  background: color-mix(in srgb, currentColor 12%, transparent);
+}
+
 /* The message takes the free space and wraps inside itself, so on a phone the
    icon stays beside it instead of sitting on a line of its own. */
 .stylus-banner > span:nth-child(2) {

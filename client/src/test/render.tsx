@@ -25,7 +25,8 @@ export function renderApp(route = '/') {
   const queryClient = new QueryClient({
     defaultOptions: { queries: { retry: false }, mutations: { retry: false } },
   });
-  const user = userEvent.setup();
+  // delay: null -> type without pausing between keys (much faster, same result).
+  const user = userEvent.setup({ delay: null });
   const result = render(
     <QueryClientProvider client={queryClient}>
       <MemoryRouter initialEntries={[route]}>

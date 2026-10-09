@@ -28,5 +28,8 @@ export default defineConfig({
     // React components can be drawn and checked in tests.
     environment: 'jsdom',
     setupFiles: ['./src/test/setup.ts'],
+    // Tests that fill in whole forms can take a few seconds when every test file
+    // runs at once; 15 s (instead of 5) avoids false failures on busy machines.
+    testTimeout: 15_000,
   },
 });

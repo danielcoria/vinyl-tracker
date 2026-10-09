@@ -205,3 +205,38 @@ describe('formatStylusHours', () => {
     expect(formatStylusHours(123.4)).toBe('123 h');
   });
 });
+
+describe('hiding the stylus banner', () => {
+  function serverWith(status: Stylus['status'], percentUsed: number) {
+    return mockApi({
+      'GET /api/records': () => json({ records: [] }),
+      'GET /api/styluses': () => json({ styluses: [makeStylus({ status, percentUsed })] }),
+    });
+  }
+
+  it('the × hides it, and it stays hidden when the page is opened again in the same tab', async () => {
+    serverWith('soon', 82);
+    const first = renderApp('/');
+
+    await first.user.click(await screen.findByRole('button', { name: 'Hide this warning' }));
+    expect(screen.queryByText(/82% of its rated hours/)).not.toBeInTheDocument();
+
+    // Like reloading: draw the app again from scratch, same tab storage.
+    first.unmount();
+    renderApp('/');
+    await screen.findByText('Server: ok');
+    expect(screen.queryByText(/82% of its rated hours/)).not.toBeInTheDocument();
+  });
+
+  it('comes back when the stylus gets worse', async () => {
+    serverWith('soon', 82);
+    const first = renderApp('/');
+    await first.user.click(await screen.findByRole('button', { name: 'Hide this warning' }));
+    first.unmount();
+
+    serverWith('replace', 104);
+    renderApp('/');
+
+    expect(await screen.findByText(/past its rated hours \(104%\)/)).toBeInTheDocument();
+  });
+});
