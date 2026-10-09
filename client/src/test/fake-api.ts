@@ -10,7 +10,7 @@
 //
 // Every request is also written to `api.calls`, so tests can check what the
 // website sent. Unless a test overrides them: "GET /api/health" answers "ok",
-// tracklists are empty, and the diary has no plays.
+// tracklists are empty, the diary has no plays, and there are no styluses.
 // ============================================================================
 
 import type { Spin, Track, VinylRecord } from '@vinyl/shared';
@@ -49,6 +49,7 @@ export function mockApi(routes: Record<string, Handler>) {
       return json({ tracks: [] });
     }
     if (method === 'GET' && url.pathname === '/api/spins') return json({ spins: [] });
+    if (method === 'GET' && url.pathname === '/api/styluses') return json({ styluses: [] });
     return apiError(404, 'NOT_FOUND', `No fake route for ${method} ${url.pathname}`);
   });
 

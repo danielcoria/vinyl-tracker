@@ -7,6 +7,7 @@
 
 import { Link, NavLink, Outlet } from 'react-router';
 import { useHealth } from '../api/health';
+import { StylusBanner } from '../features/stylus/StylusBanner';
 
 export function Layout() {
   const health = useHealth();
@@ -32,9 +33,13 @@ export function Layout() {
           <NavLink to="/diary">Diary</NavLink>
           <NavLink to="/stats">Stats</NavLink>
           <NavLink to="/dust">Dust</NavLink>
+          <NavLink to="/stylus">Stylus</NavLink>
           <NavLink to="/discogs">Add from Discogs</NavLink>
         </nav>
       </header>
+
+      {/* Appears only when the stylus is getting worn. */}
+      <StylusBanner />
 
       <main className="page">
         <Outlet />

@@ -1071,3 +1071,141 @@ textarea {
   filter: none;
   opacity: 1;
 }
+
+/* ---------- Stylus ---------- */
+/* Status colors: the meter fill and banner. Each status also has an icon + words. */
+.status-ok {
+  --status-fill: #2a78d6;
+}
+
+.status-soon {
+  --status-fill: #fab219;
+  --status-bg: #fff5dc;
+  --status-ink: #6b4a00;
+}
+
+.status-replace {
+  --status-fill: #d03b3b;
+  --status-bg: var(--danger-bg);
+  --status-ink: var(--danger);
+}
+
+@media (prefers-color-scheme: dark) {
+  .status-ok {
+    --status-fill: #3987e5;
+  }
+
+  .status-soon {
+    --status-bg: #33280c;
+    --status-ink: #fcd27a;
+  }
+}
+
+.stylus-page {
+  display: grid;
+  gap: 1.25rem;
+  max-width: 48rem;
+}
+
+.stylus-page .page-header {
+  margin-bottom: 0;
+}
+
+.stylus-active h2 {
+  margin-bottom: 0.15rem;
+}
+
+.stylus-active .card-header p {
+  margin: 0;
+}
+
+.stylus-meter {
+  display: grid;
+  gap: 0.5rem;
+  margin-top: 1rem;
+}
+
+.stylus-meter-labels {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+.status-label {
+  font-weight: 600;
+}
+
+/* The track is a pale version of the fill's own color. */
+.meter-track {
+  height: 12px;
+  border-radius: 6px;
+  background: color-mix(in srgb, var(--status-fill) 18%, transparent);
+  overflow: hidden;
+}
+
+.meter-fill {
+  height: 100%;
+  border-radius: 6px;
+  background: var(--status-fill);
+}
+
+.stylus-estimate {
+  margin: 0.75rem 0 0;
+}
+
+.stylus-form {
+  display: grid;
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+.stylus-history {
+  display: grid;
+  gap: 0.5rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.stylus-history li {
+  display: grid;
+  grid-template-columns: 1fr auto auto;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.5rem 0;
+  border-bottom: 1px solid var(--border);
+}
+
+.stylus-history li:last-child {
+  border-bottom: none;
+}
+
+@media (max-width: 34rem) {
+  .stylus-history li {
+    grid-template-columns: 1fr auto;
+  }
+}
+
+.stylus-banner {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.6rem max(1rem, calc((100% - 72rem) / 2));
+  background: var(--status-bg);
+  color: var(--status-ink);
+  font-size: 0.95rem;
+}
+
+.stylus-banner a {
+  color: inherit;
+  font-weight: 600;
+  margin-left: auto;
+}
+
+/* The message takes the free space and wraps inside itself, so on a phone the
+   icon stays beside it instead of sitting on a line of its own. */
+.stylus-banner > span:nth-child(2) {
+  flex: 1 1 12rem;
+}

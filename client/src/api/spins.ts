@@ -58,11 +58,12 @@ export function useDeleteSpin() {
   });
 }
 
-/** Plays changed: refresh the diary, records (their play counts) and stats. */
+/** Plays changed: refresh the diary, records (play counts), stats and stylus wear. */
 function refreshAfterChange(queryClient: ReturnType<typeof useQueryClient>) {
   return Promise.all([
     queryClient.invalidateQueries({ queryKey: spinKeys.all }),
     queryClient.invalidateQueries({ queryKey: ['records'] }),
     queryClient.invalidateQueries({ queryKey: ['stats'] }),
+    queryClient.invalidateQueries({ queryKey: ['styluses'] }),
   ]);
 }

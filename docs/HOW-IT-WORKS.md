@@ -62,6 +62,7 @@ The terminal goes quiet after startup because both programs are just waiting. Th
 | `/diary`          | Your listening diary: every play, newest first, by day          | `pages/DiaryPage.tsx`        |
 | `/stats`          | Totals, most-listened artists and records, genres by month      | `pages/StatsPage.tsx`        |
 | `/dust`           | Records gathering dust and never played, plus "Pick one for me" | `pages/DustPage.tsx`         |
+| `/stylus`         | Stylus wear meter, "install a new stylus", past styluses        | `pages/StylusPage.tsx`       |
 | anything else     | "Not found"                                                     | `pages/NotFoundPage.tsx`     |
 
 ### What happens when you save the form
@@ -200,6 +201,7 @@ pages/ ─▶ features/collection/ ─▶ api/ ─▶ server
 | `src/pages/DiaryPage.tsx`                      | The listening diary: every logged play, grouped by day.                                                                    |
 | `src/pages/StatsPage.tsx`                      | The Stats page: pick a period, see totals, top 10 lists and the genre chart. Loaded lazily (see below).                    |
 | `src/pages/DustPage.tsx`                       | The dust report: forgotten records, the days setting, and "Pick one for me".                                               |
+| `src/pages/StylusPage.tsx`                     | The stylus wear tracker: the stylus in use, its meter and estimate, and past styluses.                                     |
 | `src/pages/NotFoundPage.tsx`                   | Shown for addresses (or records) that don't exist.                                                                         |
 | `src/features/discogs/DiscogsResult.tsx`       | One release in the Discogs results: thumbnail, details, and a button.                                                      |
 | `src/features/spins/RecordPlays.tsx`           | The listening part of a record's page: play count, "Log a play", its plays and its tracklist.                              |
@@ -215,6 +217,10 @@ pages/ ─▶ features/collection/ ─▶ api/ ─▶ server
 | `src/features/stats/format.ts`                 | Writes times like "12.5 h" and "1 h 05 min", and months like "Oct".                                                        |
 | `src/features/dust/DustGrid.tsx`               | A grid of forgotten records, each saying "Last played 4 months ago" or "Added 2 years ago".                                |
 | `src/features/dust/time-ago.ts`                | Turns a number of days into words like "4 months ago".                                                                     |
+| `src/features/stylus/StylusMeter.tsx`          | The wear meter: a bar that turns amber then red, with the status in words and an icon.                                     |
+| `src/features/stylus/StylusForm.tsx`           | The form for adding or editing a stylus.                                                                                   |
+| `src/features/stylus/StylusBanner.tsx`         | The warning across the top of every page when the stylus is getting worn.                                                  |
+| `src/features/stylus/status.ts`                | The icon and words for each status ("⚠ Replace soon"), and hours formatting.                                               |
 | `src/features/collection/RecordForm.tsx`       | **The add/edit form**: every field, the problem messages, and the Save button.                                             |
 | `src/features/collection/form-values.ts`       | Converts between what you type ("42:49") and what the server wants (2569 seconds), and checks it.                          |
 | `src/features/collection/TagInput.tsx`         | The box for genres and styles: type, press Enter, get a chip with an ×.                                                    |
@@ -229,6 +235,7 @@ pages/ ─▶ features/collection/ ─▶ api/ ─▶ server
 | `src/api/spins.ts`                             | Hooks for the diary: `useTracks`, `useSpins`, `useLogSpin`, `useDeleteSpin`.                                               |
 | `src/api/stats.ts`                             | `useStats(period)`: turns "this year" into an exact start time in your time zone and fetches the numbers.                  |
 | `src/api/dust.ts`                              | Hooks for the dust report and settings: `useDustReport`, `useSettings`, `useUpdateSettings`.                               |
+| `src/api/styluses.ts`                          | Hooks for styluses: `useStyluses`, `useActiveStylus`, `useAddStylus`, `useUpdateStylus`, `useDeleteStylus`.                |
 | `src/api/health.ts`                            | A hook (`useHealth`) for the server status shown in the footer.                                                            |
 | `src/index.css`                                | How everything looks, including light and dark mode.                                                                       |
 | `src/test/fake-api.ts`                         | A pretend server for tests, plus `makeRecord()` for sample data.                                                           |
@@ -265,6 +272,7 @@ Records added by hand have no tracklist, so they log the whole record using the 
 - **Hook**: a React function starting with `use` (like `useHealth`) that gives a component data or abilities.
 - **State**: a component's own memory (`useState`), like what you've typed into the form so far. When it changes, React redraws.
 - **Route**: a pairing of an address (like `/records/:id`) with the screen to show. `:id` is a placeholder for the record number.
+- **Stylus**: the needle that rides in the record's groove. It wears down with use; a worn one sounds worse and can damage records.
 - **Spin**: one logged play of a record, an entry in the diary.
 - **Side**: one side of a vinyl disc (A, B; a double album also has C and D). Track positions like "A1" or "C3" say which side a song is on.
 - **Rate limit**: the most requests a service allows in a period of time. Discogs allows 60 a minute.

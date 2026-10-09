@@ -8,7 +8,7 @@ Portfolio project, so code quality, tests, and a clean commit history matter as 
 
 ## Status
 
-M0–M7 are done (scaffold, CI, database + records API, collection UI, Discogs search + import, listening log by side, stats, dust report). The next milestone is **M8 (stylus wear tracker)**. Update this section and the milestone checklist as work lands.
+M0–M8 are done (scaffold, CI, database + records API, collection UI, Discogs search + import, listening log by side, stats, dust report, stylus wear tracker). The next milestone is **M9 (Playwright end-to-end tests)**. Update this section and the milestone checklist as work lands.
 
 ## Features
 
@@ -110,6 +110,7 @@ Derived values (stylus hours used, last-played date, dust status, stats) are **c
 - **Naming:** camelCase in TS, snake_case in SQL columns, kebab-case filenames for non-components, PascalCase for React component files.
 - **Frontend:** organize by feature, not by file type. Server state goes through TanStack Query, with no duplicated server data in local state.
 - **Listening log UI (M5):** `features/spins/`. A spin stores its START time: "I just finished" = now minus the length. All sides ticked is sent as `sides: null`. Length auto-fills from `playLength()` (track lengths, else the album runtime for a full play) until the user types one. `mockApi()` defaults: empty tracklists and an empty diary. Website tests use a 3 s `findBy`/`waitFor` timeout (set in `test/setup.ts`) so they're not flaky on slower CI machines; jsdom gets a no-op `ResizeObserver` for charts.
+- **Status colors (M8):** reserved for meaning (ok / soon / replace), never for data series; always paired with an icon and words (`features/stylus/status.ts`). Doc and code edits made by script must fail loudly when their anchor text is missing (no silent regex no-ops).
 - **Charts (M6):** follow the dataviz skill. Categorical colors come from `features/stats/chart-colors.ts` (validated with its `validate_palette.js` against the app's card surfaces `#ffffff` / `#1f1b17`; light mode needs the table view as relief), assigned in fixed order and kept per entity across filters (`useStableSlots`). Every chart has a legend for 2+ series, a hover tooltip and a "Show as table" view. Recharts pages are lazy-loaded (`React.lazy` in `App.tsx`) to keep the main bundle small. After UI changes, screenshot the page (Playwright in the scratchpad, light + dark, 1100px + 390px) and look at it.
 - **Frontend patterns (M3):** routes are listed in `client/src/App.tsx` (React Router v8, declarative `<Routes>`); pages live in `pages/`, feature pieces in `features/<feature>/`. Data goes through hooks in `api/` (TanStack Query; mutations invalidate `["records", ...]` keys). Forms keep text in state and validate with the shared Zod schema before sending (see `features/collection/form-values.ts`). Show errors with `describeError()`. Page tests render the whole app with `renderApp(route)` from `test/render.tsx` and fake the server with `mockApi()` from `test/fake-api.ts`; `data-testid="location"` shows the current address.
 - **Tests:** every service and route gets Vitest coverage. API tests run against an in-memory SQLite DB through `app.ts`. Add a Playwright spec when a user-facing flow is completed.
@@ -178,7 +179,7 @@ Validation errors are 400 `VALIDATION` with `field: message` pairs joined by `; 
 - [x] M5 Listening log by side: save tracklists, log a spin (sides, start time, length), diary/history page
 - [x] M6 Stats: most-played artists, genres by month (charts)
 - [x] M7 Dust report
-- [ ] M8 Stylus wear tracker
+- [x] M8 Stylus wear tracker
 - [ ] M9 Playwright E2E for core flows; add to CI
 - [ ] M10 Deploy (CD): Docker image + host with a persistent volume for SQLite
 - [ ] M11 Accounts: sign up, log in, sessions, per-user collections (migrate existing data to a first user)

@@ -11,6 +11,7 @@
 //   /diary            -> DiaryPage (every logged play, newest first)
 //   /stats            -> StatsPage (totals, top artists/records, genres by month)
 //   /dust             -> DustPage (records you haven't played in a while)
+//   /stylus           -> StylusPage (stylus wear tracker)
 //   anything else     -> NotFoundPage
 // ============================================================================
 
@@ -25,6 +26,7 @@ import { EditRecordPage } from './pages/EditRecordPage';
 import { NewRecordPage } from './pages/NewRecordPage';
 import { NotFoundPage } from './pages/NotFoundPage';
 import { RecordDetailPage } from './pages/RecordDetailPage';
+import { StylusPage } from './pages/StylusPage';
 
 // "Lazy" = only downloaded when someone opens the Stats page. It brings in the
 // chart library (Recharts), which is big, so other pages load faster without it.
@@ -44,6 +46,7 @@ export function App() {
         <Route path="discogs" element={<DiscogsPage />} />
         <Route path="diary" element={<DiaryPage />} />
         <Route path="dust" element={<DustPage />} />
+        <Route path="stylus" element={<StylusPage />} />
         <Route
           path="stats"
           element={
