@@ -7,9 +7,12 @@ import { expect, test, unique } from './fixtures';
 test('add a record by hand, find it, edit it and delete it', async ({ page }) => {
   const title = unique('Hand-Added Album');
 
-  // Add it.
+  // Add it. Wait for the collection to load first: an empty collection shows a
+  // second "Add manually" link in its "Your shelf is empty" box, so the test
+  // uses the one at the top of the page, which is always there.
   await page.goto('/');
-  await page.getByRole('link', { name: 'Add manually' }).click();
+  await expect(page.getByText('Loading your records…')).toBeHidden();
+  await page.locator('.page-header').getByRole('link', { name: 'Add manually' }).click();
   await page.getByLabel('Title').fill(title);
   await page.getByLabel('Artist 1').fill('E2E Artist');
   await page.getByLabel('Year').fill('1999');

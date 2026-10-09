@@ -25,7 +25,9 @@ export default defineConfig({
   retries: CI ? 1 : 0,
   timeout: 30_000,
   expect: { timeout: 10_000 },
-  reporter: CI ? [['list'], ['html', { open: 'never' }]] : 'list',
+  // On GitHub: "github" turns failures into notes on the run's page (readable without
+  // downloading anything), plus a full HTML report saved when something fails.
+  reporter: CI ? [['list'], ['github'], ['html', { open: 'never' }]] : 'list',
   use: {
     baseURL: 'http://localhost:5199',
     // On failure, keep a screenshot and a "trace" (a step-by-step recording).
