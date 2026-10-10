@@ -120,7 +120,8 @@ Every code file also starts with a comment explaining what it does, so you can o
 | `render.yaml`                  | Tells Render how to run the public demo (free plan, Docker, demo mode, deploy only when checks pass). |
 | `docs/DEPLOY.md`               | How the app runs online: the image, its settings, the permanent disk, HTTPS.                          |
 | `CLAUDE.md`                    | Project notes for Claude Code (the AI assistant): goals, conventions, milestones.                     |
-| `README.md`                    | The project's front page on GitHub.                                                                   |
+| `README.md`                    | The project's front page on GitHub: what it is, the live demo link, screenshots, and how to run it.   |
+| `docs/screenshots/`            | The pictures shown in the README (taken from the demo).                                               |
 
 ### `shared/`: the contracts
 
