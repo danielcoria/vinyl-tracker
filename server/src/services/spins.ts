@@ -7,18 +7,22 @@
 //   deleteSpin  remove a play logged by mistake
 // ============================================================================
 
-import { desc, eq } from 'drizzle-orm';
+import { and, desc, eq, inArray } from 'drizzle-orm';
 import type { ParsedSpinInput, Spin } from '@vinyl/shared';
 import type { Db } from '../db/client.js';
-import { spins, spinTracks } from '../db/schema.js';
+import { records, spins, spinTracks } from '../db/schema.js';
 import { AppError, NotFoundError } from '../errors.js';
 import { getRecord, getRecordsByIds } from './records.js';
 import { getTracks } from './tracks.js';
 
 type SpinRow = typeof spins.$inferSelect;
 
-export function createSpin(db: Db, input: ParsedSpinInput): Spin {
-  getRecord(db, input.recordId); // 404 if the record doesn't exist
+/** The ids of a person's records, as a subquery: "spins of records this person owns". */
+const recordsOf = (db: Db, userId: number) =>
+  db.select({ id: records.id }).from(records).where(eq(records.userId, userId));
+
+export function createSpin(db: Db, userId: number, input: ParsedSpinInput): Spin {
+  getRecord(db, userId, input.recordId); // 404 unless it's this person's record
   const tracklist = getTracks(db, input.recordId);
 
   // Sides in the order they appear on the record (A before B), without repeats.
@@ -61,32 +65,45 @@ export function createSpin(db: Db, input: ParsedSpinInput): Spin {
 
   const row = db.select().from(spins).where(eq(spins.id, id)).get();
   if (!row) throw new Error(`Failed to load spin ${id}`);
-  const [spin] = withRecords(db, [row]);
+  const [spin] = withRecords(db, userId, [row]);
   if (!spin) throw new Error(`Failed to load spin ${id}`);
   return spin;
 }
 
-export function listSpins(db: Db, query: { recordId?: number; limit: number }): Spin[] {
+export function listSpins(
+  db: Db,
+  userId: number,
+  query: { recordId?: number; limit: number },
+): Spin[] {
   const rows = db
     .select()
     .from(spins)
-    .where(query.recordId ? eq(spins.recordId, query.recordId) : undefined)
+    .where(
+      and(
+        inArray(spins.recordId, recordsOf(db, userId)),
+        query.recordId ? eq(spins.recordId, query.recordId) : undefined,
+      ),
+    )
     .orderBy(desc(spins.playedAt), desc(spins.id))
     .limit(query.limit)
     .all();
-  return withRecords(db, rows);
+  return withRecords(db, userId, rows);
 }
 
-export function deleteSpin(db: Db, id: number): void {
+export function deleteSpin(db: Db, userId: number, id: number): void {
   // The list of tracks it covered goes with it (ON DELETE CASCADE).
-  const deleted = db.delete(spins).where(eq(spins.id, id)).returning({ id: spins.id }).get();
+  const deleted = db
+    .delete(spins)
+    .where(and(eq(spins.id, id), inArray(spins.recordId, recordsOf(db, userId))))
+    .returning({ id: spins.id })
+    .get();
   if (!deleted) throw new NotFoundError(`Play ${id} not found`);
 }
 
 /** Attaches a short summary of each spin's record (one query for all of them). */
-function withRecords(db: Db, rows: SpinRow[]): Spin[] {
+function withRecords(db: Db, userId: number, rows: SpinRow[]): Spin[] {
   const recordIds = [...new Set(rows.map((row) => row.recordId))];
-  const recordsById = new Map(getRecordsByIds(db, recordIds).map((r) => [r.id, r]));
+  const recordsById = new Map(getRecordsByIds(db, userId, recordIds).map((r) => [r.id, r]));
 
   return rows.flatMap((row) => {
     const record = recordsById.get(row.recordId);

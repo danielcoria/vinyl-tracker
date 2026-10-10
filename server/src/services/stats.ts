@@ -13,10 +13,10 @@
 // small, and this way each step is easy to read and test.
 // ============================================================================
 
-import { and, asc, gte, lt, type SQL } from 'drizzle-orm';
+import { and, asc, eq, gte, inArray, lt, type SQL } from 'drizzle-orm';
 import type { Stats } from '@vinyl/shared';
 import type { Db } from '../db/client.js';
-import { spins } from '../db/schema.js';
+import { records, spins } from '../db/schema.js';
 import { getRecordsByIds } from './records.js';
 
 const TOP_COUNT = 10;
@@ -30,20 +30,23 @@ type Totals = { spinCount: number; listeningSeconds: number };
 
 export function getStats(
   db: Db,
+  userId: number,
   query: { from?: string; to?: string; utcOffsetMinutes: number },
 ): Stats {
-  const conditions: SQL[] = [];
+  // Only this person's plays: plays of records they own.
+  const ownRecords = db.select({ id: records.id }).from(records).where(eq(records.userId, userId));
+  const conditions: SQL[] = [inArray(spins.recordId, ownRecords)];
   if (query.from) conditions.push(gte(spins.playedAt, new Date(query.from).toISOString()));
   if (query.to) conditions.push(lt(spins.playedAt, new Date(query.to).toISOString()));
   const plays = db
     .select()
     .from(spins)
-    .where(conditions.length > 0 ? and(...conditions) : undefined)
+    .where(and(...conditions))
     .orderBy(asc(spins.playedAt))
     .all();
 
   const recordsById = new Map(
-    getRecordsByIds(db, [...new Set(plays.map((p) => p.recordId))]).map((r) => [r.id, r]),
+    getRecordsByIds(db, userId, [...new Set(plays.map((p) => p.recordId))]).map((r) => [r.id, r]),
   );
 
   const byArtist = new Map<number, Totals & { name: string }>();

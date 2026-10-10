@@ -9,7 +9,7 @@
 //                   but never overwrites what you typed yourself
 // ============================================================================
 
-import { eq, inArray } from 'drizzle-orm';
+import { and, eq, inArray } from 'drizzle-orm';
 import {
   recordInputSchema,
   type DiscogsLinkInput,
@@ -30,6 +30,7 @@ import { replaceTracks } from './tracks.js';
 
 export async function searchDiscogs(
   db: Db,
+  userId: number,
   discogs: DiscogsClient,
   query: { q: string; page: number },
 ): Promise<DiscogsSearchResponse> {
@@ -44,7 +45,7 @@ export async function searchDiscogs(
       : db
           .select({ id: records.id, releaseId: records.discogsReleaseId })
           .from(records)
-          .where(inArray(records.discogsReleaseId, releaseIds))
+          .where(and(eq(records.userId, userId), inArray(records.discogsReleaseId, releaseIds)))
           .all();
   const recordIdByRelease = new Map(owned.map((row) => [row.releaseId, row.id]));
 
@@ -60,24 +61,26 @@ export async function searchDiscogs(
 
 export async function importRelease(
   db: Db,
+  userId: number,
   discogs: DiscogsClient,
   releaseId: number,
 ): Promise<VinylRecord> {
-  assertNotInCollection(db, releaseId);
+  assertNotInCollection(db, userId, releaseId);
   const release = await discogs.getRelease(releaseId);
   const input = recordInputSchema.parse(releaseToRecordInput(release));
-  const record = createRecord(db, input, { discogsReleaseId: releaseId });
+  const record = createRecord(db, userId, input, { discogsReleaseId: releaseId });
   replaceTracks(db, record.id, releaseToTracks(release));
   return record;
 }
 
 export async function linkRecord(
   db: Db,
+  userId: number,
   discogs: DiscogsClient,
   { recordId, releaseId }: DiscogsLinkInput,
 ): Promise<VinylRecord> {
-  const record = getRecord(db, recordId); // 404 if it doesn't exist
-  if (record.discogsReleaseId !== releaseId) assertNotInCollection(db, releaseId);
+  const record = getRecord(db, userId, recordId); // 404 unless it's this person's record
+  if (record.discogsReleaseId !== releaseId) assertNotInCollection(db, userId, releaseId);
 
   const release = await discogs.getRelease(releaseId);
   const fromDiscogs = recordInputSchema.parse(releaseToRecordInput(release));
@@ -99,19 +102,19 @@ export async function linkRecord(
     styles: record.styles.length > 0 ? record.styles : fromDiscogs.styles,
   });
 
-  updateRecord(db, recordId, merged);
+  updateRecord(db, userId, recordId, merged);
   db.update(records).set({ discogsReleaseId: releaseId }).where(eq(records.id, recordId)).run();
   // Linking again (same release) is also how a record gets its tracklist if it was linked
   // before tracklists were saved. A tracklist already used by logged plays is kept.
   replaceTracks(db, recordId, releaseToTracks(release));
-  return getRecord(db, recordId);
+  return getRecord(db, userId, recordId);
 }
 
-function assertNotInCollection(db: Db, releaseId: number) {
+function assertNotInCollection(db: Db, userId: number, releaseId: number) {
   const existing = db
     .select({ id: records.id })
     .from(records)
-    .where(eq(records.discogsReleaseId, releaseId))
+    .where(and(eq(records.userId, userId), eq(records.discogsReleaseId, releaseId)))
     .get();
   if (existing) {
     throw new ConflictError(

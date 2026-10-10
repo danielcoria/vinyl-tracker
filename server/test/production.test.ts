@@ -15,6 +15,7 @@ import { apiErrorSchema } from '@vinyl/shared';
 import { createApp } from '../src/app.js';
 import { createDb } from '../src/db/client.js';
 import { passwordFromHeader, passwordLock } from '../src/middleware/password-lock.js';
+import { addUser } from './helpers.js';
 
 const PASSWORD = 'correct horse battery';
 const basic = (password: string, user = 'me') =>
@@ -38,7 +39,7 @@ describe('password lock', () => {
 
     for (const user of ['me', 'anything', '']) {
       const res = await request(app)
-        .get('/api/records')
+        .get('/api/auth/me')
         .set('Authorization', basic(PASSWORD, user));
       expect(res.status).toBe(200);
     }
@@ -94,7 +95,7 @@ describe('password lock', () => {
 
   it('is off when no password is set', async () => {
     const app = createApp({ db: createDb(':memory:') });
-    expect((await request(app).get('/api/records')).status).toBe(200);
+    expect((await request(app).get('/api/auth/me')).status).toBe(200);
   });
 });
 
@@ -129,11 +130,19 @@ describe('delivering the built website', () => {
     expect(res.headers['cache-control']).toBe('public, max-age=31536000, immutable');
   });
 
-  it('still answers unknown /api addresses with a JSON 404, not the app', async () => {
-    const res = await request(app()).get('/api/nope');
+  it('answers unknown /api addresses with a JSON error, never the app', async () => {
+    const db = createDb(':memory:');
+    const server = createApp({ db, clientDist: dist });
+    const { cookie } = addUser(db, 'tester');
 
-    expect(res.status).toBe(404);
-    expect(apiErrorSchema.parse(res.body).error.code).toBe('NOT_FOUND');
+    // Logged out: "log in first". Logged in: "not found". Never the website's HTML.
+    const loggedOut = await request(server).get('/api/nope');
+    expect(loggedOut.status).toBe(401);
+    expect(apiErrorSchema.parse(loggedOut.body).error.code).toBe('NOT_LOGGED_IN');
+
+    const loggedIn = await request(server).get('/api/nope').set('Cookie', cookie);
+    expect(loggedIn.status).toBe(404);
+    expect(apiErrorSchema.parse(loggedIn.body).error.code).toBe('NOT_FOUND');
   });
 
   it('puts the website behind the password too', async () => {

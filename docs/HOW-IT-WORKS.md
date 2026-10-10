@@ -293,6 +293,13 @@ Records added by hand have no tracklist, so they log the whole record using the 
 | `tests/diary.spec.ts`       | Log side A, then see it in the Diary and Stats, then delete it.                                  |
 | `tests/vinyl-tools.spec.ts` | The dust report and the stylus warning (including hiding it with ×).                             |
 
+### How accounts keep everyone's data separate
+
+1. When you sign up or log in, the server checks your password and hands your browser a login cookie.
+2. Every request after that carries the cookie, so the server knows who's asking (`middleware/session.ts`).
+3. Every record and stylus belongs to one account, and every part of the server only looks at **your** things. Asking for someone else's record number answers "not found", as if it didn't exist.
+4. Plays and tracklists belong to whoever owns their record, so they're covered too. `test/isolation.test.ts` checks all of this with two accounts trying to reach each other's data.
+
 ## Words you'll see a lot
 
 - **API**: the list of addresses the server answers, like `GET /api/records`. It's how the website and server talk.

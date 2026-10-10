@@ -22,7 +22,7 @@ import type { DiscogsClient } from './integrations/discogs/client.js';
 import { errorHandler, notFoundHandler } from './middleware/error-handler.js';
 import { passwordLock } from './middleware/password-lock.js';
 import { serveClient } from './middleware/serve-client.js';
-import { loadUser, sameOrigin } from './middleware/session.js';
+import { loadUser, requireUser, sameOrigin } from './middleware/session.js';
 import { authRouter } from './routes/auth.js';
 import { discogsRouter } from './routes/discogs.js';
 import { dustRouter, settingsRouter } from './routes/dust.js';
@@ -103,7 +103,9 @@ export function createApp({
   // Who is logged in (from the login cookie), available as req.user.
   app.use(loadUser(db));
   // Accounts: sign up, log in, log out, "who am I?" (routes/auth.ts).
-  app.use('/api/auth', authRouter(db, { secureCookies }));
+  app.use('/api/auth', authRouter(db, { secureCookies, demo }));
+  // Everything else under /api is someone's own data: log in first.
+  app.use('/api', requireUser);
 
   // Every address starting with /api/records is handled in routes/records.ts.
   app.use('/api/records', recordsRouter(db));

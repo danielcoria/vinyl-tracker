@@ -5,7 +5,6 @@
 // tests log plays at known times and check the hours add up.
 // ============================================================================
 
-import request from 'supertest';
 import { beforeEach, describe, expect, it } from 'vitest';
 import { apiErrorSchema, stylusListSchema, stylusSchema, type StylusInput } from '@vinyl/shared';
 import { statusFor } from '../src/services/styluses.js';
@@ -16,24 +15,22 @@ let recordId: number;
 
 beforeEach(async () => {
   ctx = makeTestApp();
-  recordId = (await request(ctx.app).post('/api/records').send(recordInput())).body.id;
+  recordId = (await ctx.api.post('/api/records').send(recordInput())).body.id;
 });
 
 async function install(input: Partial<StylusInput> = {}) {
-  return request(ctx.app)
-    .post('/api/styluses')
-    .send({ name: 'AT-VM95E', ratedHours: 500, ...input });
+  return ctx.api.post('/api/styluses').send({ name: 'AT-VM95E', ratedHours: 500, ...input });
 }
 
 async function play(playedAt: string, hours: number) {
-  const res = await request(ctx.app)
+  const res = await ctx.api
     .post('/api/spins')
     .send({ recordId, playedAt, durationSeconds: hours * 3600 });
   expect(res.status).toBe(201);
 }
 
 async function list() {
-  return stylusListSchema.parse((await request(ctx.app).get('/api/styluses')).body).styluses;
+  return stylusListSchema.parse((await ctx.api.get('/api/styluses')).body).styluses;
 }
 
 describe('stylus wear', () => {
@@ -111,7 +108,7 @@ describe('installing and editing', () => {
   it('edits the name, rating and starting hours', async () => {
     const { body } = await install();
 
-    const res = await request(ctx.app)
+    const res = await ctx.api
       .put(`/api/styluses/${body.id}`)
       .send({ name: 'Shibata', ratedHours: 1000, initialHours: 250 });
 
@@ -129,7 +126,7 @@ describe('deleting', () => {
     await install({ name: 'Old', installedAt: '2026-01-01T00:00:00.000Z' });
     const mistake = await install({ name: 'Mistake', installedAt: '2026-05-01T00:00:00.000Z' });
 
-    const res = await request(ctx.app).delete(`/api/styluses/${mistake.body.id}`);
+    const res = await ctx.api.delete(`/api/styluses/${mistake.body.id}`);
 
     expect(res.status).toBe(204);
     const all = await list();
@@ -141,12 +138,12 @@ describe('deleting', () => {
     const old = await install({ name: 'Old', installedAt: '2026-01-01T00:00:00.000Z' });
     await install({ name: 'Current', installedAt: '2026-05-01T00:00:00.000Z' });
 
-    await request(ctx.app).delete(`/api/styluses/${old.body.id}`);
+    await ctx.api.delete(`/api/styluses/${old.body.id}`);
 
     expect((await list()).map((s) => [s.name, s.retiredAt])).toEqual([['Current', null]]);
   });
 
   it('returns 404 for a stylus that does not exist', async () => {
-    expect((await request(ctx.app).delete('/api/styluses/99')).status).toBe(404);
+    expect((await ctx.api.delete('/api/styluses/99')).status).toBe(404);
   });
 });

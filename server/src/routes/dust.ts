@@ -10,24 +10,25 @@
 import { Router } from 'express';
 import { dustQuerySchema, settingsUpdateSchema } from '@vinyl/shared';
 import type { Db } from '../db/client.js';
+import { userIdOf } from '../middleware/session.js';
 import { getDustReport } from '../services/dust.js';
 import { getSettings, updateSettings } from '../services/settings.js';
 
 export function dustRouter(db: Db) {
   const router = Router();
   router.get('/', (req, res) => {
-    res.json(getDustReport(db, dustQuerySchema.parse(req.query)));
+    res.json(getDustReport(db, userIdOf(req), dustQuerySchema.parse(req.query)));
   });
   return router;
 }
 
 export function settingsRouter(db: Db) {
   const router = Router();
-  router.get('/', (_req, res) => {
-    res.json(getSettings(db));
+  router.get('/', (req, res) => {
+    res.json(getSettings(db, userIdOf(req)));
   });
   router.put('/', (req, res) => {
-    res.json(updateSettings(db, settingsUpdateSchema.parse(req.body)));
+    res.json(updateSettings(db, userIdOf(req), settingsUpdateSchema.parse(req.body)));
   });
   return router;
 }

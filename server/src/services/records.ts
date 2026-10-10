@@ -11,9 +11,12 @@
 //
 // A "transaction" (db.transaction) groups several changes so they either ALL
 // happen or NONE do. That way a crash can never leave a half-saved record.
+//
+// Every function takes a userId and only ever touches THAT person's records:
+// asking for someone else's record number answers "not found".
 // ============================================================================
 
-import { asc, count, desc, eq, inArray, max, notInArray, sql, type SQL } from 'drizzle-orm';
+import { and, asc, count, desc, eq, inArray, max, notInArray, sql, type SQL } from 'drizzle-orm';
 import type { ParsedRecordInput, ParsedRecordListQuery, VinylRecord } from '@vinyl/shared';
 import type { Db } from '../db/client.js';
 import { artists, recordArtists, records, recordTags, spins } from '../db/schema.js';
@@ -63,18 +66,22 @@ const ORDER_BY: Record<ParsedRecordListQuery['sort'], SQL[]> = {
   year: [sql`${records.year} ASC NULLS LAST`, sql`${records.title} COLLATE NOCASE`],
 };
 
-export function listRecords(db: Db, query: ParsedRecordListQuery): VinylRecord[] {
+/** "This record, and it belongs to this person." */
+const ownRecord = (userId: number, id: number) =>
+  and(eq(records.id, id), eq(records.userId, userId));
+
+export function listRecords(db: Db, userId: number, query: ParsedRecordListQuery): VinylRecord[] {
   const rows = db
     .select()
     .from(records)
-    .where(query.q ? searchCondition(query.q) : undefined)
+    .where(and(eq(records.userId, userId), query.q ? searchCondition(query.q) : undefined))
     .orderBy(...ORDER_BY[query.sort])
     .all();
   return hydrate(db, rows);
 }
 
-export function getRecord(db: Db, id: number): VinylRecord {
-  const row = db.select().from(records).where(eq(records.id, id)).get();
+export function getRecord(db: Db, userId: number, id: number): VinylRecord {
+  const row = db.select().from(records).where(ownRecord(userId, id)).get();
   if (!row) throw new NotFoundError(`Record ${id} not found`);
   const [record] = hydrate(db, [row]);
   if (!record) throw new Error(`Failed to load record ${id}`); // hydrate keeps every row
@@ -83,6 +90,7 @@ export function getRecord(db: Db, id: number): VinylRecord {
 
 export function createRecord(
   db: Db,
+  userId: number,
   input: ParsedRecordInput,
   source: RecordSource = {},
 ): VinylRecord {
@@ -93,6 +101,7 @@ export function createRecord(
       .insert(records)
       .values({
         ...recordColumns(input),
+        userId,
         discogsReleaseId: source.discogsReleaseId ?? null,
         addedAt: now,
         updatedAt: now,
@@ -102,16 +111,21 @@ export function createRecord(
     writeCreditsAndTags(tx, id, input);
     return id;
   });
-  return getRecord(db, id);
+  return getRecord(db, userId, id);
 }
 
 /** Full replace: artists, genres and styles are rewritten from the input. */
-export function updateRecord(db: Db, id: number, input: ParsedRecordInput): VinylRecord {
+export function updateRecord(
+  db: Db,
+  userId: number,
+  id: number,
+  input: ParsedRecordInput,
+): VinylRecord {
   db.transaction((tx) => {
     const updated = tx
       .update(records)
       .set({ ...recordColumns(input), updatedAt: new Date().toISOString() })
-      .where(eq(records.id, id))
+      .where(ownRecord(userId, id))
       .returning({ id: records.id })
       .get();
     if (!updated) throw new NotFoundError(`Record ${id} not found`);
@@ -121,15 +135,15 @@ export function updateRecord(db: Db, id: number, input: ParsedRecordInput): Viny
     writeCreditsAndTags(tx, id, input);
     deleteOrphanArtists(tx);
   });
-  return getRecord(db, id);
+  return getRecord(db, userId, id);
 }
 
-export function deleteRecord(db: Db, id: number): void {
+export function deleteRecord(db: Db, userId: number, id: number): void {
   db.transaction((tx) => {
-    // Credits and tags go with it via ON DELETE CASCADE.
+    // Credits, tags, tracks and plays go with it via ON DELETE CASCADE.
     const deleted = tx
       .delete(records)
-      .where(eq(records.id, id))
+      .where(ownRecord(userId, id))
       .returning({ id: records.id })
       .get();
     if (!deleted) throw new NotFoundError(`Record ${id} not found`);
@@ -184,10 +198,15 @@ function deleteOrphanArtists(tx: Tx) {
   tx.delete(artists).where(notInArray(artists.id, credited)).run();
 }
 
-/** Several records at once, by id (in no particular order). Missing ids are skipped. */
-export function getRecordsByIds(db: Db, ids: number[]): VinylRecord[] {
+/** Several of a person's records at once, by id (in no particular order). Others are skipped. */
+export function getRecordsByIds(db: Db, userId: number, ids: number[]): VinylRecord[] {
   if (ids.length === 0) return [];
-  return hydrate(db, db.select().from(records).where(inArray(records.id, ids)).all());
+  const rows = db
+    .select()
+    .from(records)
+    .where(and(eq(records.userId, userId), inArray(records.id, ids)))
+    .all();
+  return hydrate(db, rows);
 }
 
 /**

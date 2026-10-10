@@ -22,7 +22,7 @@ describe('GET /api/health', () => {
 
 describe('unknown API routes', () => {
   it('return 404 in the standard error shape', async () => {
-    const res = await request(makeTestApp().app).get('/api/nope');
+    const res = await makeTestApp().api.get('/api/nope');
 
     expect(res.status).toBe(404);
     const { error } = apiErrorSchema.parse(res.body);

@@ -4,7 +4,6 @@
 // Runs the real server (temporary database) with the pretend Discogs.
 // ============================================================================
 
-import request from 'supertest';
 import { describe, expect, it } from 'vitest';
 import { apiErrorSchema, discogsSearchResponseSchema, recordSchema } from '@vinyl/shared';
 import { fakeDiscogs, KIND_OF_BLUE_RELEASE_ID } from './discogs-helpers.js';
@@ -19,9 +18,9 @@ const errorCode = (body: unknown) => apiErrorSchema.parse(body).error.code;
 
 describe('without a Discogs token', () => {
   it('explains how to set it up', async () => {
-    const { app } = makeTestApp();
+    const { api } = makeTestApp();
 
-    const res = await request(app).get('/api/discogs/search').query({ q: 'blue' });
+    const res = await api.get('/api/discogs/search').query({ q: 'blue' });
 
     expect(res.status).toBe(503);
     expect(apiErrorSchema.parse(res.body).error).toEqual({
@@ -33,9 +32,9 @@ describe('without a Discogs token', () => {
 
 describe('GET /api/discogs/search', () => {
   it('returns simplified results', async () => {
-    const { app } = setup();
+    const { api } = setup();
 
-    const res = await request(app).get('/api/discogs/search').query({ q: 'kind of blue' });
+    const res = await api.get('/api/discogs/search').query({ q: 'kind of blue' });
 
     expect(res.status).toBe(200);
     const body = discogsSearchResponseSchema.parse(res.body);
@@ -49,12 +48,12 @@ describe('GET /api/discogs/search', () => {
   });
 
   it('marks releases that are already in the collection', async () => {
-    const { app } = setup();
-    const imported = await request(app)
+    const { api } = setup();
+    const imported = await api
       .post('/api/discogs/import')
       .send({ releaseId: KIND_OF_BLUE_RELEASE_ID });
 
-    const res = await request(app).get('/api/discogs/search').query({ q: 'kind of blue' });
+    const res = await api.get('/api/discogs/search').query({ q: 'kind of blue' });
 
     const result = discogsSearchResponseSchema
       .parse(res.body)
@@ -63,9 +62,9 @@ describe('GET /api/discogs/search', () => {
   });
 
   it('needs something to search for', async () => {
-    const { app, requests } = setup();
+    const { api, requests } = setup();
 
-    const res = await request(app).get('/api/discogs/search').query({ q: '   ' });
+    const res = await api.get('/api/discogs/search').query({ q: '   ' });
 
     expect(res.status).toBe(400);
     expect(apiErrorSchema.parse(res.body).error.message).toBe('q: Type something to search for');
@@ -75,11 +74,9 @@ describe('GET /api/discogs/search', () => {
 
 describe('POST /api/discogs/import', () => {
   it('adds the release to the collection with its cover and details', async () => {
-    const { app } = setup();
+    const { api } = setup();
 
-    const res = await request(app)
-      .post('/api/discogs/import')
-      .send({ releaseId: KIND_OF_BLUE_RELEASE_ID });
+    const res = await api.post('/api/discogs/import').send({ releaseId: KIND_OF_BLUE_RELEASE_ID });
 
     expect(res.status).toBe(201);
     const record = recordSchema.parse(res.body);
@@ -100,21 +97,19 @@ describe('POST /api/discogs/import', () => {
   });
 
   it("won't import the same release twice", async () => {
-    const { app } = setup();
-    await request(app).post('/api/discogs/import').send({ releaseId: KIND_OF_BLUE_RELEASE_ID });
+    const { api } = setup();
+    await api.post('/api/discogs/import').send({ releaseId: KIND_OF_BLUE_RELEASE_ID });
 
-    const res = await request(app)
-      .post('/api/discogs/import')
-      .send({ releaseId: KIND_OF_BLUE_RELEASE_ID });
+    const res = await api.post('/api/discogs/import').send({ releaseId: KIND_OF_BLUE_RELEASE_ID });
 
     expect(res.status).toBe(409);
     expect(errorCode(res.body)).toBe('ALREADY_IN_COLLECTION');
   });
 
   it('reports releases Discogs does not have', async () => {
-    const { app } = setup();
+    const { api } = setup();
 
-    const res = await request(app).post('/api/discogs/import').send({ releaseId: 999 });
+    const res = await api.post('/api/discogs/import').send({ releaseId: 999 });
 
     expect(res.status).toBe(404);
     expect(errorCode(res.body)).toBe('DISCOGS_NOT_FOUND');
@@ -123,24 +118,22 @@ describe('POST /api/discogs/import', () => {
 
 describe('POST /api/discogs/link', () => {
   it('fills in the cover and empty details without overwriting yours', async () => {
-    const { app } = setup();
-    const mine = await request(app)
-      .post('/api/records')
-      .send(
-        recordInput({
-          title: 'Kind of Blue',
-          year: 1959,
-          label: null,
-          runtimeSeconds: null,
-          coverImageUrl: null,
-          mediaCondition: 'VG',
-          notes: 'From my dad.',
-          genres: [],
-          styles: [],
-        }),
-      );
+    const { api } = setup();
+    const mine = await api.post('/api/records').send(
+      recordInput({
+        title: 'Kind of Blue',
+        year: 1959,
+        label: null,
+        runtimeSeconds: null,
+        coverImageUrl: null,
+        mediaCondition: 'VG',
+        notes: 'From my dad.',
+        genres: [],
+        styles: [],
+      }),
+    );
 
-    const res = await request(app)
+    const res = await api
       .post('/api/discogs/link')
       .send({ recordId: mine.body.id, releaseId: KIND_OF_BLUE_RELEASE_ID });
 
@@ -162,11 +155,11 @@ describe('POST /api/discogs/link', () => {
   });
 
   it("won't link a release that another record already uses", async () => {
-    const { app } = setup();
-    await request(app).post('/api/discogs/import').send({ releaseId: KIND_OF_BLUE_RELEASE_ID });
-    const other = await request(app).post('/api/records').send(recordInput());
+    const { api } = setup();
+    await api.post('/api/discogs/import').send({ releaseId: KIND_OF_BLUE_RELEASE_ID });
+    const other = await api.post('/api/records').send(recordInput());
 
-    const res = await request(app)
+    const res = await api
       .post('/api/discogs/link')
       .send({ recordId: other.body.id, releaseId: KIND_OF_BLUE_RELEASE_ID });
 
@@ -174,9 +167,9 @@ describe('POST /api/discogs/link', () => {
   });
 
   it('returns 404 for a record that does not exist', async () => {
-    const { app } = setup();
+    const { api } = setup();
 
-    const res = await request(app)
+    const res = await api
       .post('/api/discogs/link')
       .send({ recordId: 999, releaseId: KIND_OF_BLUE_RELEASE_ID });
 
@@ -187,12 +180,12 @@ describe('POST /api/discogs/link', () => {
 
 describe('tracklists from Discogs', () => {
   it('saves the tracklist when importing', async () => {
-    const { app } = setup();
-    const imported = await request(app)
+    const { api } = setup();
+    const imported = await api
       .post('/api/discogs/import')
       .send({ releaseId: KIND_OF_BLUE_RELEASE_ID });
 
-    const res = await request(app).get(`/api/records/${imported.body.id}/tracks`);
+    const res = await api.get(`/api/records/${imported.body.id}/tracks`);
 
     expect(res.body.tracks.map((t: { position: string; side: string }) => t.side)).toEqual([
       'A',
@@ -204,14 +197,14 @@ describe('tracklists from Discogs', () => {
   });
 
   it('saves the tracklist when linking an existing record', async () => {
-    const { app } = setup();
-    const mine = await request(app).post('/api/records').send(recordInput());
+    const { api } = setup();
+    const mine = await api.post('/api/records').send(recordInput());
 
-    await request(app)
+    await api
       .post('/api/discogs/link')
       .send({ recordId: mine.body.id, releaseId: KIND_OF_BLUE_RELEASE_ID });
 
-    const res = await request(app).get(`/api/records/${mine.body.id}/tracks`);
+    const res = await api.get(`/api/records/${mine.body.id}/tracks`);
     expect(res.body.tracks).toHaveLength(5);
   });
 });

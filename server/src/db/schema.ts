@@ -28,8 +28,13 @@ export const records = sqliteTable(
   'records',
   {
     id: integer('id').primaryKey({ autoIncrement: true }),
-    // Null for manually entered records. Unique so a release is imported once.
-    discogsReleaseId: integer('discogs_release_id').unique(),
+    /**
+     * Whose record this is. Null only for records made before accounts existed;
+     * the first account created takes those over (see services/auth.ts).
+     */
+    userId: integer('user_id').references(() => users.id, { onDelete: 'cascade' }),
+    // Null for manually entered records. Each person can import a release once.
+    discogsReleaseId: integer('discogs_release_id'),
     title: text('title').notNull(),
     year: integer('year'),
     label: text('label'),
@@ -43,7 +48,11 @@ export const records = sqliteTable(
     addedAt: text('added_at').notNull().$defaultFn(now),
     updatedAt: text('updated_at').notNull().$defaultFn(now),
   },
-  (t) => [index('records_added_at_idx').on(t.addedAt)],
+  (t) => [
+    index('records_added_at_idx').on(t.addedAt),
+    index('records_user_idx').on(t.userId),
+    uniqueIndex('records_user_release_idx').on(t.userId, t.discogsReleaseId),
+  ],
 );
 
 export const artists = sqliteTable(
@@ -152,13 +161,21 @@ export const spinTracks = sqliteTable(
 );
 
 /**
- * App settings, one row per setting (e.g. key "dustThresholdDays", value "90").
- * Values are stored as JSON text; services/settings.ts checks and fills in defaults.
+ * Each person's settings, one row per setting (e.g. key "dustThresholdDays",
+ * value "90"). Values are stored as JSON text; services/settings.ts checks them
+ * and fills in defaults for anything not saved.
  */
-export const settings = sqliteTable('settings', {
-  key: text('key').primaryKey(),
-  value: text('value').notNull(),
-});
+export const userSettings = sqliteTable(
+  'user_settings',
+  {
+    userId: integer('user_id')
+      .notNull()
+      .references(() => users.id, { onDelete: 'cascade' }),
+    key: text('key').notNull(),
+    value: text('value').notNull(),
+  },
+  (t) => [primaryKey({ columns: [t.userId, t.key] })],
+);
 
 /**
  * Turntable styluses (needles). One is "active" (retiredAt is null); installing a
@@ -169,6 +186,8 @@ export const styluses = sqliteTable(
   'styluses',
   {
     id: integer('id').primaryKey({ autoIncrement: true }),
+    /** Whose stylus this is (null only before accounts; see records.userId). */
+    userId: integer('user_id').references(() => users.id, { onDelete: 'cascade' }),
     name: text('name').notNull(),
     /** The maker's rated lifespan, in hours of play. */
     ratedHours: integer('rated_hours').notNull(),
@@ -177,7 +196,10 @@ export const styluses = sqliteTable(
     installedAt: text('installed_at').notNull(),
     retiredAt: text('retired_at'),
   },
-  (t) => [index('styluses_installed_at_idx').on(t.installedAt)],
+  (t) => [
+    index('styluses_installed_at_idx').on(t.installedAt),
+    index('styluses_user_idx').on(t.userId),
+  ],
 );
 
 /** People with accounts (M11). Usernames are unique, ignoring capital letters. */

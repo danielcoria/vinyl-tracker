@@ -31,6 +31,7 @@ import {
   updateRecord,
 } from '../services/records.js';
 import { getTracks } from '../services/tracks.js';
+import { userIdOf } from '../middleware/session.js';
 
 // The `:id` part of the URL arrives as text ("5"). This turns it into a number
 // and rejects anything that isn't a positive whole number (e.g. "abc").
@@ -44,25 +45,25 @@ export function recordsRouter(db: Db) {
     // `.parse` checks the input. If it's invalid it throws an error, and the
     // error handler answers "400 Bad Request". So bad input never reaches the database.
     const query = recordListQuerySchema.parse(req.query);
-    const body: RecordList = { records: listRecords(db, query) };
+    const body: RecordList = { records: listRecords(db, userIdOf(req), query) };
     res.json(body);
   });
 
   // GET /api/records/:id
   router.get('/:id', (req, res) => {
-    res.json(getRecord(db, idParam.parse(req.params.id)));
+    res.json(getRecord(db, userIdOf(req), idParam.parse(req.params.id)));
   });
 
   // GET /api/records/:id/tracks
   router.get('/:id/tracks', (req, res) => {
-    const record = getRecord(db, idParam.parse(req.params.id)); // 404 if missing
+    const record = getRecord(db, userIdOf(req), idParam.parse(req.params.id)); // 404 if missing
     const body: TrackList = { tracks: getTracks(db, record.id) };
     res.json(body);
   });
 
   // POST /api/records: the new record's details are in req.body.
   router.post('/', (req, res) => {
-    const record = createRecord(db, recordInputSchema.parse(req.body));
+    const record = createRecord(db, userIdOf(req), recordInputSchema.parse(req.body));
     // 201 means "Created". `location` tells the website where the new record lives.
     res.status(201).location(`/api/records/${record.id}`).json(record);
   });
@@ -70,12 +71,12 @@ export function recordsRouter(db: Db) {
   // PUT /api/records/:id
   router.put('/:id', (req, res) => {
     const id = idParam.parse(req.params.id);
-    res.json(updateRecord(db, id, recordInputSchema.parse(req.body)));
+    res.json(updateRecord(db, userIdOf(req), id, recordInputSchema.parse(req.body)));
   });
 
   // DELETE /api/records/:id: 204 means "done, nothing to send back".
   router.delete('/:id', (req, res) => {
-    deleteRecord(db, idParam.parse(req.params.id));
+    deleteRecord(db, userIdOf(req), idParam.parse(req.params.id));
     res.status(204).end();
   });
 

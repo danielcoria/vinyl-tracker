@@ -6,7 +6,6 @@
 // error cases (bad input, missing records, broken JSON).
 // ============================================================================
 
-import request from 'supertest';
 import { beforeEach, describe, expect, it } from 'vitest';
 import { apiErrorSchema, recordListSchema, recordSchema, type RecordInput } from '@vinyl/shared';
 import { artists } from '../src/db/schema.js';
@@ -18,13 +17,13 @@ beforeEach(() => {
 });
 
 async function create(overrides: Partial<RecordInput> = {}) {
-  const res = await request(ctx.app).post('/api/records').send(recordInput(overrides));
+  const res = await ctx.api.post('/api/records').send(recordInput(overrides));
   expect(res.status).toBe(201);
   return recordSchema.parse(res.body);
 }
 
 async function list(query: Record<string, string> = {}) {
-  const res = await request(ctx.app).get('/api/records').query(query);
+  const res = await ctx.api.get('/api/records').query(query);
   expect(res.status).toBe(200);
   return recordListSchema.parse(res.body).records;
 }
@@ -43,17 +42,15 @@ function artistNames() {
 
 describe('POST /api/records', () => {
   it('creates a record with artists, genres and styles', async () => {
-    const res = await request(ctx.app)
-      .post('/api/records')
-      .send(
-        recordInput({
-          title: 'The Velvet Underground & Nico',
-          artists: ['The Velvet Underground', 'Nico'],
-          genres: ['Rock'],
-          styles: ['Garage Rock', 'Art Rock'],
-          mediaCondition: 'VG+',
-        }),
-      );
+    const res = await ctx.api.post('/api/records').send(
+      recordInput({
+        title: 'The Velvet Underground & Nico',
+        artists: ['The Velvet Underground', 'Nico'],
+        genres: ['Rock'],
+        styles: ['Garage Rock', 'Art Rock'],
+        mediaCondition: 'VG+',
+      }),
+    );
 
     expect(res.status).toBe(201);
     const record = recordSchema.parse(res.body);
@@ -93,7 +90,7 @@ describe('POST /api/records', () => {
   });
 
   it('rejects invalid input with field-level messages', async () => {
-    const res = await request(ctx.app)
+    const res = await ctx.api
       .post('/api/records')
       .send({ title: '', artists: [], year: 1800, mediaCondition: 'Mint-ish' });
 
@@ -111,7 +108,7 @@ describe('POST /api/records', () => {
     expect(ok.coverImageUrl).toBe('https://example.com/cover.jpg');
 
     for (const coverImageUrl of ['not a url', 'javascript:alert(1)', 'ftp://example.com/a.jpg']) {
-      const res = await request(ctx.app).post('/api/records').send(recordInput({ coverImageUrl }));
+      const res = await ctx.api.post('/api/records').send(recordInput({ coverImageUrl }));
       expect(res.status).toBe(400);
       expect(errorOf(res.body).message).toBe(
         'coverImageUrl: Enter a full web address, starting with https://',
@@ -120,7 +117,7 @@ describe('POST /api/records', () => {
   });
 
   it('rejects a malformed JSON body', async () => {
-    const res = await request(ctx.app)
+    const res = await ctx.api
       .post('/api/records')
       .set('Content-Type', 'application/json')
       .send('{"title": ');
@@ -130,7 +127,7 @@ describe('POST /api/records', () => {
   });
 
   it('ignores a client-supplied discogsReleaseId', async () => {
-    const res = await request(ctx.app)
+    const res = await ctx.api
       .post('/api/records')
       .send({ ...recordInput(), discogsReleaseId: 12345 });
 
@@ -141,21 +138,21 @@ describe('POST /api/records', () => {
 describe('GET /api/records/:id', () => {
   it('returns the record', async () => {
     const created = await create();
-    const res = await request(ctx.app).get(`/api/records/${created.id}`);
+    const res = await ctx.api.get(`/api/records/${created.id}`);
 
     expect(res.status).toBe(200);
     expect(recordSchema.parse(res.body)).toEqual(created);
   });
 
   it('returns 404 for a missing record', async () => {
-    const res = await request(ctx.app).get('/api/records/999');
+    const res = await ctx.api.get('/api/records/999');
 
     expect(res.status).toBe(404);
     expect(errorOf(res.body)).toEqual({ code: 'NOT_FOUND', message: 'Record 999 not found' });
   });
 
   it('returns 400 for a non-numeric id', async () => {
-    const res = await request(ctx.app).get('/api/records/abc');
+    const res = await ctx.api.get('/api/records/abc');
     expect(res.status).toBe(400);
   });
 });
@@ -218,7 +215,7 @@ describe('GET /api/records', () => {
   });
 
   it('rejects an unknown sort', async () => {
-    const res = await request(ctx.app).get('/api/records').query({ sort: 'price' });
+    const res = await ctx.api.get('/api/records').query({ sort: 'price' });
     expect(res.status).toBe(400);
   });
 });
@@ -227,17 +224,15 @@ describe('PUT /api/records/:id', () => {
   it('replaces fields, artists and tags and bumps updatedAt', async () => {
     const created = await create({ artists: ['Miles Davis'], genres: ['Jazz'] });
 
-    const res = await request(ctx.app)
-      .put(`/api/records/${created.id}`)
-      .send(
-        recordInput({
-          title: 'Kind of Blue (Reissue)',
-          artists: ['Miles Davis', 'John Coltrane'],
-          genres: ['Jazz', 'Blues'],
-          styles: [],
-          sleeveCondition: 'NM',
-        }),
-      );
+    const res = await ctx.api.put(`/api/records/${created.id}`).send(
+      recordInput({
+        title: 'Kind of Blue (Reissue)',
+        artists: ['Miles Davis', 'John Coltrane'],
+        genres: ['Jazz', 'Blues'],
+        styles: [],
+        sleeveCondition: 'NM',
+      }),
+    );
 
     expect(res.status).toBe(200);
     const updated = recordSchema.parse(res.body);
@@ -252,15 +247,13 @@ describe('PUT /api/records/:id', () => {
 
   it('removes artists that no longer have any records', async () => {
     const created = await create({ artists: ['Typo Artsit'] });
-    await request(ctx.app)
-      .put(`/api/records/${created.id}`)
-      .send(recordInput({ artists: ['Typo Artist'] }));
+    await ctx.api.put(`/api/records/${created.id}`).send(recordInput({ artists: ['Typo Artist'] }));
 
     expect(artistNames()).toEqual(['Typo Artist']);
   });
 
   it('returns 404 for a missing record', async () => {
-    const res = await request(ctx.app).put('/api/records/999').send(recordInput());
+    const res = await ctx.api.put('/api/records/999').send(recordInput());
     expect(res.status).toBe(404);
   });
 });
@@ -270,16 +263,16 @@ describe('DELETE /api/records/:id', () => {
     const keep = await create({ title: 'Kind of Blue', artists: ['Miles Davis'] });
     const remove = await create({ title: 'Rumours', artists: ['Fleetwood Mac'] });
 
-    const res = await request(ctx.app).delete(`/api/records/${remove.id}`);
+    const res = await ctx.api.delete(`/api/records/${remove.id}`);
 
     expect(res.status).toBe(204);
-    expect((await request(ctx.app).get(`/api/records/${remove.id}`)).status).toBe(404);
+    expect((await ctx.api.get(`/api/records/${remove.id}`)).status).toBe(404);
     expect((await list()).map((r) => r.id)).toEqual([keep.id]);
     expect(artistNames()).toEqual(['Miles Davis']);
   });
 
   it('returns 404 for a missing record', async () => {
-    const res = await request(ctx.app).delete('/api/records/999');
+    const res = await ctx.api.delete('/api/records/999');
     expect(res.status).toBe(404);
   });
 });

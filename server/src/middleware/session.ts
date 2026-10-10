@@ -14,6 +14,7 @@
 import type { CookieOptions, RequestHandler, Response } from 'express';
 import type { ApiError, User } from '@vinyl/shared';
 import type { Db } from '../db/client.js';
+import { AppError } from '../errors.js';
 import { SESSION_DAYS, userForSession } from '../services/auth.js';
 
 export const SESSION_COOKIE = 'vt_session';
@@ -91,4 +92,10 @@ export function setSessionCookie(res: Response, token: string, secure: boolean) 
 
 export function clearSessionCookie(res: Response, secure: boolean) {
   res.clearCookie(SESSION_COOKIE, cookieOptions(secure));
+}
+
+/** The logged-in person's id. Routes behind requireUser always have one. */
+export function userIdOf(req: { user?: User | null }): number {
+  if (!req.user) throw new AppError(401, 'NOT_LOGGED_IN', 'Log in to continue.');
+  return req.user.id;
 }

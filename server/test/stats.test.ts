@@ -8,7 +8,6 @@
 //   Untagged (no genres)                                  600s in Oct
 // ============================================================================
 
-import request from 'supertest';
 import { beforeEach, describe, expect, it } from 'vitest';
 import { statsSchema, type RecordInput } from '@vinyl/shared';
 import { monthsBetween } from '../src/services/stats.js';
@@ -17,19 +16,17 @@ import { makeTestApp, recordInput } from './helpers.js';
 let ctx: ReturnType<typeof makeTestApp>;
 
 async function addRecord(overrides: Partial<RecordInput>): Promise<number> {
-  const res = await request(ctx.app).post('/api/records').send(recordInput(overrides));
+  const res = await ctx.api.post('/api/records').send(recordInput(overrides));
   return res.body.id;
 }
 
 async function play(recordId: number, playedAt: string, durationSeconds: number) {
-  const res = await request(ctx.app)
-    .post('/api/spins')
-    .send({ recordId, playedAt, durationSeconds });
+  const res = await ctx.api.post('/api/spins').send({ recordId, playedAt, durationSeconds });
   expect(res.status).toBe(201);
 }
 
 async function stats(query: Record<string, string | number> = {}) {
-  const res = await request(ctx.app).get('/api/stats').query(query);
+  const res = await ctx.api.get('/api/stats').query(query);
   expect(res.status).toBe(200);
   return statsSchema.parse(res.body);
 }
@@ -165,7 +162,7 @@ describe('GET /api/stats', () => {
   });
 
   it('rejects a time zone that does not exist', async () => {
-    const res = await request(ctx.app).get('/api/stats').query({ utcOffsetMinutes: 5000 });
+    const res = await ctx.api.get('/api/stats').query({ utcOffsetMinutes: 5000 });
     expect(res.status).toBe(400);
   });
 });

@@ -10,9 +10,12 @@
 //   - a stylus at about 70% of its rated hours
 // The "random" choices come from a fixed seed, so the demo looks the same
 // every time it starts.
+//
+// Everything belongs to a special "demo" account. It has no usable password:
+// visitors get in with the "Try the demo" button (POST /api/auth/demo).
 // ============================================================================
 
-import { count, eq } from 'drizzle-orm';
+import { count, eq, sql } from 'drizzle-orm';
 import {
   recordInputSchema,
   spinInputSchema,
@@ -27,7 +30,29 @@ import { addStylus } from '../services/styluses.js';
 import { getTracks, replaceTracks } from '../services/tracks.js';
 import type { Db } from './client.js';
 import demoReleases from './demo-releases.json';
-import { records } from './schema.js';
+import { records, users } from './schema.js';
+
+export const DEMO_USERNAME = 'demo';
+
+/** The demo account, created if it doesn't exist yet. */
+export function demoUserId(db: Db): number {
+  const existing = db
+    .select({ id: users.id })
+    .from(users)
+    .where(sql`lower(${users.username}) = ${DEMO_USERNAME}`)
+    .get();
+  if (existing) return existing.id;
+  return db
+    .insert(users)
+    .values({
+      username: DEMO_USERNAME,
+      displayName: 'Demo Listener',
+      // Not a real password hash, so no password can ever match it.
+      passwordHash: 'no-password:demo-account',
+    })
+    .returning({ id: users.id })
+    .get().id;
+}
 
 const DAY = 24 * 60 * 60 * 1000;
 
@@ -72,8 +97,10 @@ function seededRandom(seed: number) {
 
 /** Adds the demo data if the collection is empty. Returns what was added. */
 export function seedDemoData(db: Db, now: number = Date.now()) {
-  const existing = db.select({ n: count() }).from(records).get()?.n ?? 0;
-  if (existing > 0) return { records: 0, spins: 0 };
+  const userId = demoUserId(db);
+  const existing =
+    db.select({ n: count() }).from(records).where(eq(records.userId, userId)).get()?.n ?? 0;
+  if (existing > 0) return { userId, records: 0, spins: 0 };
 
   const random = seededRandom(1971);
   let spinCount = 0;
@@ -84,6 +111,7 @@ export function seedDemoData(db: Db, now: number = Date.now()) {
     const [mediaCondition, sleeveCondition] = CONDITIONS[index % CONDITIONS.length] ?? [];
     const record = createRecord(
       db,
+      userId,
       recordInputSchema.parse({
         ...releaseToRecordInput(release),
         mediaCondition,
@@ -121,6 +149,7 @@ export function seedDemoData(db: Db, now: number = Date.now()) {
 
       createSpin(
         db,
+        userId,
         spinInputSchema.parse({
           recordId: record.id,
           playedAt: day.toISOString(),
@@ -137,6 +166,7 @@ export function seedDemoData(db: Db, now: number = Date.now()) {
   const ratedHours = 800;
   addStylus(
     db,
+    userId,
     stylusInputSchema.parse({
       name: 'Audio-Technica VM540ML',
       ratedHours,
@@ -145,5 +175,5 @@ export function seedDemoData(db: Db, now: number = Date.now()) {
     }),
   );
 
-  return { records: demoReleases.length, spins: spinCount };
+  return { userId, records: demoReleases.length, spins: spinCount };
 }

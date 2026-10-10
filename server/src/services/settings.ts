@@ -1,10 +1,12 @@
 // ============================================================================
-// settings.ts (service): READ AND CHANGE SETTINGS
+// settings.ts (service): READ AND CHANGE A PERSON'S SETTINGS
 //
-// Each setting is one row in the `settings` table. Anything not saved yet uses
-// its default (DEFAULT_SETTINGS in shared/), so a brand-new database just works.
+// Each setting is one row in the `user_settings` table, per person. Anything
+// not saved yet uses its default (DEFAULT_SETTINGS in shared/), so a brand-new
+// account just works.
 // ============================================================================
 
+import { eq } from 'drizzle-orm';
 import {
   DEFAULT_SETTINGS,
   settingsSchema,
@@ -12,11 +14,11 @@ import {
   type SettingsUpdate,
 } from '@vinyl/shared';
 import type { Db } from '../db/client.js';
-import { settings } from '../db/schema.js';
+import { userSettings } from '../db/schema.js';
 
-export function getSettings(db: Db): Settings {
+export function getSettings(db: Db, userId: number): Settings {
   const saved: Record<string, unknown> = {};
-  for (const row of db.select().from(settings).all()) {
+  for (const row of db.select().from(userSettings).where(eq(userSettings.userId, userId)).all()) {
     try {
       saved[row.key] = JSON.parse(row.value);
     } catch {
@@ -32,16 +34,19 @@ export function getSettings(db: Db): Settings {
   return result;
 }
 
-export function updateSettings(db: Db, update: SettingsUpdate): Settings {
+export function updateSettings(db: Db, userId: number, update: SettingsUpdate): Settings {
   db.transaction((tx) => {
     for (const [key, value] of Object.entries(update)) {
       if (value === undefined) continue;
-      tx.insert(settings)
-        .values({ key, value: JSON.stringify(value) })
+      tx.insert(userSettings)
+        .values({ userId, key, value: JSON.stringify(value) })
         // Insert, or replace the value if the setting already exists.
-        .onConflictDoUpdate({ target: settings.key, set: { value: JSON.stringify(value) } })
+        .onConflictDoUpdate({
+          target: [userSettings.userId, userSettings.key],
+          set: { value: JSON.stringify(value) },
+        })
         .run();
     }
   });
-  return getSettings(db);
+  return getSettings(db, userId);
 }

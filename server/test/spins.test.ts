@@ -5,7 +5,6 @@
 // and the play counts shown on records.
 // ============================================================================
 
-import request from 'supertest';
 import { beforeEach, describe, expect, it } from 'vitest';
 import { apiErrorSchema, recordSchema, spinListSchema, spinSchema } from '@vinyl/shared';
 import { spinTracks } from '../src/db/schema.js';
@@ -28,17 +27,13 @@ const DOUBLE_ALBUM = ['A', 'B', 'C', 'D'].flatMap((side, s) =>
 
 beforeEach(async () => {
   ctx = makeTestApp();
-  const res = await request(ctx.app)
-    .post('/api/records')
-    .send(recordInput({ title: 'Double' }));
+  const res = await ctx.api.post('/api/records').send(recordInput({ title: 'Double' }));
   recordId = res.body.id;
   replaceTracks(ctx.db, recordId, DOUBLE_ALBUM);
 });
 
 function logSpin(body: Record<string, unknown>) {
-  return request(ctx.app)
-    .post('/api/spins')
-    .send({ recordId, durationSeconds: 1200, ...body });
+  return ctx.api.post('/api/spins').send({ recordId, durationSeconds: 1200, ...body });
 }
 
 const errorOf = (body: unknown) => apiErrorSchema.parse(body).error;
@@ -82,14 +77,14 @@ describe('POST /api/spins', () => {
   });
 
   it('works for records without a tracklist (whole record only)', async () => {
-    const plain = await request(ctx.app).post('/api/records').send(recordInput());
+    const plain = await ctx.api.post('/api/records').send(recordInput());
 
-    const whole = await request(ctx.app)
+    const whole = await ctx.api
       .post('/api/spins')
       .send({ recordId: plain.body.id, durationSeconds: 2744 });
     expect(whole.status).toBe(201);
 
-    const sideA = await request(ctx.app)
+    const sideA = await ctx.api
       .post('/api/spins')
       .send({ recordId: plain.body.id, durationSeconds: 1200, sides: ['A'] });
     expect(sideA.status).toBe(400);
@@ -113,9 +108,7 @@ describe('POST /api/spins', () => {
     const zero = await logSpin({ durationSeconds: 0 });
     expect(errorOf(zero.body).message).toBe('durationSeconds: Length must be more than zero');
 
-    const missing = await request(ctx.app)
-      .post('/api/spins')
-      .send({ recordId: 999, durationSeconds: 60 });
+    const missing = await ctx.api.post('/api/spins').send({ recordId: 999, durationSeconds: 60 });
     expect(missing.status).toBe(404);
   });
 });
@@ -126,7 +119,7 @@ describe('GET /api/spins', () => {
     await logSpin({ sides: ['B'], playedAt: '2026-10-03T20:00:00.000Z' });
     await logSpin({ sides: ['C'], playedAt: '2026-10-02T20:00:00.000Z' });
 
-    const res = await request(ctx.app).get('/api/spins');
+    const res = await ctx.api.get('/api/spins');
 
     const { spins } = spinListSchema.parse(res.body);
     expect(spins.map((s) => s.sides)).toEqual([['B'], ['C'], ['A']]);
@@ -134,19 +127,15 @@ describe('GET /api/spins', () => {
   });
 
   it('filters by record and limits the count', async () => {
-    const other = await request(ctx.app)
-      .post('/api/records')
-      .send(recordInput({ title: 'Other' }));
+    const other = await ctx.api.post('/api/records').send(recordInput({ title: 'Other' }));
     await logSpin({});
     await logSpin({});
-    await request(ctx.app)
-      .post('/api/spins')
-      .send({ recordId: other.body.id, durationSeconds: 60 });
+    await ctx.api.post('/api/spins').send({ recordId: other.body.id, durationSeconds: 60 });
 
-    const forRecord = await request(ctx.app).get('/api/spins').query({ recordId });
+    const forRecord = await ctx.api.get('/api/spins').query({ recordId });
     expect(spinListSchema.parse(forRecord.body).spins).toHaveLength(2);
 
-    const limited = await request(ctx.app).get('/api/spins').query({ limit: 1 });
+    const limited = await ctx.api.get('/api/spins').query({ limit: 1 });
     expect(spinListSchema.parse(limited.body).spins).toHaveLength(1);
   });
 });
@@ -155,38 +144,36 @@ describe('DELETE /api/spins/:id', () => {
   it('removes the play', async () => {
     const spin = await logSpin({});
 
-    expect((await request(ctx.app).delete(`/api/spins/${spin.body.id}`)).status).toBe(204);
-    expect((await request(ctx.app).delete(`/api/spins/${spin.body.id}`)).status).toBe(404);
-    expect(spinListSchema.parse((await request(ctx.app).get('/api/spins')).body).spins).toEqual([]);
+    expect((await ctx.api.delete(`/api/spins/${spin.body.id}`)).status).toBe(204);
+    expect((await ctx.api.delete(`/api/spins/${spin.body.id}`)).status).toBe(404);
+    expect(spinListSchema.parse((await ctx.api.get('/api/spins')).body).spins).toEqual([]);
   });
 });
 
 describe('play counts on records', () => {
   it('shows how often and when a record was last played', async () => {
-    const fresh = recordSchema.parse((await request(ctx.app).get(`/api/records/${recordId}`)).body);
+    const fresh = recordSchema.parse((await ctx.api.get(`/api/records/${recordId}`)).body);
     expect(fresh).toMatchObject({ spinCount: 0, lastPlayedAt: null });
 
     await logSpin({ playedAt: '2026-10-01T20:00:00.000Z' });
     await logSpin({ playedAt: '2026-10-05T21:30:00.000Z' });
 
-    const played = recordSchema.parse(
-      (await request(ctx.app).get(`/api/records/${recordId}`)).body,
-    );
+    const played = recordSchema.parse((await ctx.api.get(`/api/records/${recordId}`)).body);
     expect(played).toMatchObject({ spinCount: 2, lastPlayedAt: '2026-10-05T21:30:00.000Z' });
   });
 
   it('deleting a record deletes its plays', async () => {
     await logSpin({});
 
-    await request(ctx.app).delete(`/api/records/${recordId}`);
+    await ctx.api.delete(`/api/records/${recordId}`);
 
-    expect(spinListSchema.parse((await request(ctx.app).get('/api/spins')).body).spins).toEqual([]);
+    expect(spinListSchema.parse((await ctx.api.get('/api/spins')).body).spins).toEqual([]);
   });
 });
 
 describe('GET /api/records/:id/tracks', () => {
   it('returns the tracklist in order, with sides', async () => {
-    const res = await request(ctx.app).get(`/api/records/${recordId}/tracks`);
+    const res = await ctx.api.get(`/api/records/${recordId}/tracks`);
 
     expect(res.status).toBe(200);
     expect(res.body.tracks.map((t: { position: string }) => t.position)).toEqual(
@@ -201,7 +188,7 @@ describe('GET /api/records/:id/tracks', () => {
     const replaced = replaceTracks(ctx.db, recordId, []);
 
     expect(replaced).toBe(false);
-    const res = await request(ctx.app).get(`/api/records/${recordId}/tracks`);
+    const res = await ctx.api.get(`/api/records/${recordId}/tracks`);
     expect(res.body.tracks).toHaveLength(8);
   });
 });

@@ -18,6 +18,7 @@ import {
 import type { Db } from '../db/client.js';
 import { AppError } from '../errors.js';
 import type { DiscogsClient } from '../integrations/discogs/client.js';
+import { userIdOf } from '../middleware/session.js';
 import { importRelease, linkRecord, searchDiscogs } from '../services/discogs.js';
 
 export function discogsRouter(db: Db, discogs: DiscogsClient | null) {
@@ -38,18 +39,18 @@ export function discogsRouter(db: Db, discogs: DiscogsClient | null) {
   // the error to the error handler, just like the other routes.
   router.get('/search', async (req, res) => {
     const query = discogsSearchQuerySchema.parse(req.query);
-    res.json(await searchDiscogs(db, client(), query));
+    res.json(await searchDiscogs(db, userIdOf(req), client(), query));
   });
 
   router.post('/import', async (req, res) => {
     const { releaseId } = discogsImportInputSchema.parse(req.body);
-    const record = await importRelease(db, client(), releaseId);
+    const record = await importRelease(db, userIdOf(req), client(), releaseId);
     res.status(201).location(`/api/records/${record.id}`).json(record);
   });
 
   router.post('/link', async (req, res) => {
     const input = discogsLinkInputSchema.parse(req.body);
-    res.json(await linkRecord(db, client(), input));
+    res.json(await linkRecord(db, userIdOf(req), client(), input));
   });
 
   return router;

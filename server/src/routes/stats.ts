@@ -9,13 +9,14 @@
 import { Router } from 'express';
 import { statsQuerySchema } from '@vinyl/shared';
 import type { Db } from '../db/client.js';
+import { userIdOf } from '../middleware/session.js';
 import { getStats } from '../services/stats.js';
 
 export function statsRouter(db: Db) {
   const router = Router();
 
   router.get('/', (req, res) => {
-    res.json(getStats(db, statsQuerySchema.parse(req.query)));
+    res.json(getStats(db, userIdOf(req), statsQuerySchema.parse(req.query)));
   });
 
   return router;

@@ -1,17 +1,18 @@
 // ============================================================================
 // seed.ts: FILLS THE DATABASE WITH SAMPLE RECORDS
 //
-// Gives you something to look at while building the app.
-//   npm run db:seed -w server            adds 11 sample albums (only if empty)
-//   npm run db:seed -w server -- --reset deletes all records first, then adds them
+// Gives you something to look at while building the app. They go to the FIRST
+// account, so create your account in the app (sign up) before running this.
+//   npm run db:seed -w server            adds 11 sample albums (if that account has none)
+//   npm run db:seed -w server -- --reset deletes that account's records first
 // ============================================================================
 
-import { count } from 'drizzle-orm';
+import { asc, count, eq, notInArray } from 'drizzle-orm';
 import { recordInputSchema, type RecordInput } from '@vinyl/shared';
 import { loadConfig } from '../config.js';
 import { createRecord } from '../services/records.js';
 import { createDb } from './client.js';
-import { artists, records } from './schema.js';
+import { artists, recordArtists, records, users } from './schema.js';
 
 const SAMPLE_RECORDS: RecordInput[] = [
   {
@@ -164,20 +165,33 @@ const SAMPLE_RECORDS: RecordInput[] = [
 const reset = process.argv.includes('--reset');
 const db = createDb(loadConfig().databasePath);
 
-if (reset) {
-  db.transaction((tx) => {
-    tx.delete(records).run(); // cascades to credits and tags
-    tx.delete(artists).run();
-  });
-  console.log('Deleted all records.');
+const owner = db.select().from(users).orderBy(asc(users.id)).get();
+if (!owner) {
+  console.log('No accounts yet. Open the app, create your account, then run this again.');
+  process.exit(0);
 }
 
-const existing = db.select({ n: count() }).from(records).get()?.n ?? 0;
+if (reset) {
+  db.transaction((tx) => {
+    // Their plays, tracklists, credits and tags go with them (ON DELETE CASCADE).
+    tx.delete(records).where(eq(records.userId, owner.id)).run();
+    // Artists that no longer appear on anyone's records.
+    tx.delete(artists)
+      .where(notInArray(artists.id, tx.select({ id: recordArtists.artistId }).from(recordArtists)))
+      .run();
+  });
+  console.log(`Deleted ${owner.username}'s records.`);
+}
+
+const existing =
+  db.select({ n: count() }).from(records).where(eq(records.userId, owner.id)).get()?.n ?? 0;
 if (existing > 0) {
-  console.log(`Database already has ${existing} records; skipping. Use --reset to start over.`);
+  console.log(
+    `${owner.username} already has ${existing} records; skipping. Use --reset to start over.`,
+  );
 } else {
   for (const sample of SAMPLE_RECORDS) {
-    createRecord(db, recordInputSchema.parse(sample));
+    createRecord(db, owner.id, recordInputSchema.parse(sample));
   }
-  console.log(`Seeded ${SAMPLE_RECORDS.length} records.`);
+  console.log(`Added ${SAMPLE_RECORDS.length} sample records to ${owner.username}'s collection.`);
 }

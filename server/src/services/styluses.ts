@@ -13,7 +13,7 @@
 // for the stylus that was installed then.
 // ============================================================================
 
-import { and, desc, eq, gte, isNull, lt, sum, count, type SQL } from 'drizzle-orm';
+import { and, count, desc, eq, gte, inArray, isNull, lt, sum, type SQL } from 'drizzle-orm';
 import {
   STYLUS_SOON_AT,
   type ParsedStylusInput,
@@ -22,31 +22,40 @@ import {
   type ParsedStylusUpdate,
 } from '@vinyl/shared';
 import type { Db } from '../db/client.js';
-import { spins, styluses } from '../db/schema.js';
+import { records, spins, styluses } from '../db/schema.js';
 import { AppError, NotFoundError } from '../errors.js';
 
 type StylusRow = typeof styluses.$inferSelect;
 
-export function listStyluses(db: Db): Stylus[] {
+/** "This stylus, and it belongs to this person." */
+const ownStylus = (userId: number, id: number) =>
+  and(eq(styluses.id, id), eq(styluses.userId, userId));
+
+export function listStyluses(db: Db, userId: number): Stylus[] {
   const rows = db
     .select()
     .from(styluses)
+    .where(eq(styluses.userId, userId))
     .orderBy(desc(styluses.installedAt), desc(styluses.id))
     .all();
-  return rows.map((row) => withWear(db, row));
+  return rows.map((row) => withWear(db, userId, row));
 }
 
-export function getStylus(db: Db, id: number): Stylus {
-  const row = db.select().from(styluses).where(eq(styluses.id, id)).get();
+export function getStylus(db: Db, userId: number, id: number): Stylus {
+  const row = db.select().from(styluses).where(ownStylus(userId, id)).get();
   if (!row) throw new NotFoundError(`Stylus ${id} not found`);
-  return withWear(db, row);
+  return withWear(db, userId, row);
 }
 
-export function addStylus(db: Db, input: ParsedStylusInput): Stylus {
+export function addStylus(db: Db, userId: number, input: ParsedStylusInput): Stylus {
   const installedAt = new Date(input.installedAt).toISOString();
 
   const id = db.transaction((tx) => {
-    const current = tx.select().from(styluses).where(isNull(styluses.retiredAt)).get();
+    const current = tx
+      .select()
+      .from(styluses)
+      .where(and(eq(styluses.userId, userId), isNull(styluses.retiredAt)))
+      .get();
     if (current) {
       if (installedAt <= current.installedAt) {
         throw new AppError(
@@ -61,6 +70,7 @@ export function addStylus(db: Db, input: ParsedStylusInput): Stylus {
     return tx
       .insert(styluses)
       .values({
+        userId,
         name: input.name,
         ratedHours: input.ratedHours,
         initialHours: input.initialHours,
@@ -69,23 +79,28 @@ export function addStylus(db: Db, input: ParsedStylusInput): Stylus {
       .returning({ id: styluses.id })
       .get().id;
   });
-  return getStylus(db, id);
+  return getStylus(db, userId, id);
 }
 
-export function updateStylus(db: Db, id: number, update: ParsedStylusUpdate): Stylus {
+export function updateStylus(
+  db: Db,
+  userId: number,
+  id: number,
+  update: ParsedStylusUpdate,
+): Stylus {
   const updated = db
     .update(styluses)
     .set({ name: update.name, ratedHours: update.ratedHours, initialHours: update.initialHours })
-    .where(eq(styluses.id, id))
+    .where(ownStylus(userId, id))
     .returning({ id: styluses.id })
     .get();
   if (!updated) throw new NotFoundError(`Stylus ${id} not found`);
-  return getStylus(db, id);
+  return getStylus(db, userId, id);
 }
 
-export function deleteStylus(db: Db, id: number): void {
+export function deleteStylus(db: Db, userId: number, id: number): void {
   db.transaction((tx) => {
-    const row = tx.select().from(styluses).where(eq(styluses.id, id)).get();
+    const row = tx.select().from(styluses).where(ownStylus(userId, id)).get();
     if (!row) throw new NotFoundError(`Stylus ${id} not found`);
     tx.delete(styluses).where(eq(styluses.id, id)).run();
 
@@ -93,15 +108,17 @@ export function deleteStylus(db: Db, id: number): void {
     if (row.retiredAt === null) {
       tx.update(styluses)
         .set({ retiredAt: null })
-        .where(eq(styluses.retiredAt, row.installedAt))
+        .where(and(eq(styluses.userId, userId), eq(styluses.retiredAt, row.installedAt)))
         .run();
     }
   });
 }
 
 /** Adds up the plays logged while this stylus was installed. */
-function withWear(db: Db, row: StylusRow): Stylus {
-  const during: SQL[] = [gte(spins.playedAt, row.installedAt)];
+function withWear(db: Db, userId: number, row: StylusRow): Stylus {
+  // This person's plays (of records they own) while this stylus was installed.
+  const ownRecords = db.select({ id: records.id }).from(records).where(eq(records.userId, userId));
+  const during: SQL[] = [inArray(spins.recordId, ownRecords), gte(spins.playedAt, row.installedAt)];
   if (row.retiredAt) during.push(lt(spins.playedAt, row.retiredAt));
 
   const totals = db

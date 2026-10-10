@@ -36,6 +36,20 @@
       "when": 1791674055230,
       "tag": "0004_users_and_sessions",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "6",
+      "when": 1791674759091,
+      "tag": "0005_per_user_data",
+      "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "6",
+      "when": 1791674766996,
+      "tag": "0006_user_settings",
+      "breakpoints": true
     }
   ]
 }

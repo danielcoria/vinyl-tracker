@@ -1,7 +1,9 @@
 // ============================================================================
 // auth.ts (service): ACCOUNTS AND LOGIN SESSIONS
 //
-//   createUser       make an account (usernames are unique, ignoring capitals)
+//   createUser       make an account (usernames are unique, ignoring capitals).
+//                    The very first account also takes over any records and
+//                    styluses made before accounts existed.
 //   checkLogin       the account for a username + password, or null
 //   startSession     log in: makes a random token for the browser's cookie
 //   userForSession   who a cookie's token belongs to (null if expired/unknown)
@@ -12,10 +14,10 @@
 // ============================================================================
 
 import { createHash, randomBytes } from 'node:crypto';
-import { and, eq, gt, lt, sql } from 'drizzle-orm';
+import { and, count, eq, gt, isNull, lt, sql } from 'drizzle-orm';
 import type { User } from '@vinyl/shared';
 import type { Db } from '../db/client.js';
-import { sessions, users } from '../db/schema.js';
+import { records, sessions, styluses, users } from '../db/schema.js';
 import { ConflictError } from '../errors.js';
 import { hashPassword, verifyPassword } from './passwords.js';
 
@@ -62,11 +64,25 @@ export async function createUser(
       })
       .returning()
       .get();
+    claimDataFromBeforeAccounts(db, row.id);
     return toUser(row);
   } catch {
     // Someone took the name in the moment while the password was being hashed.
     throw new ConflictError('USERNAME_TAKEN', 'That username is taken. Try another one.');
   }
+}
+
+/**
+ * Records and styluses made before accounts existed have no owner. The first
+ * account created on the database takes them over, so nothing is lost.
+ */
+function claimDataFromBeforeAccounts(db: Db, userId: number) {
+  const accounts = db.select({ n: count() }).from(users).get()?.n ?? 0;
+  if (accounts !== 1) return;
+  db.transaction((tx) => {
+    tx.update(records).set({ userId }).where(isNull(records.userId)).run();
+    tx.update(styluses).set({ userId }).where(isNull(styluses.userId)).run();
+  });
 }
 
 // Checked when the username doesn't exist, so a wrong username takes as long

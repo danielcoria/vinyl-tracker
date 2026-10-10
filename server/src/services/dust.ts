@@ -17,13 +17,14 @@ const DAY_MS = 24 * 60 * 60 * 1000;
 
 export function getDustReport(
   db: Db,
+  userId: number,
   query: { days?: number },
   /** The current time. Tests pass a fixed one. */
   now: number = Date.now(),
 ): DustReport {
-  const thresholdDays = query.days ?? getSettings(db).dustThresholdDays;
+  const thresholdDays = query.days ?? getSettings(db, userId).dustThresholdDays;
   const cutoff = now - thresholdDays * DAY_MS;
-  const collection = listRecords(db, { sort: 'added' });
+  const collection = listRecords(db, userId, { sort: 'added' });
 
   const daysSince = (iso: string) => Math.max(0, Math.floor((now - Date.parse(iso)) / DAY_MS));
   const toDust = (record: VinylRecord): DustRecord => ({

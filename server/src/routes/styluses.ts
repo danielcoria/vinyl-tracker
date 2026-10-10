@@ -11,6 +11,7 @@ import { Router } from 'express';
 import { stylusInputSchema, stylusUpdateSchema, type StylusList } from '@vinyl/shared';
 import { z } from 'zod';
 import type { Db } from '../db/client.js';
+import { userIdOf } from '../middleware/session.js';
 import { addStylus, deleteStylus, listStyluses, updateStylus } from '../services/styluses.js';
 
 const idParam = z.coerce.number().int().positive();
@@ -18,21 +19,28 @@ const idParam = z.coerce.number().int().positive();
 export function stylusesRouter(db: Db) {
   const router = Router();
 
-  router.get('/', (_req, res) => {
-    const body: StylusList = { styluses: listStyluses(db) };
+  router.get('/', (req, res) => {
+    const body: StylusList = { styluses: listStyluses(db, userIdOf(req)) };
     res.json(body);
   });
 
   router.post('/', (req, res) => {
-    res.status(201).json(addStylus(db, stylusInputSchema.parse(req.body)));
+    res.status(201).json(addStylus(db, userIdOf(req), stylusInputSchema.parse(req.body)));
   });
 
   router.put('/:id', (req, res) => {
-    res.json(updateStylus(db, idParam.parse(req.params.id), stylusUpdateSchema.parse(req.body)));
+    res.json(
+      updateStylus(
+        db,
+        userIdOf(req),
+        idParam.parse(req.params.id),
+        stylusUpdateSchema.parse(req.body),
+      ),
+    );
   });
 
   router.delete('/:id', (req, res) => {
-    deleteStylus(db, idParam.parse(req.params.id));
+    deleteStylus(db, userIdOf(req), idParam.parse(req.params.id));
     res.status(204).end();
   });
 

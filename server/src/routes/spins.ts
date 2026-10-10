@@ -11,6 +11,7 @@ import { Router } from 'express';
 import { spinInputSchema, spinListQuerySchema, type SpinList } from '@vinyl/shared';
 import { z } from 'zod';
 import type { Db } from '../db/client.js';
+import { userIdOf } from '../middleware/session.js';
 import { createSpin, deleteSpin, listSpins } from '../services/spins.js';
 
 const idParam = z.coerce.number().int().positive();
@@ -19,16 +20,18 @@ export function spinsRouter(db: Db) {
   const router = Router();
 
   router.get('/', (req, res) => {
-    const body: SpinList = { spins: listSpins(db, spinListQuerySchema.parse(req.query)) };
+    const body: SpinList = {
+      spins: listSpins(db, userIdOf(req), spinListQuerySchema.parse(req.query)),
+    };
     res.json(body);
   });
 
   router.post('/', (req, res) => {
-    res.status(201).json(createSpin(db, spinInputSchema.parse(req.body)));
+    res.status(201).json(createSpin(db, userIdOf(req), spinInputSchema.parse(req.body)));
   });
 
   router.delete('/:id', (req, res) => {
-    deleteSpin(db, idParam.parse(req.params.id));
+    deleteSpin(db, userIdOf(req), idParam.parse(req.params.id));
     res.status(204).end();
   });
 
