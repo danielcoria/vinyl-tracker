@@ -16,3 +16,4 @@ export * from './stats.js';
 export * from './settings.js';
 export * from './dust.js';
 export * from './styluses.js';
+export * from './auth.js';

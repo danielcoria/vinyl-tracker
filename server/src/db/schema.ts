@@ -179,3 +179,36 @@ export const styluses = sqliteTable(
   },
   (t) => [index('styluses_installed_at_idx').on(t.installedAt)],
 );
+
+/** People with accounts (M11). Usernames are unique, ignoring capital letters. */
+export const users = sqliteTable(
+  'users',
+  {
+    id: integer('id').primaryKey({ autoIncrement: true }),
+    /** Lowercase letters, numbers and _ only; used in addresses later (public profiles). */
+    username: text('username').notNull(),
+    displayName: text('display_name').notNull(),
+    /** Never the password itself: a scrypt hash (see services/passwords.ts). */
+    passwordHash: text('password_hash').notNull(),
+    createdAt: text('created_at').notNull().$defaultFn(now),
+  },
+  (t) => [uniqueIndex('users_username_lower_idx').on(sql`lower(${t.username})`)],
+);
+
+/**
+ * Who is logged in. The browser keeps a random token in a cookie; only a hash of
+ * it is stored here, so a copy of the database can't be used to log in as anyone.
+ */
+export const sessions = sqliteTable(
+  'sessions',
+  {
+    /** sha256 of the cookie's token, as hex. */
+    id: text('id').primaryKey(),
+    userId: integer('user_id')
+      .notNull()
+      .references(() => users.id, { onDelete: 'cascade' }),
+    createdAt: text('created_at').notNull().$defaultFn(now),
+    expiresAt: text('expires_at').notNull(),
+  },
+  (t) => [index('sessions_user_idx').on(t.userId)],
+);

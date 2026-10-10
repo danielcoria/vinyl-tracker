@@ -22,6 +22,8 @@ import type { DiscogsClient } from './integrations/discogs/client.js';
 import { errorHandler, notFoundHandler } from './middleware/error-handler.js';
 import { passwordLock } from './middleware/password-lock.js';
 import { serveClient } from './middleware/serve-client.js';
+import { loadUser, sameOrigin } from './middleware/session.js';
+import { authRouter } from './routes/auth.js';
 import { discogsRouter } from './routes/discogs.js';
 import { dustRouter, settingsRouter } from './routes/dust.js';
 import { recordsRouter } from './routes/records.js';
@@ -45,6 +47,8 @@ export type AppDeps = {
   trustProxy?: boolean;
   /** True on the public demo (see db/demo.ts). */
   demo?: boolean;
+  /** Send the login cookie only over HTTPS (true online). */
+  secureCookies?: boolean;
 };
 
 export function createApp({
@@ -54,6 +58,7 @@ export function createApp({
   clientDist = null,
   trustProxy = false,
   demo = false,
+  secureCookies = false,
 }: AppDeps) {
   const app = express();
   app.disable('x-powered-by'); // don't advertise "made with Express" (minor security habit)
@@ -92,6 +97,13 @@ export function createApp({
   // Everything below the health check needs the password (when one is set).
   // The health check stays open so a host can tell the app is running.
   if (password) app.use(passwordLock(password));
+
+  // Changes must come from this site, not another one (see middleware/session.ts).
+  app.use(sameOrigin);
+  // Who is logged in (from the login cookie), available as req.user.
+  app.use(loadUser(db));
+  // Accounts: sign up, log in, log out, "who am I?" (routes/auth.ts).
+  app.use('/api/auth', authRouter(db, { secureCookies }));
 
   // Every address starting with /api/records is handled in routes/records.ts.
   app.use('/api/records', recordsRouter(db));

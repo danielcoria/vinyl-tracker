@@ -16,9 +16,7 @@
 import { createHash, timingSafeEqual } from 'node:crypto';
 import type { RequestHandler } from 'express';
 import type { ApiError } from '@vinyl/shared';
-
-const MAX_FAILURES = 10;
-const WINDOW_MS = 15 * 60 * 1000;
+import { FAILURE_WINDOW_MS, FailureLimiter } from './failure-limiter.js';
 
 const hash = (text: string) => createHash('sha256').update(text, 'utf8').digest();
 
@@ -37,14 +35,12 @@ export function passwordLock(
   now: () => number = Date.now,
 ): RequestHandler {
   const expected = hash(password);
-  // address -> times of recent wrong passwords
-  const failures = new Map<string, number[]>();
+  const limiter = new FailureLimiter(now);
 
   return (req, res, next) => {
     const address = req.ip ?? 'unknown';
-    const recent = (failures.get(address) ?? []).filter((time) => now() - time < WINDOW_MS);
 
-    if (recent.length >= MAX_FAILURES) {
+    if (limiter.isBlocked(address)) {
       const body: ApiError = {
         error: {
           code: 'TOO_MANY_ATTEMPTS',
@@ -53,23 +49,18 @@ export function passwordLock(
       };
       res
         .status(429)
-        .set('Retry-After', String(WINDOW_MS / 1000))
+        .set('Retry-After', String(FAILURE_WINDOW_MS / 1000))
         .json(body);
       return;
     }
 
     const given = passwordFromHeader(req.headers.authorization);
     if (given !== null && timingSafeEqual(hash(given), expected)) {
-      failures.delete(address);
+      limiter.recordSuccess(address);
       next();
       return;
     }
-
-    if (given !== null) {
-      recent.push(now());
-      failures.set(address, recent);
-      forgetOldFailures(failures, now());
-    }
+    if (given !== null) limiter.recordFailure(address);
 
     // This header is what makes the browser show its password box.
     res.status(401).set('WWW-Authenticate', 'Basic realm="Vinyl Tracker", charset="UTF-8"');
@@ -78,12 +69,4 @@ export function passwordLock(
     };
     res.json(body);
   };
-}
-
-/** Keeps the list of addresses from growing forever. */
-function forgetOldFailures(failures: Map<string, number[]>, now: number) {
-  if (failures.size < 1000) return;
-  for (const [address, times] of failures) {
-    if (times.every((time) => now - time >= WINDOW_MS)) failures.delete(address);
-  }
 }

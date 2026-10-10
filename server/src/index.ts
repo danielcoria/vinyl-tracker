@@ -42,6 +42,8 @@ const app = createApp({
   clientDist,
   trustProxy: config.trustProxy,
   demo: config.demoMode,
+  // Online, the login cookie is only sent over HTTPS.
+  secureCookies: config.nodeEnv === 'production',
 }); // build the server with what it needs
 
 // 3. Start listening on port 3001. The function inside runs once it's ready.

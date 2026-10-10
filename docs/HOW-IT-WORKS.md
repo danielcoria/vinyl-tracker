@@ -136,6 +136,7 @@ Every code file also starts with a comment explaining what it does, so you can o
 | `src/dust.ts`     | What the dust report looks like: records gathering dust and never played.                                                                  |
 | `src/settings.ts` | The app's settings (like how many days counts as "dusty") and their defaults.                                                              |
 | `src/styluses.ts` | What a stylus (turntable needle) looks like, with its wear and status.                                                                     |
+| `src/auth.ts`     | What signing up and logging in look like, and the rules for usernames and passwords.                                                       |
 | `src/index.ts`    | Re-exports everything so other code can `import { … } from '@vinyl/shared'`.                                                               |
 
 ### `server/`: the kitchen
@@ -170,6 +171,11 @@ request ─▶ app.ts ─▶ routes/ ─▶ services/ ─▶ db/ ─▶ database
 | `src/services/styluses.ts`                                                 | **The stylus wear tracker**: adds up the plays logged while each stylus was installed.                              |
 | `src/middleware/password-lock.ts`                                          | **The site password** (online only): the browser asks for it, and wrong guesses are slowed down.                    |
 | `src/middleware/serve-client.ts`                                           | Online, the server also delivers the built website, so only one program runs.                                       |
+| `src/middleware/session.ts`                                                | **Who is logged in**: reads the login cookie, blocks changes sent from other websites.                              |
+| `src/middleware/failure-limiter.ts`                                        | Slows down password guessing (used by logging in and the site password).                                            |
+| `src/routes/auth.ts`                                                       | The account addresses: sign up, log in, log out, "who am I?".                                                       |
+| `src/services/auth.ts`                                                     | **Accounts and login sessions**: creating accounts, checking passwords, starting and ending sessions.               |
+| `src/services/passwords.ts`                                                | Stores passwords safely as scrypt hashes (never the password itself).                                               |
 | `src/routes/discogs.ts`                                                    | The Discogs addresses: search, import a release, link a record to a release.                                        |
 | `src/services/discogs.ts`                                                  | Searches Discogs, imports a release as a new record, or fills in an existing record (cover and empty details only). |
 | `src/integrations/discogs/client.ts`                                       | **Talks to Discogs.** Sends the token, remembers recent answers, stays under 60 requests a minute.                  |
@@ -298,6 +304,8 @@ Records added by hand have no tracklist, so they log the whole record using the 
 - **State**: a component's own memory (`useState`), like what you've typed into the form so far. When it changes, React redraws.
 - **Route**: a pairing of an address (like `/records/:id`) with the screen to show. `:id` is a placeholder for the record number.
 - **Stylus**: the needle that rides in the record's groove. It wears down with use; a worn one sounds worse and can damage records.
+- **Hash (password)**: a scrambled version of a password that can be checked but not turned back into the password.
+- **Session / cookie**: after logging in, the browser keeps a small random "ticket" (a cookie) and sends it with every request, so the server knows who you are.
 - **Spin**: one logged play of a record, an entry in the diary.
 - **Side**: one side of a vinyl disc (A, B; a double album also has C and D). Track positions like "A1" or "C3" say which side a song is on.
 - **End-to-end (e2e) test**: a test that uses the whole app the way a person would, in a real browser.
