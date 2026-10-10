@@ -42,3 +42,27 @@ describe('Layout', () => {
     );
   });
 });
+
+describe('demo note', () => {
+  it('appears on the public demo', async () => {
+    mockApi({
+      'GET /api/health': () => json({ status: 'ok', uptimeSeconds: 1, demo: true }),
+      'GET /api/records': () => json({ records: [] }),
+    });
+
+    renderApp();
+
+    expect(await screen.findByRole('note')).toHaveTextContent(
+      'changes reset when the site restarts',
+    );
+  });
+
+  it('stays hidden everywhere else', async () => {
+    mockApi({ 'GET /api/records': () => json({ records: [] }) });
+
+    renderApp();
+    await screen.findByText('Server: ok');
+
+    expect(screen.queryByRole('note')).not.toBeInTheDocument();
+  });
+});

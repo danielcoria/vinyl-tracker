@@ -13,11 +13,14 @@ import path from 'node:path';
 import { createApp } from './app.js';
 import { loadConfig } from './config.js';
 import { createDb } from './db/client.js';
+import { seedDemoData } from './db/demo.js';
 import { DiscogsClient } from './integrations/discogs/client.js';
 import { REPO_ROOT } from './paths.js';
 
 const config = loadConfig(); // 1. settings from .env
 const db = createDb(config.databasePath); // 2. open (or create) data/vinyl.db
+// The public demo starts empty after every restart, so fill it with sample data.
+const demo = config.demoMode ? seedDemoData(db) : null;
 // The Discogs connection, if there's a token. Without one, Discogs features say "not set up".
 const discogs = config.discogs.token
   ? new DiscogsClient({
@@ -38,6 +41,7 @@ const app = createApp({
   password: config.appPassword,
   clientDist,
   trustProxy: config.trustProxy,
+  demo: config.demoMode,
 }); // build the server with what it needs
 
 // 3. Start listening on port 3001. The function inside runs once it's ready.
@@ -47,6 +51,7 @@ app.listen(config.port, () => {
   // Only say whether the token exists. Never print the token itself.
   console.log(`Discogs token: ${config.discogs.token ? 'configured' : 'missing'}`);
   console.log(`Password lock: ${config.appPassword ? 'on' : 'off'}`);
+  if (demo) console.log(`Demo mode: on (added ${demo.records} albums and ${demo.spins} plays)`);
   console.log(
     `Website: ${clientDist ? `served from ${clientDist}` : 'not served here (use npm run dev)'}`,
   );

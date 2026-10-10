@@ -3,6 +3,7 @@
 //
 // The header (app name + navigation) and footer (is the server reachable?)
 // stay the same on every page. <Outlet /> is where the current page appears.
+// On the public demo, a note under the header says it's a demo.
 // ============================================================================
 
 import { Link, NavLink, Outlet } from 'react-router';
@@ -38,6 +39,13 @@ export function Layout() {
         </nav>
       </header>
 
+      {health.data?.demo && (
+        <div className="demo-notice" role="note">
+          <strong>Demo:</strong> click around and try anything. It’s sample data, and any changes
+          reset when the site restarts.
+        </div>
+      )}
+
       {/* Appears only when the stylus is getting worn. */}
       <StylusBanner />
 
@@ -46,7 +54,14 @@ export function Layout() {
       </main>
 
       <footer className="site-footer">
-        <span>A listening log for records that streaming apps can't see.</span>
+        <span>A diary for your record collection.</span>
+        {/* Discogs' terms ask apps that use their data to credit them. */}
+        <span>
+          Record data and covers from{' '}
+          <a href="https://www.discogs.com" target="_blank" rel="noreferrer">
+            Discogs
+          </a>
+        </span>
         <span role="status">Server: {status}</span>
       </footer>
     </div>

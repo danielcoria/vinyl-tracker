@@ -1,0 +1,1472 @@
+[
+  {
+    "id": 2772432,
+    "title": "Kind Of Blue",
+    "year": 2010,
+    "country": "France",
+    "artists": [
+      {
+        "id": 23755,
+        "name": "Miles Davis"
+      }
+    ],
+    "labels": [
+      {
+        "name": "Columbia",
+        "catno": "CS 8163"
+      }
+    ],
+    "formats": [
+      {
+        "name": "Vinyl",
+        "qty": "1",
+        "descriptions": ["LP", "Album", "Reissue", "Stereo"]
+      }
+    ],
+    "genres": ["Jazz"],
+    "styles": ["Modal"],
+    "tracklist": [
+      {
+        "position": "A1",
+        "type_": "track",
+        "title": "So What",
+        "duration": "8:56"
+      },
+      {
+        "position": "A2",
+        "type_": "track",
+        "title": "Freddie Freeloader",
+        "duration": "9:32"
+      },
+      {
+        "position": "A3",
+        "type_": "track",
+        "title": "Blue In Green",
+        "duration": "5:27"
+      },
+      {
+        "position": "B1",
+        "type_": "track",
+        "title": "All Blues",
+        "duration": "11:34"
+      },
+      {
+        "position": "B2",
+        "type_": "track",
+        "title": "Flamenco Sketches",
+        "duration": "9:32"
+      }
+    ],
+    "images": [
+      {
+        "type": "primary",
+        "uri": "https://i.discogs.com/HocOgI_8yE8Ggm3X0gCbXOy0IjNiP_rNr2a24dizxz4/rs:fit/g:sm/q:90/h:500/w:500/czM6Ly9kaXNjb2dz/LWRhdGFiYXNlLWlt/YWdlcy9SLTI3NzI0/MzItMTMwMjg0NjQ4/OC5qcGVn.jpeg"
+      }
+    ]
+  },
+  {
+    "id": 2564538,
+    "title": "A Love Supreme",
+    "year": 2010,
+    "country": "Spain",
+    "artists": [
+      {
+        "id": 97545,
+        "name": "John Coltrane"
+      }
+    ],
+    "labels": [
+      {
+        "name": "Impulse!",
+        "catno": "GR-155"
+      }
+    ],
+    "formats": [
+      {
+        "name": "Vinyl",
+        "qty": "1",
+        "descriptions": ["LP", "Album", "Limited Edition", "Reissue", "Remastered"]
+      }
+    ],
+    "genres": ["Jazz"],
+    "styles": ["Free Jazz", "Post Bop", "Modal"],
+    "tracklist": [
+      {
+        "position": "A1",
+        "type_": "track",
+        "title": "Part 1> Acknowledgement",
+        "duration": "7:39"
+      },
+      {
+        "position": "A2",
+        "type_": "track",
+        "title": "Part 2> Resolution",
+        "duration": "7:15"
+      },
+      {
+        "position": "B",
+        "type_": "track",
+        "title": "Part 3> Persuance / Part 4> Psalm",
+        "duration": "17:40"
+      }
+    ],
+    "images": [
+      {
+        "type": "primary",
+        "uri": "https://i.discogs.com/I_NiwY25Aur461sQJg4KR-gj4sP4ENSg69YB92EQ1O8/rs:fit/g:sm/q:90/h:599/w:600/czM6Ly9kaXNjb2dz/LWRhdGFiYXNlLWlt/YWdlcy9SLTI1NjQ1/MzgtMTUxNDU5Njgw/Ni05OTE4LmpwZWc.jpeg"
+      }
+    ]
+  },
+  {
+    "id": 526351,
+    "title": "Rumours",
+    "year": 1977,
+    "country": "US",
+    "artists": [
+      {
+        "id": 47333,
+        "name": "Fleetwood Mac"
+      }
+    ],
+    "labels": [
+      {
+        "name": "Warner Bros. Records",
+        "catno": "BSK 3010"
+      }
+    ],
+    "formats": [
+      {
+        "name": "Vinyl",
+        "qty": "1",
+        "descriptions": ["LP", "Album"]
+      }
+    ],
+    "genres": ["Rock"],
+    "styles": ["Pop Rock", "Soft Rock", "AOR"],
+    "tracklist": [
+      {
+        "position": "A1",
+        "type_": "track",
+        "title": "Second Hand News",
+        "duration": "2:43"
+      },
+      {
+        "position": "A2",
+        "type_": "track",
+        "title": "Dreams",
+        "duration": "4:14"
+      },
+      {
+        "position": "A3",
+        "type_": "track",
+        "title": "Never Going Back Again",
+        "duration": "2:02"
+      },
+      {
+        "position": "A4",
+        "type_": "track",
+        "title": "Don't Stop",
+        "duration": "3:11"
+      },
+      {
+        "position": "A5",
+        "type_": "track",
+        "title": "Go Your Own Way",
+        "duration": "3:38"
+      },
+      {
+        "position": "A6",
+        "type_": "track",
+        "title": "Songbird",
+        "duration": "3:20"
+      },
+      {
+        "position": "B1",
+        "type_": "track",
+        "title": "The Chain",
+        "duration": "4:28"
+      },
+      {
+        "position": "B2",
+        "type_": "track",
+        "title": "You Make Loving Fun",
+        "duration": "3:31"
+      },
+      {
+        "position": "B3",
+        "type_": "track",
+        "title": "I Don't Want To Know",
+        "duration": "3:11"
+      },
+      {
+        "position": "B4",
+        "type_": "track",
+        "title": "Oh Daddy",
+        "duration": "3:54"
+      },
+      {
+        "position": "B5",
+        "type_": "track",
+        "title": "Gold Dust Woman",
+        "duration": "4:51"
+      }
+    ],
+    "images": [
+      {
+        "type": "primary",
+        "uri": "https://i.discogs.com/X2kgbJ7rhk0HNH39Nep8tTD_Fly6pmHk2KR_Lptjk88/rs:fit/g:sm/q:90/h:599/w:600/czM6Ly9kaXNjb2dz/LWRhdGFiYXNlLWlt/YWdlcy9SLTUyNjM1/MS0xMjkyMjkzNjg1/LmpwZWc.jpeg"
+      }
+    ]
+  },
+  {
+    "id": 9287809,
+    "title": "The Dark Side Of The Moon",
+    "year": 2016,
+    "country": "Europe",
+    "artists": [
+      {
+        "id": 45467,
+        "name": "Pink Floyd"
+      }
+    ],
+    "labels": [
+      {
+        "name": "Pink Floyd Records",
+        "catno": "PFRLP8"
+      },
+      {
+        "name": "Pink Floyd Records",
+        "catno": "5099902987613"
+      }
+    ],
+    "formats": [
+      {
+        "name": "Vinyl",
+        "qty": "1",
+        "descriptions": ["LP", "Album", "Reissue", "Remastered", "Stereo"]
+      }
+    ],
+    "genres": ["Rock"],
+    "styles": ["Prog Rock", "Psychedelic Rock", "Classic Rock"],
+    "tracklist": [
+      {
+        "position": "A1",
+        "type_": "track",
+        "title": "Speak To Me",
+        "duration": "1:25"
+      },
+      {
+        "position": "A2",
+        "type_": "track",
+        "title": "Breathe (In The Air)",
+        "duration": "2:58"
+      },
+      {
+        "position": "A3",
+        "type_": "track",
+        "title": "On The Run",
+        "duration": "3:39"
+      },
+      {
+        "position": "A4",
+        "type_": "track",
+        "title": "Time",
+        "duration": "6:43"
+      },
+      {
+        "position": "A5",
+        "type_": "track",
+        "title": "The Great Gig In The Sky",
+        "duration": "4:38"
+      },
+      {
+        "position": "B1",
+        "type_": "track",
+        "title": "Money",
+        "duration": "6:25"
+      },
+      {
+        "position": "B2",
+        "type_": "track",
+        "title": "Us And Them",
+        "duration": "7:50"
+      },
+      {
+        "position": "B3",
+        "type_": "track",
+        "title": "Any Colour You Like",
+        "duration": "3:20"
+      },
+      {
+        "position": "B4",
+        "type_": "track",
+        "title": "Brain Damage",
+        "duration": "3:45"
+      },
+      {
+        "position": "B5",
+        "type_": "track",
+        "title": "Eclipse",
+        "duration": "1:55"
+      }
+    ],
+    "images": [
+      {
+        "type": "primary",
+        "uri": "https://i.discogs.com/1fwskTLM6cfxbdNmBDJ8expl6wab0tEgxvuloLIqKh8/rs:fit/g:sm/q:90/h:596/w:600/czM6Ly9kaXNjb2dz/LWRhdGFiYXNlLWlt/YWdlcy9SLTkyODc4/MDktMTQ3OTc1MzIz/Ni05NjE3LmpwZWc.jpeg"
+      }
+    ]
+  },
+  {
+    "id": 14192689,
+    "title": "Abbey Road",
+    "year": 2019,
+    "country": "US",
+    "artists": [
+      {
+        "id": 82730,
+        "name": "The Beatles"
+      }
+    ],
+    "labels": [
+      {
+        "name": "Apple Records",
+        "catno": "B0030719-01"
+      },
+      {
+        "name": "Capitol Records",
+        "catno": "B0030719-01"
+      },
+      {
+        "name": "UMe",
+        "catno": "B0030719-01"
+      }
+    ],
+    "formats": [
+      {
+        "name": "Vinyl",
+        "qty": "1",
+        "descriptions": ["LP", "Album", "Reissue", "Remastered", "Stereo"]
+      }
+    ],
+    "genres": ["Rock", "Pop"],
+    "styles": ["Pop Rock", "Classic Rock"],
+    "tracklist": [
+      {
+        "position": "A1",
+        "type_": "track",
+        "title": "Come Together",
+        "duration": "4:21"
+      },
+      {
+        "position": "A2",
+        "type_": "track",
+        "title": "Something",
+        "duration": "3:03"
+      },
+      {
+        "position": "A3",
+        "type_": "track",
+        "title": "Maxwell's Silver Hammer",
+        "duration": "3:27"
+      },
+      {
+        "position": "A4",
+        "type_": "track",
+        "title": "Oh! Darling",
+        "duration": "3:27"
+      },
+      {
+        "position": "A5",
+        "type_": "track",
+        "title": "Octopus's Garden",
+        "duration": "2:51"
+      },
+      {
+        "position": "A6",
+        "type_": "track",
+        "title": "I Want You (She's So Heavy)",
+        "duration": "7:47"
+      },
+      {
+        "position": "B1",
+        "type_": "track",
+        "title": "Here Comes The Sun",
+        "duration": "3:05"
+      },
+      {
+        "position": "B2",
+        "type_": "track",
+        "title": "Because",
+        "duration": "2:46"
+      },
+      {
+        "position": "B3",
+        "type_": "track",
+        "title": "You Never Give Me Your Money",
+        "duration": "4:02"
+      },
+      {
+        "position": "B4",
+        "type_": "track",
+        "title": "Sun King",
+        "duration": "2:27"
+      },
+      {
+        "position": "B5",
+        "type_": "track",
+        "title": "Mean Mr. Mustard",
+        "duration": "1:06"
+      },
+      {
+        "position": "B6",
+        "type_": "track",
+        "title": "Polythene Pam",
+        "duration": "1:13"
+      },
+      {
+        "position": "B7",
+        "type_": "track",
+        "title": "She Came In Through The Bathroom Window",
+        "duration": "1:57"
+      },
+      {
+        "position": "B8",
+        "type_": "track",
+        "title": "Golden Slumbers",
+        "duration": "1:32"
+      },
+      {
+        "position": "B9",
+        "type_": "track",
+        "title": "Carry That Weight",
+        "duration": "1:37"
+      },
+      {
+        "position": "B10",
+        "type_": "track",
+        "title": "The End",
+        "duration": "2:20"
+      },
+      {
+        "position": "B11",
+        "type_": "track",
+        "title": "Her Majesty",
+        "duration": "0:23"
+      }
+    ],
+    "images": [
+      {
+        "type": "primary",
+        "uri": "https://i.discogs.com/R4w4NBIdcB4hytIu-WfDdMM3ZKN1I9nk_8BRrfxNZgs/rs:fit/g:sm/q:90/h:592/w:600/czM6Ly9kaXNjb2dz/LWRhdGFiYXNlLWlt/YWdlcy9SLTE0MTky/Njg5LTE3NjUxMjg2/MzgtNzMxNS5qcGVn.jpeg"
+      }
+    ]
+  },
+  {
+    "id": 10028381,
+    "title": "Blue",
+    "year": 1971,
+    "country": "US",
+    "artists": [
+      {
+        "id": 90233,
+        "name": "Joni Mitchell"
+      }
+    ],
+    "labels": [
+      {
+        "name": "Reprise Records",
+        "catno": "MS 2038"
+      }
+    ],
+    "formats": [
+      {
+        "name": "Vinyl",
+        "qty": "1",
+        "descriptions": ["LP", "Album", "Stereo"]
+      }
+    ],
+    "genres": ["Rock"],
+    "styles": ["Folk Rock", "Pop Rock"],
+    "tracklist": [
+      {
+        "position": "A1",
+        "type_": "track",
+        "title": "All I Want",
+        "duration": "3:32"
+      },
+      {
+        "position": "A2",
+        "type_": "track",
+        "title": "My Old Man",
+        "duration": "3:33"
+      },
+      {
+        "position": "A3",
+        "type_": "track",
+        "title": "Little Green",
+        "duration": "3:25"
+      },
+      {
+        "position": "A4",
+        "type_": "track",
+        "title": "Carey",
+        "duration": "3:00"
+      },
+      {
+        "position": "A5",
+        "type_": "track",
+        "title": "Blue",
+        "duration": "3:00"
+      },
+      {
+        "position": "B1",
+        "type_": "track",
+        "title": "California",
+        "duration": "3:48"
+      },
+      {
+        "position": "B2",
+        "type_": "track",
+        "title": "This Flight Tonight",
+        "duration": "2:50"
+      },
+      {
+        "position": "B3",
+        "type_": "track",
+        "title": "River",
+        "duration": "4:00"
+      },
+      {
+        "position": "B4",
+        "type_": "track",
+        "title": "A Case Of You",
+        "duration": "4:20"
+      },
+      {
+        "position": "B5",
+        "type_": "track",
+        "title": "The Last Time I Saw Richard",
+        "duration": "4:13"
+      }
+    ],
+    "images": [
+      {
+        "type": "primary",
+        "uri": "https://i.discogs.com/My4PyjnrLCtBdBCmn-AnQRU_bswrrNT-f4M87oqMZlI/rs:fit/g:sm/q:90/h:600/w:600/czM6Ly9kaXNjb2dz/LWRhdGFiYXNlLWlt/YWdlcy9SLTEwMDI4/MzgxLTE0OTAzODMz/MjEtNTc4OS5qcGVn.jpeg"
+      }
+    ]
+  },
+  {
+    "id": 1559040,
+    "title": "What's Going On",
+    "year": 1971,
+    "country": "US",
+    "artists": [
+      {
+        "id": 18984,
+        "name": "Marvin Gaye"
+      }
+    ],
+    "labels": [
+      {
+        "name": "Tamla",
+        "catno": "TS-310"
+      },
+      {
+        "name": "Tamla",
+        "catno": "TS310"
+      }
+    ],
+    "formats": [
+      {
+        "name": "Vinyl",
+        "qty": "1",
+        "descriptions": ["LP", "Album"]
+      }
+    ],
+    "genres": ["Funk / Soul"],
+    "styles": ["Soul"],
+    "tracklist": [
+      {
+        "position": "A1",
+        "type_": "track",
+        "title": "What's Going On",
+        "duration": "3:51"
+      },
+      {
+        "position": "A2",
+        "type_": "track",
+        "title": "What's Happening Brother",
+        "duration": "2:57"
+      },
+      {
+        "position": "A3",
+        "type_": "track",
+        "title": "Flyin' High (In The Friendly Sky)",
+        "duration": "3:40"
+      },
+      {
+        "position": "A4",
+        "type_": "track",
+        "title": "Save The Children",
+        "duration": "3:04"
+      },
+      {
+        "position": "A5",
+        "type_": "track",
+        "title": "God Is Love",
+        "duration": "2:31"
+      },
+      {
+        "position": "A6",
+        "type_": "track",
+        "title": "Mercy Mercy Me (The Ecology)",
+        "duration": "3:05"
+      },
+      {
+        "position": "B1",
+        "type_": "track",
+        "title": "Right On",
+        "duration": "7:20"
+      },
+      {
+        "position": "B2",
+        "type_": "track",
+        "title": "Wholy Holy",
+        "duration": "3:20"
+      },
+      {
+        "position": "B3",
+        "type_": "track",
+        "title": "Inner City Blues (Make Me Wanna Holler)",
+        "duration": "5:16"
+      }
+    ],
+    "images": [
+      {
+        "type": "primary",
+        "uri": "https://i.discogs.com/fBe31DlFBl5CiCi80gHcbEFHHVxam_qA4pT30_23PeM/rs:fit/g:sm/q:90/h:599/w:600/czM6Ly9kaXNjb2dz/LWRhdGFiYXNlLWlt/YWdlcy9SLTE1NTkw/NDAtMTMxMTA0Mjg2/MS5qcGVn.jpeg"
+      }
+    ]
+  },
+  {
+    "id": 194021,
+    "title": "Purple Rain",
+    "year": 1984,
+    "country": "US",
+    "artists": [
+      {
+        "id": 96774,
+        "name": "Prince And The Revolution"
+      }
+    ],
+    "labels": [
+      {
+        "name": "Warner Bros. Records",
+        "catno": "25110-1"
+      },
+      {
+        "name": "Warner Bros. Records",
+        "catno": "1-25110"
+      },
+      {
+        "name": "Warner Bros. Records",
+        "catno": "9 25110-1"
+      }
+    ],
+    "formats": [
+      {
+        "name": "Vinyl",
+        "qty": "1",
+        "descriptions": ["LP", "Album", "Stereo"]
+      }
+    ],
+    "genres": ["Rock", "Funk / Soul", "Pop", "Stage & Screen"],
+    "styles": ["Funk", "Minneapolis Sound", "Pop Rock", "Soundtrack"],
+    "tracklist": [
+      {
+        "position": "A1",
+        "type_": "track",
+        "title": "Let's Go Crazy",
+        "duration": "4:39"
+      },
+      {
+        "position": "A2",
+        "type_": "track",
+        "title": "Take Me With U",
+        "duration": "3:54"
+      },
+      {
+        "position": "A3",
+        "type_": "track",
+        "title": "The Beautiful Ones",
+        "duration": "5:15"
+      },
+      {
+        "position": "A4",
+        "type_": "track",
+        "title": "Computer Blue",
+        "duration": "3:59"
+      },
+      {
+        "position": "A5",
+        "type_": "track",
+        "title": "Darling Nikki",
+        "duration": "4:15"
+      },
+      {
+        "position": "B1",
+        "type_": "track",
+        "title": "When Doves Cry",
+        "duration": "5:52"
+      },
+      {
+        "position": "B2",
+        "type_": "track",
+        "title": "I Would Die 4 U",
+        "duration": "2:51"
+      },
+      {
+        "position": "B3",
+        "type_": "track",
+        "title": "Baby I'm A Star",
+        "duration": "4:20"
+      },
+      {
+        "position": "B4",
+        "type_": "track",
+        "title": "Purple Rain",
+        "duration": "8:45"
+      }
+    ],
+    "images": [
+      {
+        "type": "primary",
+        "uri": "https://i.discogs.com/mSIjl1G4gAdx2xw9iLG1fBmNPLz_5GNo0bLqeWyDMh4/rs:fit/g:sm/q:90/h:600/w:600/czM6Ly9kaXNjb2dz/LWRhdGFiYXNlLWlt/YWdlcy9SLTE5NDAy/MS0xMzM1NDAwMjg5/LmpwZWc.jpeg"
+      }
+    ]
+  },
+  {
+    "id": 7097051,
+    "title": "Nevermind",
+    "year": 2015,
+    "country": "Europe",
+    "artists": [
+      {
+        "id": 125246,
+        "name": "Nirvana"
+      }
+    ],
+    "labels": [
+      {
+        "name": "DGC",
+        "catno": "424 425-1"
+      },
+      {
+        "name": "Sub Pop",
+        "catno": "424 425-1"
+      }
+    ],
+    "formats": [
+      {
+        "name": "Vinyl",
+        "qty": "1",
+        "descriptions": ["LP", "Album", "Reissue", "Repress"]
+      }
+    ],
+    "genres": ["Rock"],
+    "styles": ["Alternative Rock", "Grunge"],
+    "tracklist": [
+      {
+        "position": "A1",
+        "type_": "track",
+        "title": "Smells Like Teen Spirit",
+        "duration": "5:00"
+      },
+      {
+        "position": "A2",
+        "type_": "track",
+        "title": "In Bloom",
+        "duration": "4:13"
+      },
+      {
+        "position": "A3",
+        "type_": "track",
+        "title": "Come As You Are",
+        "duration": "3:38"
+      },
+      {
+        "position": "A4",
+        "type_": "track",
+        "title": "Breed",
+        "duration": "3:03"
+      },
+      {
+        "position": "A5",
+        "type_": "track",
+        "title": "Lithium",
+        "duration": "4:16"
+      },
+      {
+        "position": "A6",
+        "type_": "track",
+        "title": "Polly",
+        "duration": "2:56"
+      },
+      {
+        "position": "B1",
+        "type_": "track",
+        "title": "Territorial Pissings",
+        "duration": "2:22"
+      },
+      {
+        "position": "B2",
+        "type_": "track",
+        "title": "Drain You",
+        "duration": "3:43"
+      },
+      {
+        "position": "B3",
+        "type_": "track",
+        "title": "Lounge Act",
+        "duration": "2:35"
+      },
+      {
+        "position": "B4",
+        "type_": "track",
+        "title": "Stay Away",
+        "duration": "3:30"
+      },
+      {
+        "position": "B5",
+        "type_": "track",
+        "title": "On A Plain",
+        "duration": "3:12"
+      },
+      {
+        "position": "B6",
+        "type_": "track",
+        "title": "Something In The Way",
+        "duration": "3:43"
+      }
+    ],
+    "images": [
+      {
+        "type": "primary",
+        "uri": "https://i.discogs.com/uCeQtLv9OSNjC5_AjarCojZNepI9vqcnYeqsImnzXyg/rs:fit/g:sm/q:90/h:600/w:600/czM6Ly9kaXNjb2dz/LWRhdGFiYXNlLWlt/YWdlcy9SLTcwOTcw/NTEtMTU1NjQ0NDE4/MC03NTA1LmpwZWc.jpeg"
+      }
+    ]
+  },
+  {
+    "id": 1587168,
+    "title": "OK Computer",
+    "year": 2008,
+    "country": "US",
+    "artists": [
+      {
+        "id": 3840,
+        "name": "Radiohead"
+      }
+    ],
+    "labels": [
+      {
+        "name": "Capitol Records",
+        "catno": "7243 8 55229 1 8"
+      }
+    ],
+    "formats": [
+      {
+        "name": "Vinyl",
+        "qty": "2",
+        "descriptions": ["LP", "Album", "Limited Edition", "Reissue"]
+      }
+    ],
+    "genres": ["Rock"],
+    "styles": ["Alternative Rock", "Experimental", "Art Rock"],
+    "tracklist": [
+      {
+        "position": "",
+        "type_": "heading",
+        "title": "Eeny",
+        "duration": ""
+      },
+      {
+        "position": "A1",
+        "type_": "track",
+        "title": "Airbag",
+        "duration": "4:44"
+      },
+      {
+        "position": "A2",
+        "type_": "track",
+        "title": "Paranoid Android",
+        "duration": "6:23"
+      },
+      {
+        "position": "A3",
+        "type_": "track",
+        "title": "Subterranean Homesick Alien",
+        "duration": "4:27"
+      },
+      {
+        "position": "",
+        "type_": "heading",
+        "title": "Meeny",
+        "duration": ""
+      },
+      {
+        "position": "B4",
+        "type_": "track",
+        "title": "Exit Music (For A Film)",
+        "duration": "4:24"
+      },
+      {
+        "position": "B5",
+        "type_": "track",
+        "title": "Let Down",
+        "duration": "4:59"
+      },
+      {
+        "position": "B6",
+        "type_": "track",
+        "title": "Karma Police",
+        "duration": "4:21"
+      },
+      {
+        "position": "",
+        "type_": "heading",
+        "title": "Miney",
+        "duration": ""
+      },
+      {
+        "position": "C7",
+        "type_": "track",
+        "title": "Fitter Happier",
+        "duration": "1:57"
+      },
+      {
+        "position": "C8",
+        "type_": "track",
+        "title": "Electioneering",
+        "duration": "3:50"
+      },
+      {
+        "position": "C9",
+        "type_": "track",
+        "title": "Climbing Up The Walls",
+        "duration": "4:45"
+      },
+      {
+        "position": "C10",
+        "type_": "track",
+        "title": "No Surprises",
+        "duration": "3:48"
+      },
+      {
+        "position": "",
+        "type_": "heading",
+        "title": "Mo",
+        "duration": ""
+      },
+      {
+        "position": "D11",
+        "type_": "track",
+        "title": "Lucky",
+        "duration": "4:19"
+      },
+      {
+        "position": "D12",
+        "type_": "track",
+        "title": "The Tourist",
+        "duration": "5:24"
+      }
+    ],
+    "images": [
+      {
+        "type": "primary",
+        "uri": "https://i.discogs.com/q2WXQv32jGLo7_jylstbidwEOV6Qpo2HHRbe2kX8njY/rs:fit/g:sm/q:90/h:600/w:590/czM6Ly9kaXNjb2dz/LWRhdGFiYXNlLWlt/YWdlcy9SLTE1ODcx/NjgtMTY0NzQ0NTg0/My00ODU0LmpwZWc.jpeg"
+      }
+    ]
+  },
+  {
+    "id": 2848009,
+    "title": "Back To Black",
+    "year": 2006,
+    "country": "US",
+    "artists": [
+      {
+        "id": 151223,
+        "name": "Amy Winehouse"
+      }
+    ],
+    "labels": [
+      {
+        "name": "Universal Republic Records",
+        "catno": "B0008994-01"
+      }
+    ],
+    "formats": [
+      {
+        "name": "Vinyl",
+        "qty": "1",
+        "descriptions": ["LP", "Album"]
+      }
+    ],
+    "genres": ["Jazz", "Funk / Soul", "Pop"],
+    "styles": ["Contemporary R&B", "Soul"],
+    "tracklist": [
+      {
+        "position": "A1",
+        "type_": "track",
+        "title": "Rehab",
+        "duration": "3:30"
+      },
+      {
+        "position": "A2",
+        "type_": "track",
+        "title": "You Know I'm No Good",
+        "duration": "4:15"
+      },
+      {
+        "position": "A3",
+        "type_": "track",
+        "title": "Me & Mr Jones",
+        "duration": "2:30"
+      },
+      {
+        "position": "A4",
+        "type_": "track",
+        "title": "Just Friends",
+        "duration": "3:10"
+      },
+      {
+        "position": "A5",
+        "type_": "track",
+        "title": "Back To Black",
+        "duration": "4:00"
+      },
+      {
+        "position": "A6",
+        "type_": "track",
+        "title": "Love Is A Losing Game",
+        "duration": "2:32"
+      },
+      {
+        "position": "B7",
+        "type_": "track",
+        "title": "Tears Dry On Their Own",
+        "duration": "3:03"
+      },
+      {
+        "position": "B8",
+        "type_": "track",
+        "title": "Wake Up Alone",
+        "duration": "3:40"
+      },
+      {
+        "position": "B9",
+        "type_": "track",
+        "title": "Some Unholy War",
+        "duration": "2:20"
+      },
+      {
+        "position": "B10",
+        "type_": "track",
+        "title": "He Can Only Hold Her",
+        "duration": "2:45"
+      },
+      {
+        "position": "B11",
+        "type_": "track",
+        "title": "You Know I'm No Good",
+        "duration": "3:20"
+      }
+    ],
+    "images": [
+      {
+        "type": "primary",
+        "uri": "https://i.discogs.com/NdldQe0P5ktTkjDoBFm9HLE0iiQ4xlqnDR2vNQ_Z0WU/rs:fit/g:sm/q:90/h:599/w:600/czM6Ly9kaXNjb2dz/LWRhdGFiYXNlLWlt/YWdlcy9SLTI4NDgw/MDktMTM5MDk5MDQ4/OS02OTc5LmpwZWc.jpeg"
+      }
+    ]
+  },
+  {
+    "id": 21357955,
+    "title": "Discovery",
+    "year": 2021,
+    "country": "USA & Europe",
+    "artists": [
+      {
+        "id": 1289,
+        "name": "Daft Punk"
+      }
+    ],
+    "labels": [
+      {
+        "name": "ADA (6)",
+        "catno": "0190296617164"
+      }
+    ],
+    "formats": [
+      {
+        "name": "Vinyl",
+        "qty": "2",
+        "descriptions": ["LP", "Album", "Reissue"]
+      }
+    ],
+    "genres": ["Electronic"],
+    "styles": ["Disco", "House", "Electro", "French House"],
+    "tracklist": [
+      {
+        "position": "A1",
+        "type_": "track",
+        "title": "One More Time",
+        "duration": "5:20"
+      },
+      {
+        "position": "A2",
+        "type_": "track",
+        "title": "Aerodynamic",
+        "duration": "3:32"
+      },
+      {
+        "position": "A3",
+        "type_": "track",
+        "title": "Digital Love",
+        "duration": "5:01"
+      },
+      {
+        "position": "B1",
+        "type_": "track",
+        "title": "Harder, Better, Faster, Stronger",
+        "duration": "3:46"
+      },
+      {
+        "position": "B2",
+        "type_": "track",
+        "title": "Crescendolls",
+        "duration": "3:31"
+      },
+      {
+        "position": "B3",
+        "type_": "track",
+        "title": "Nightvision",
+        "duration": "1:44"
+      },
+      {
+        "position": "B4",
+        "type_": "track",
+        "title": "Superheroes",
+        "duration": "3:57"
+      },
+      {
+        "position": "C1",
+        "type_": "track",
+        "title": "High Life",
+        "duration": "3:21"
+      },
+      {
+        "position": "C2",
+        "type_": "track",
+        "title": "Something About Us",
+        "duration": "3:52"
+      },
+      {
+        "position": "C3",
+        "type_": "track",
+        "title": "Voyager",
+        "duration": "3:47"
+      },
+      {
+        "position": "C4",
+        "type_": "track",
+        "title": "Veridis Quo",
+        "duration": "5:45"
+      },
+      {
+        "position": "D1",
+        "type_": "track",
+        "title": "Short Circuit",
+        "duration": "3:26"
+      },
+      {
+        "position": "D2",
+        "type_": "track",
+        "title": "Face To Face",
+        "duration": "4:00"
+      },
+      {
+        "position": "D3",
+        "type_": "track",
+        "title": "Too Long",
+        "duration": "10:00"
+      }
+    ],
+    "images": [
+      {
+        "type": "primary",
+        "uri": "https://i.discogs.com/HE2HTU2AEbHjBoLJvNfmCWIRh28VnXgom1dKJ8pyQA4/rs:fit/g:sm/q:90/h:600/w:600/czM6Ly9kaXNjb2dz/LWRhdGFiYXNlLWlt/YWdlcy9SLTIxMzU3/OTU1LTE2NDYwOTU1/NDYtOTc5NS5qcGVn.jpeg"
+      }
+    ]
+  },
+  {
+    "id": 7568442,
+    "title": "To Pimp A Butterfly",
+    "year": 2015,
+    "country": "Europe",
+    "artists": [
+      {
+        "id": 1778977,
+        "name": "Kendrick Lamar"
+      }
+    ],
+    "labels": [
+      {
+        "name": "Top Dawg Entertainment",
+        "catno": "0602547311009"
+      },
+      {
+        "name": "Aftermath Entertainment",
+        "catno": "0602547311009"
+      },
+      {
+        "name": "Interscope Records",
+        "catno": "0602547311009"
+      }
+    ],
+    "formats": [
+      {
+        "name": "Vinyl",
+        "qty": "2",
+        "descriptions": ["LP", "Album"]
+      }
+    ],
+    "genres": ["Hip Hop", "Funk / Soul"],
+    "styles": ["Conscious", "Jazzy Hip-Hop", "G-Funk"],
+    "tracklist": [
+      {
+        "position": "A1",
+        "type_": "track",
+        "title": "Wesley's Theory",
+        "duration": "4:47"
+      },
+      {
+        "position": "A2",
+        "type_": "track",
+        "title": "For Free? (Interlude)",
+        "duration": "2:10"
+      },
+      {
+        "position": "A3",
+        "type_": "track",
+        "title": "King Kunta",
+        "duration": "3:54"
+      },
+      {
+        "position": "A4",
+        "type_": "track",
+        "title": "Institutionalized",
+        "duration": "4:31"
+      },
+      {
+        "position": "A5",
+        "type_": "track",
+        "title": "These Walls",
+        "duration": "5:00"
+      },
+      {
+        "position": "B1",
+        "type_": "track",
+        "title": "U",
+        "duration": "4:28"
+      },
+      {
+        "position": "B2",
+        "type_": "track",
+        "title": "Alright",
+        "duration": "3:39"
+      },
+      {
+        "position": "B3",
+        "type_": "track",
+        "title": "For Sale? (Interlude)",
+        "duration": "4:51"
+      },
+      {
+        "position": "B4",
+        "type_": "track",
+        "title": "Momma",
+        "duration": "4:43"
+      },
+      {
+        "position": "C1",
+        "type_": "track",
+        "title": "Hood Politics",
+        "duration": "4:52"
+      },
+      {
+        "position": "C2",
+        "type_": "track",
+        "title": "How Much A Dollar Cost",
+        "duration": "4:21"
+      },
+      {
+        "position": "C3",
+        "type_": "track",
+        "title": "Complexion (A Zulu Love)",
+        "duration": "4:23"
+      },
+      {
+        "position": "C4",
+        "type_": "track",
+        "title": "The Blacker The Berry",
+        "duration": "5:28"
+      },
+      {
+        "position": "D1",
+        "type_": "track",
+        "title": "You Aint Gotta Lie (Momma Said)",
+        "duration": "4:01"
+      },
+      {
+        "position": "D2",
+        "type_": "track",
+        "title": "I",
+        "duration": "5:36"
+      },
+      {
+        "position": "D3",
+        "type_": "track",
+        "title": "Mortal Man",
+        "duration": "12:07"
+      }
+    ],
+    "images": [
+      {
+        "type": "primary",
+        "uri": "https://i.discogs.com/uyNREpCzq3Qt3jaKkfrEBTiqVoFO03P2Q1wrWh6qzAE/rs:fit/g:sm/q:90/h:600/w:600/czM6Ly9kaXNjb2dz/LWRhdGFiYXNlLWlt/YWdlcy9SLTc1Njg0/NDItMTQ0NDIxMjgw/Ny03MzMxLmpwZWc.jpeg"
+      }
+    ]
+  },
+  {
+    "id": 4570366,
+    "title": "Random Access Memories",
+    "year": 2013,
+    "country": "UK, Europe & US",
+    "artists": [
+      {
+        "id": 1289,
+        "name": "Daft Punk"
+      }
+    ],
+    "labels": [
+      {
+        "name": "Columbia",
+        "catno": "88883716861"
+      },
+      {
+        "name": "Columbia",
+        "catno": "88883 71686 1"
+      },
+      {
+        "name": "Sony Music",
+        "catno": "88883 71686 1"
+      }
+    ],
+    "formats": [
+      {
+        "name": "Vinyl",
+        "qty": "2",
+        "descriptions": ["LP", "Album", "Stereo"]
+      }
+    ],
+    "genres": ["Electronic", "Funk / Soul", "Pop"],
+    "styles": ["Disco", "Funk", "Synth-pop", "Electro", "French House"],
+    "tracklist": [
+      {
+        "position": "A1",
+        "type_": "track",
+        "title": "Give Life Back To Music",
+        "duration": "4:35"
+      },
+      {
+        "position": "A2",
+        "type_": "track",
+        "title": "The Game Of Love",
+        "duration": "5:22"
+      },
+      {
+        "position": "A3",
+        "type_": "track",
+        "title": "Giorgio By Moroder",
+        "duration": "9:04"
+      },
+      {
+        "position": "B1",
+        "type_": "track",
+        "title": "Within",
+        "duration": "3:48"
+      },
+      {
+        "position": "B2",
+        "type_": "track",
+        "title": "Instant Crush",
+        "duration": "5:37"
+      },
+      {
+        "position": "B3",
+        "type_": "track",
+        "title": "Lose Yourself To Dance",
+        "duration": "5:53"
+      },
+      {
+        "position": "C1",
+        "type_": "track",
+        "title": "Touch",
+        "duration": "8:18"
+      },
+      {
+        "position": "C2",
+        "type_": "track",
+        "title": "Get Lucky",
+        "duration": "6:09"
+      },
+      {
+        "position": "C3",
+        "type_": "track",
+        "title": "Beyond",
+        "duration": "4:50"
+      },
+      {
+        "position": "D1",
+        "type_": "track",
+        "title": "Motherboard",
+        "duration": "5:41"
+      },
+      {
+        "position": "D2",
+        "type_": "track",
+        "title": "Fragments Of Time",
+        "duration": "4:39"
+      },
+      {
+        "position": "D3",
+        "type_": "track",
+        "title": "Doin' It Right",
+        "duration": "4:11"
+      },
+      {
+        "position": "D4",
+        "type_": "track",
+        "title": "Contact",
+        "duration": "6:23"
+      }
+    ],
+    "images": [
+      {
+        "type": "primary",
+        "uri": "https://i.discogs.com/IR6_z_1KUErO-OORqXG2_MJhqWxsaPxYRi-hOLLdHic/rs:fit/g:sm/q:90/h:592/w:600/czM6Ly9kaXNjb2dz/LWRhdGFiYXNlLWlt/YWdlcy9SLTQ1NzAz/NjYtMTc0OTM3MjMx/Ny0xODg1LmpwZWc.jpeg"
+      }
+    ]
+  }
+]

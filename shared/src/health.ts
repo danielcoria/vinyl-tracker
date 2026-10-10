@@ -11,6 +11,8 @@ import { z } from 'zod';
 export const healthResponseSchema = z.object({
   status: z.literal('ok'),
   uptimeSeconds: z.number().nonnegative(),
+  /** True on the public demo, so the website can say so. */
+  demo: z.boolean(),
 });
 
 export type HealthResponse = z.infer<typeof healthResponseSchema>;

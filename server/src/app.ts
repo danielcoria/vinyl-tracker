@@ -43,6 +43,8 @@ export type AppDeps = {
   clientDist?: string | null;
   /** True behind a host's proxy, so visitors' real addresses are used. */
   trustProxy?: boolean;
+  /** True on the public demo (see db/demo.ts). */
+  demo?: boolean;
 };
 
 export function createApp({
@@ -51,6 +53,7 @@ export function createApp({
   password = null,
   clientDist = null,
   trustProxy = false,
+  demo = false,
 }: AppDeps) {
   const app = express();
   app.disable('x-powered-by'); // don't advertise "made with Express" (minor security habit)
@@ -82,7 +85,7 @@ export function createApp({
   // GET /api/health: a simple "are you alive?" check.
   // `req` = the incoming request, `res` = the response we send back.
   app.get('/api/health', (_req, res) => {
-    const body: HealthResponse = { status: 'ok', uptimeSeconds: process.uptime() };
+    const body: HealthResponse = { status: 'ok', uptimeSeconds: process.uptime(), demo };
     res.json(body);
   });
 

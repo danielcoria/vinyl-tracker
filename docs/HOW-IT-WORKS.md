@@ -100,25 +100,27 @@ Every code file also starts with a comment explaining what it does, so you can o
 
 ### Project root
 
-| File                           | What it does                                                                                      |
-| ------------------------------ | ------------------------------------------------------------------------------------------------- |
-| `package.json`                 | Names the three workspaces and defines the main commands (`dev`, `test`, `lint`…).                |
-| `package-lock.json`            | The exact version of every installed library, so everyone gets the same ones. Never edit by hand. |
-| `.env`                         | **Your secrets** (the Discogs token). Ignored by Git, so it never goes to GitHub.                 |
-| `.env.example`                 | A blank copy of `.env` that _is_ committed, so others know which settings exist.                  |
-| `.gitignore`                   | Files Git should never save: `node_modules/`, `.env`, the database, build output.                 |
-| `.gitattributes`               | Makes line endings the same on Windows and Linux, so CI doesn't complain.                         |
-| `.nvmrc`                       | Which Node.js version this project uses (24).                                                     |
-| `tsconfig.base.json`           | TypeScript settings shared by all three folders.                                                  |
-| `eslint.config.js`             | Rules for the code checker.                                                                       |
-| `.prettierrc.json`             | Formatting preferences (single quotes, semicolons, 100-character lines).                          |
-| `.prettierignore`              | Files Prettier should skip.                                                                       |
-| `.github/workflows/ci.yml`     | The automatic checks GitHub runs on every push.                                                   |
-| `Dockerfile`, `.dockerignore`  | Packs the whole app into one Docker image that any host can run (see `docs/DEPLOY.md`).           |
-| `scripts/docker-smoke-test.sh` | Builds the Docker image and checks it really works (run by GitHub on every push).                 |
-| `docs/DEPLOY.md`               | How the app runs online: the image, its settings, the permanent disk, HTTPS.                      |
-| `CLAUDE.md`                    | Project notes for Claude Code (the AI assistant): goals, conventions, milestones.                 |
-| `README.md`                    | The project's front page on GitHub.                                                               |
+| File                           | What it does                                                                                          |
+| ------------------------------ | ----------------------------------------------------------------------------------------------------- |
+| `package.json`                 | Names the three workspaces and defines the main commands (`dev`, `test`, `lint`…).                    |
+| `package-lock.json`            | The exact version of every installed library, so everyone gets the same ones. Never edit by hand.     |
+| `.env`                         | **Your secrets** (the Discogs token). Ignored by Git, so it never goes to GitHub.                     |
+| `.env.example`                 | A blank copy of `.env` that _is_ committed, so others know which settings exist.                      |
+| `.gitignore`                   | Files Git should never save: `node_modules/`, `.env`, the database, build output.                     |
+| `.gitattributes`               | Makes line endings the same on Windows and Linux, so CI doesn't complain.                             |
+| `.nvmrc`                       | Which Node.js version this project uses (24).                                                         |
+| `tsconfig.base.json`           | TypeScript settings shared by all three folders.                                                      |
+| `eslint.config.js`             | Rules for the code checker.                                                                           |
+| `.prettierrc.json`             | Formatting preferences (single quotes, semicolons, 100-character lines).                              |
+| `.prettierignore`              | Files Prettier should skip.                                                                           |
+| `.github/workflows/ci.yml`     | The automatic checks GitHub runs on every push.                                                       |
+| `Dockerfile`, `.dockerignore`  | Packs the whole app into one Docker image that any host can run (see `docs/DEPLOY.md`).               |
+| `scripts/docker-smoke-test.sh` | Builds the Docker image and checks it really works (run by GitHub on every push).                     |
+| `scripts/fetch-demo-data.mjs`  | Fetches the demo albums from Discogs (run once, with a token) and saves them.                         |
+| `render.yaml`                  | Tells Render how to run the public demo (free plan, Docker, demo mode, deploy only when checks pass). |
+| `docs/DEPLOY.md`               | How the app runs online: the image, its settings, the permanent disk, HTTPS.                          |
+| `CLAUDE.md`                    | Project notes for Claude Code (the AI assistant): goals, conventions, milestones.                     |
+| `README.md`                    | The project's front page on GitHub.                                                                   |
 
 ### `shared/`: the contracts
 
@@ -176,6 +178,8 @@ request ─▶ app.ts ─▶ routes/ ─▶ services/ ─▶ db/ ─▶ database
 | `src/db/schema.ts`                                                         | **The database tables** and their columns.                                                                          |
 | `src/db/client.ts`                                                         | Opens the database file and makes sure its tables are up to date.                                                   |
 | `src/db/seed.ts`                                                           | Adds 11 sample albums for development.                                                                              |
+| `src/db/demo.ts`                                                           | Fills an empty database with demo data (14 albums, months of plays, a stylus) for the public demo.                  |
+| `src/db/demo-releases.json`                                                | The demo albums' real Discogs details and covers, saved once so the demo never needs Discogs to start.              |
 | `src/db/migrate.ts`                                                        | Applies database updates by hand (the server also does it on start).                                                |
 | `drizzle/`                                                                 | **Migrations**: generated files of instructions that create and update the tables. Committed; never edited by hand. |
 | `test/`                                                                    | Automatic tests. `helpers.ts` gives each test its own temporary database.                                           |

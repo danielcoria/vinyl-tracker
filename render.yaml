@@ -1,0 +1,36 @@
+# ============================================================================
+# render.yaml: HOW RENDER RUNS THE PUBLIC DEMO (a Render "Blueprint")
+#
+# Render reads this file when the repo is connected (New -> Blueprint) and
+# creates the service from it. It builds the Dockerfile and runs it on the free
+# plan. Free services have no permanent disk and sleep after 15 minutes without
+# visitors, so the app runs in DEMO_MODE: every time it starts it fills itself
+# with sample albums and plays (see server/src/db/demo.ts).
+#
+# It only deploys a commit once GitHub's checks have passed (autoDeployTrigger),
+# so a broken change never goes live. Step-by-step setup: docs/DEPLOY.md.
+# ============================================================================
+
+services:
+  - type: web
+    name: vinyl-tracker
+    runtime: docker
+    plan: free
+    region: oregon
+    dockerfilePath: ./Dockerfile
+    healthCheckPath: /api/health
+    autoDeployTrigger: checksPass
+    envVars:
+      - key: DEMO_MODE
+        value: 'true'
+      # Render puts a proxy in front of the app (that's how it provides HTTPS).
+      - key: TRUST_PROXY
+        value: 'true'
+      - key: PORT
+        value: '3000'
+      - key: DISCOGS_USER_AGENT
+        value: VinylTracker/0.1 +https://github.com/danielcoria/vinyl-tracker
+      # Secret: Render asks for it when the Blueprint is first created. Never put
+      # the real token in this file.
+      - key: DISCOGS_TOKEN
+        sync: false

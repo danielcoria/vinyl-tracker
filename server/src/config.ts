@@ -34,6 +34,9 @@ const envSchema = z.object({
   // "true" when running behind a host's proxy, so each visitor's real address is
   // seen (the password lock slows down wrong guesses per address).
   TRUST_PROXY: z.enum(['true', 'false']).default('false'),
+  // "true" for the public demo: fills an empty database with sample albums and plays
+  // on start, and shows a "this is a demo" note. See server/src/db/demo.ts.
+  DEMO_MODE: z.enum(['true', 'false']).default('false'),
 });
 
 export type Config = {
@@ -45,6 +48,7 @@ export type Config = {
   /** The site-wide password, or undefined for no lock (local development). */
   appPassword: string | undefined;
   trustProxy: boolean;
+  demoMode: boolean;
 };
 
 /** The only place that reads process.env. */
@@ -69,5 +73,6 @@ export function loadConfig(env: NodeJS.ProcessEnv = process.env): Config {
     discogs: { token: e.DISCOGS_TOKEN, userAgent: e.DISCOGS_USER_AGENT, apiUrl: e.DISCOGS_API_URL },
     appPassword: e.APP_PASSWORD,
     trustProxy: e.TRUST_PROXY === 'true',
+    demoMode: e.DEMO_MODE === 'true',
   };
 }

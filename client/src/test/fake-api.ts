@@ -29,7 +29,7 @@ export function apiError(status: number, code: string, message: string): Respons
 
 export function mockApi(routes: Record<string, Handler>) {
   const allRoutes: Record<string, Handler> = {
-    'GET /api/health': () => json({ status: 'ok', uptimeSeconds: 1 }),
+    'GET /api/health': () => json({ status: 'ok', uptimeSeconds: 1, demo: false }),
     ...routes,
   };
   const calls: Call[] = [];
