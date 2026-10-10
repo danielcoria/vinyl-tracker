@@ -2,20 +2,12 @@
 // vinyl-tools.spec.ts: THE DUST REPORT AND THE STYLUS WARNING
 // ============================================================================
 
-import { addRecord, expect, test, unique } from './fixtures';
+import { addRecord, expect, PASSWORD, test, unique } from './fixtures';
 
 test.describe('dust report', () => {
-  test.afterEach(async ({ request }) => {
-    // The threshold is shared by every test, so put it back.
-    await request.put('/api/settings', { data: { dustThresholdDays: 90 } });
-  });
-
-  test('lists never-played records, remembers the threshold, and picks one', async ({
-    page,
-    request,
-  }) => {
+  test('lists never-played records, remembers the threshold, and picks one', async ({ page }) => {
     const title = unique('Never Played');
-    await addRecord(request, title);
+    await addRecord(page.request, title);
 
     await page.goto('/dust');
     await expect(page.getByRole('region', { name: /Never played/ })).toContainText(title);
@@ -31,17 +23,11 @@ test.describe('dust report', () => {
 });
 
 test.describe('stylus', () => {
-  let stylusId: number | null = null;
-
-  test.afterEach(async ({ request }) => {
-    // Removing it puts back whatever stylus was in use before (if any).
-    if (stylusId !== null) await request.delete(`/api/styluses/${stylusId}`);
-  });
-
   test('warns when the stylus is worn, and × hides it for this visit', async ({
     page,
     browser,
     baseURL,
+    account,
   }) => {
     const name = unique('E2E Stylus');
     await page.goto('/stylus');
@@ -55,11 +41,7 @@ test.describe('stylus', () => {
     await page.getByLabel('Stylus', { exact: true }).fill(name);
     await page.getByLabel('Rated hours').fill('100');
     await page.getByLabel('Hours already on it').fill('90');
-    const saved = page.waitForResponse(
-      (res) => res.url().endsWith('/api/styluses') && res.request().method() === 'POST',
-    );
     await page.getByRole('button', { name: /^(Add stylus|Install new stylus)$/ }).click();
-    stylusId = ((await (await saved).json()) as { id: number }).id;
 
     const current = page.getByRole('region', { name: 'Stylus in use' });
     await expect(current).toContainText(name);
@@ -83,8 +65,11 @@ test.describe('stylus', () => {
     await expect(page.getByText('Server: ok')).toBeVisible();
     await expect(warning).toBeHidden();
 
-    // Opening the site fresh (a new browser window) shows it again.
+    // Opening the site fresh (a new browser window, logged in again) shows it again.
     const fresh = await browser.newPage({ baseURL });
+    await fresh.request.post('/api/auth/login', {
+      data: { username: account.username, password: PASSWORD },
+    });
     await fresh.goto('/');
     await expect(
       fresh.getByText('Your stylus has used 90% of its rated hours.', { exact: false }),

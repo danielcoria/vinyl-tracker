@@ -51,19 +51,20 @@ The terminal goes quiet after startup because both programs are just waiting. Th
 
 ### The screens
 
-| Address           | Screen                                                          | File                         |
-| ----------------- | --------------------------------------------------------------- | ---------------------------- |
-| `/`               | Your collection: a grid with search and sort                    | `pages/CollectionPage.tsx`   |
-| `/records/new`    | Add a record (a form)                                           | `pages/NewRecordPage.tsx`    |
-| `/records/5`      | Everything about record 5, with Edit and Delete                 | `pages/RecordDetailPage.tsx` |
-| `/records/5/edit` | The same form as "add", filled in with record 5                 | `pages/EditRecordPage.tsx`   |
-| `/discogs`        | Search Discogs and add a release with one click                 | `pages/DiscogsPage.tsx`      |
-| `/discogs?link=5` | "Find on Discogs" for record 5: fills in its cover              | `pages/DiscogsPage.tsx`      |
-| `/diary`          | Your listening diary: every play, newest first, by day          | `pages/DiaryPage.tsx`        |
-| `/stats`          | Totals, most-listened artists and records, genres by month      | `pages/StatsPage.tsx`        |
-| `/dust`           | Records gathering dust and never played, plus "Pick one for me" | `pages/DustPage.tsx`         |
-| `/stylus`         | Stylus wear meter, "install a new stylus", past styluses        | `pages/StylusPage.tsx`       |
-| anything else     | "Not found"                                                     | `pages/NotFoundPage.tsx`     |
+| Address             | Screen                                                              | File                                          |
+| ------------------- | ------------------------------------------------------------------- | --------------------------------------------- |
+| `/`                 | Your collection: a grid with search and sort                        | `pages/CollectionPage.tsx`                    |
+| `/records/new`      | Add a record (a form)                                               | `pages/NewRecordPage.tsx`                     |
+| `/records/5`        | Everything about record 5, with Edit and Delete                     | `pages/RecordDetailPage.tsx`                  |
+| `/records/5/edit`   | The same form as "add", filled in with record 5                     | `pages/EditRecordPage.tsx`                    |
+| `/discogs`          | Search Discogs and add a release with one click                     | `pages/DiscogsPage.tsx`                       |
+| `/discogs?link=5`   | "Find on Discogs" for record 5: fills in its cover                  | `pages/DiscogsPage.tsx`                       |
+| `/diary`            | Your listening diary: every play, newest first, by day              | `pages/DiaryPage.tsx`                         |
+| `/stats`            | Totals, most-listened artists and records, genres by month          | `pages/StatsPage.tsx`                         |
+| `/dust`             | Records gathering dust and never played, plus "Pick one for me"     | `pages/DustPage.tsx`                          |
+| `/stylus`           | Stylus wear meter, "install a new stylus", past styluses            | `pages/StylusPage.tsx`                        |
+| `/login`, `/signup` | Logging in and creating an account (every other page needs a login) | `pages/LoginPage.tsx`, `pages/SignupPage.tsx` |
+| anything else       | "Not found"                                                         | `pages/NotFoundPage.tsx`                      |
 
 ### What happens when you save the form
 
@@ -218,6 +219,8 @@ pages/ ─▶ features/collection/ ─▶ api/ ─▶ server
 | `src/pages/StatsPage.tsx`                      | The Stats page: pick a period, see totals, top 10 lists and the genre chart. Loaded lazily (see below).                                             |
 | `src/pages/DustPage.tsx`                       | The dust report: forgotten records, the days setting, and "Pick one for me".                                                                        |
 | `src/pages/StylusPage.tsx`                     | The stylus wear tracker: the stylus in use, its meter and estimate, and past styluses.                                                              |
+| `src/pages/LoginPage.tsx`                      | Logging in (and "Try the demo" on the demo site).                                                                                                   |
+| `src/pages/SignupPage.tsx`                     | Creating an account.                                                                                                                                |
 | `src/pages/NotFoundPage.tsx`                   | Shown for addresses (or records) that don't exist.                                                                                                  |
 | `src/features/discogs/DiscogsResult.tsx`       | One release in the Discogs results: thumbnail, details, and a button.                                                                               |
 | `src/features/spins/RecordPlays.tsx`           | The listening part of a record's page: play count, "Log a play", its plays and its tracklist.                                                       |
@@ -237,6 +240,8 @@ pages/ ─▶ features/collection/ ─▶ api/ ─▶ server
 | `src/features/stylus/StylusForm.tsx`           | The form for adding or editing a stylus.                                                                                                            |
 | `src/features/stylus/StylusBanner.tsx`         | The warning across the top of every page when the stylus is getting worn. The × hides it until the site is opened again (or the stylus gets worse). |
 | `src/features/stylus/status.ts`                | The icon and words for each status ("⚠ Replace soon"), and hours formatting.                                                                        |
+| `src/features/auth/guards.tsx`                 | Which pages need a login, and sending people to log in first.                                                                                       |
+| `src/features/auth/next.ts`                    | Makes sure "go back to where you were" after logging in only goes to pages on this site.                                                            |
 | `src/features/collection/RecordForm.tsx`       | **The add/edit form**: every field, the problem messages, and the Save button.                                                                      |
 | `src/features/collection/form-values.ts`       | Converts between what you type ("42:49") and what the server wants (2569 seconds), and checks it.                                                   |
 | `src/features/collection/TagInput.tsx`         | The box for genres and styles: type, press Enter, get a chip with an ×.                                                                             |
@@ -252,6 +257,8 @@ pages/ ─▶ features/collection/ ─▶ api/ ─▶ server
 | `src/api/stats.ts`                             | `useStats(period)`: turns "this year" into an exact start time in your time zone and fetches the numbers.                                           |
 | `src/api/dust.ts`                              | Hooks for the dust report and settings: `useDustReport`, `useSettings`, `useUpdateSettings`.                                                        |
 | `src/api/styluses.ts`                          | Hooks for styluses: `useStyluses`, `useActiveStylus`, `useAddStylus`, `useUpdateStylus`, `useDeleteStylus`.                                         |
+| `src/api/auth.ts`                              | Hooks for accounts: `useMe`, `useLogin`, `useSignup`, `useDemoLogin`, `useLogout`.                                                                  |
+| `src/api/query-client.ts`                      | Sets up TanStack Query, and sends you to the login page if your login expires.                                                                      |
 | `src/api/health.ts`                            | A hook (`useHealth`) for the server status shown in the footer.                                                                                     |
 | `src/index.css`                                | How everything looks, including light and dark mode.                                                                                                |
 | `src/test/fake-api.ts`                         | A pretend server for tests, plus `makeRecord()` for sample data.                                                                                    |

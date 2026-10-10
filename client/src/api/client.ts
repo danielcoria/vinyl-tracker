@@ -81,3 +81,13 @@ export function describeError(error: Error): string {
   // Anything else (e.g. the answer had an unexpected shape) is a bug on our side.
   return `Something went wrong: ${error.message}`;
 }
+
+/** POST with no data, for actions like "log out". The server answers 204. */
+export async function apiPost(path: string): Promise<void> {
+  await request(path, { method: 'POST' });
+}
+
+/** True when the server says "log in first" (not logged in, or the login expired). */
+export function isNotLoggedIn(error: unknown): boolean {
+  return error instanceof ApiRequestError && error.status === 401 && error.code === 'NOT_LOGGED_IN';
+}

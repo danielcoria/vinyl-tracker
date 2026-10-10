@@ -2,13 +2,10 @@
 // discogs.spec.ts: IMPORTING A RECORD FROM DISCOGS
 //
 // Uses the fake Discogs (support/fake-discogs.mjs), which knows "Kind of Blue".
+// Each test has its own new account, so its collection starts empty.
 // ============================================================================
 
-import { expect, removeKindOfBlue, test } from './fixtures';
-
-test.beforeEach(async ({ request }) => {
-  await removeKindOfBlue(request);
-});
+import { expect, test } from './fixtures';
 
 test('search Discogs, add a pressing, and open it with its tracklist', async ({ page }) => {
   await page.goto('/');

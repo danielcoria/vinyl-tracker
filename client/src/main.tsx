@@ -7,14 +7,16 @@
 
 import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { QueryClientProvider } from '@tanstack/react-query';
 import { BrowserRouter } from 'react-router';
 import { App } from './App';
+import { createQueryClient } from './api/query-client';
 import './index.css';
 
 // TanStack Query is the library that fetches data from our server, remembers
-// the answers (caching), and re-fetches when needed. This creates its memory.
-const queryClient = new QueryClient();
+// the answers (caching), and re-fetches when needed. This creates its memory
+// (set up in api/query-client.ts, which also notices when a login expires).
+const queryClient = createQueryClient();
 
 // Find the empty <div id="root"> in index.html. React will draw everything inside it.
 const root = document.getElementById('root');

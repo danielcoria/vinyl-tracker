@@ -56,6 +56,12 @@ export const requireUser: RequestHandler = (req, res, next) => {
  * Blocks "cross-site request forgery": another website making your browser
  * send a change to this one. Browsers say where a request came from (Origin);
  * changes must come from this same site.
+ *
+ * When something passes requests along (the Vite dev server, or a host's
+ * proxy), the address the browser used arrives as X-Forwarded-Host instead of
+ * Host, so a match with either is accepted. Another website can't add that
+ * header to a browser's request without this server's permission (it never
+ * gives any), so accepting it doesn't open a gap.
  */
 export const sameOrigin: RequestHandler = (req, res, next) => {
   const origin = req.headers.origin;
@@ -69,7 +75,12 @@ export const sameOrigin: RequestHandler = (req, res, next) => {
   } catch {
     // not a valid address: treated as another site
   }
-  if (originHost === req.headers.host) {
+  const forwardedHost = req.headers['x-forwarded-host'];
+  const siteHosts = [
+    req.headers.host,
+    ...(Array.isArray(forwardedHost) ? forwardedHost : [forwardedHost]),
+  ];
+  if (originHost && siteHosts.includes(originHost)) {
     next();
     return;
   }

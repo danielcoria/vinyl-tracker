@@ -6,13 +6,15 @@
 
 ### 🔗 Live demo: [vinyl-tracker-qu7q.onrender.com](https://vinyl-tracker-qu7q.onrender.com)
 
-The demo is filled with 14 sample albums and about six months of listening, so every page has something to show. Click around and try anything; it resets to the sample data whenever the server restarts.
+Click **Try the demo** on the login page to open a shared demo account filled with 14 sample albums and about six months of listening, so every page has something to show. Try anything; it resets to the sample data whenever the server restarts. You can also create your own account.
 
 > **Heads-up:** the demo runs on a free server. After 15 minutes without visitors it sleeps, and the next visit takes about a minute. After that it's fast.
 
 ![The collection page: a grid of album covers](docs/screenshots/collection.jpg)
 
 ## What it does
+
+- **Accounts.** Sign up with a username and password; everyone gets their own private collection, diary, stats and stylus.
 
 - **Collection.** Search Discogs and add the exact pressing you own in one click (cover, label, catalog number, tracklist, genres), or add records by hand. Search and sort your shelf.
 - **Listening diary.** Log each play by side: tick the sides you played (A, B, C…), and the length fills itself in from the tracklist. Every play lands in a diary, grouped by day.
@@ -50,6 +52,7 @@ The demo is filled with 14 sample albums and about six months of listening, so e
 
 A few decisions worth mentioning:
 
+- **Accounts are built in, not bolted on.** Passwords are stored as scrypt hashes; logins use an httpOnly, SameSite cookie; every query is scoped to the logged-in account, and tests check that one account can never read or change another's data.
 - **The Discogs token never reaches the browser.** The website only talks to its own server, which talks to Discogs. It stays under Discogs' limit of 60 requests a minute and remembers recent answers.
 - **Derived numbers are never stored.** Play counts, "last played", dust status, stylus wear and stats are all worked out from the diary when asked, so they can't drift out of sync.
 - **Plays are saved by start time and by track,** so plays logged later with a past date still count for the right stylus, and song-level stats or Last.fm scrobbling can be added later without reshaping the data.
@@ -103,7 +106,6 @@ New to the code? **[docs/HOW-IT-WORKS.md](docs/HOW-IT-WORKS.md)** walks through 
 
 The plan is to grow this into a "Letterboxd for physical music":
 
-- **Accounts**, so everyone has their own collection and diary
 - **Public profiles** to share your shelf and your year in records
 - **Ratings and reviews** on records and on diary entries
 - **"What should I play tonight?"** suggestions from your own shelf

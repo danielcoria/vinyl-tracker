@@ -11,13 +11,23 @@
 // Every request is also written to `api.calls`, so tests can check what the
 // website sent. Unless a test overrides them: "GET /api/health" answers "ok",
 // tracklists are empty, the diary has no plays, and there are no styluses.
+// The visitor is logged in as TEST_USER; pass 'GET /api/auth/me' to change that.
 // ============================================================================
 
-import type { Spin, Track, VinylRecord } from '@vinyl/shared';
+import type { Spin, Track, User, VinylRecord } from '@vinyl/shared';
 import { vi } from 'vitest';
 
 type Call = { method: string; path: string; search: URLSearchParams; body: unknown };
 type Handler = (call: Call) => Response | Promise<Response>;
+
+export const TEST_USER: User = {
+  id: 1,
+  username: 'tester',
+  displayName: 'Test Listener',
+  createdAt: '2026-01-01T00:00:00.000Z',
+};
+
+export const loggedOut = () => json({ user: null });
 
 export function json(body: unknown, status = 200): Response {
   return Response.json(body, { status });
@@ -30,6 +40,7 @@ export function apiError(status: number, code: string, message: string): Respons
 export function mockApi(routes: Record<string, Handler>) {
   const allRoutes: Record<string, Handler> = {
     'GET /api/health': () => json({ status: 'ok', uptimeSeconds: 1, demo: false }),
+    'GET /api/auth/me': () => json({ user: TEST_USER }),
     ...routes,
   };
   const calls: Call[] = [];

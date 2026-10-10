@@ -22,7 +22,14 @@ export default defineConfig({
     // forwards it to our server on port 3001. So the website never needs the
     // Discogs token; only the server has it.
     // API_URL lets the end-to-end tests use a server on a different port.
-    proxy: { '/api': process.env.API_URL ?? 'http://localhost:3001' },
+    proxy: {
+      '/api': {
+        target: process.env.API_URL ?? 'http://localhost:3001',
+        // Tell the server which address the browser used (X-Forwarded-Host), so its
+        // "changes must come from this site" check recognizes the website.
+        xfwd: true,
+      },
+    },
   },
   test: {
     // Tests run in Node, not a real browser. jsdom fakes a browser page so

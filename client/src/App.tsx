@@ -2,7 +2,12 @@
 // App.tsx: WHICH SCREEN TO SHOW FOR EACH ADDRESS
 //
 // Every screen sits inside <Layout> (the header and footer), and the address
-// in the browser decides which page goes in the middle:
+// in the browser decides which page goes in the middle.
+//
+// Anyone:
+//   /login            -> LoginPage
+//   /signup           -> SignupPage (create an account)
+// Logged in only (everyone else is sent to /login first):
 //   /                 -> CollectionPage (your records)
 //   /records/new      -> NewRecordPage (add a record)
 //   /records/5        -> RecordDetailPage (record number 5)
@@ -18,14 +23,17 @@
 import { lazy, Suspense } from 'react';
 import { Route, Routes } from 'react-router';
 import { Layout } from './components/Layout';
+import { GuestOnly, RequireLogin } from './features/auth/guards';
 import { CollectionPage } from './pages/CollectionPage';
 import { DiaryPage } from './pages/DiaryPage';
 import { DiscogsPage } from './pages/DiscogsPage';
 import { DustPage } from './pages/DustPage';
 import { EditRecordPage } from './pages/EditRecordPage';
+import { LoginPage } from './pages/LoginPage';
 import { NewRecordPage } from './pages/NewRecordPage';
 import { NotFoundPage } from './pages/NotFoundPage';
 import { RecordDetailPage } from './pages/RecordDetailPage';
+import { SignupPage } from './pages/SignupPage';
 import { StylusPage } from './pages/StylusPage';
 
 // "Lazy" = only downloaded when someone opens the Stats page. It brings in the
@@ -37,26 +45,35 @@ export function App() {
     <Routes>
       {/* A route with no path wraps the ones inside it: Layout shows them via <Outlet />. */}
       <Route element={<Layout />}>
-        <Route index element={<CollectionPage />} />
-        {/* "new" is listed before ":id" so /records/new isn't treated as a record number. */}
-        <Route path="records/new" element={<NewRecordPage />} />
-        {/* ":id" is a placeholder: /records/5 shows the page with id = "5". */}
-        <Route path="records/:id" element={<RecordDetailPage />} />
-        <Route path="records/:id/edit" element={<EditRecordPage />} />
-        <Route path="discogs" element={<DiscogsPage />} />
-        <Route path="diary" element={<DiaryPage />} />
-        <Route path="dust" element={<DustPage />} />
-        <Route path="stylus" element={<StylusPage />} />
-        <Route
-          path="stats"
-          element={
-            // Shown for a moment while the Stats page downloads.
-            <Suspense fallback={<p className="muted">Loading…</p>}>
-              <StatsPage />
-            </Suspense>
-          }
-        />
-        <Route path="*" element={<NotFoundPage />} />
+        {/* Logging in and signing up: for people who aren't logged in yet. */}
+        <Route element={<GuestOnly />}>
+          <Route path="login" element={<LoginPage />} />
+          <Route path="signup" element={<SignupPage />} />
+        </Route>
+
+        {/* Everything else needs a login. */}
+        <Route element={<RequireLogin />}>
+          <Route index element={<CollectionPage />} />
+          {/* "new" is listed before ":id" so /records/new isn't treated as a record number. */}
+          <Route path="records/new" element={<NewRecordPage />} />
+          {/* ":id" is a placeholder: /records/5 shows the page with id = "5". */}
+          <Route path="records/:id" element={<RecordDetailPage />} />
+          <Route path="records/:id/edit" element={<EditRecordPage />} />
+          <Route path="discogs" element={<DiscogsPage />} />
+          <Route path="diary" element={<DiaryPage />} />
+          <Route path="dust" element={<DustPage />} />
+          <Route path="stylus" element={<StylusPage />} />
+          <Route
+            path="stats"
+            element={
+              // Shown for a moment while the Stats page downloads.
+              <Suspense fallback={<p className="muted">Loading…</p>}>
+                <StatsPage />
+              </Suspense>
+            }
+          />
+          <Route path="*" element={<NotFoundPage />} />
+        </Route>
       </Route>
     </Routes>
   );

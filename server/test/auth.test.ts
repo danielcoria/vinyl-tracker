@@ -248,3 +248,27 @@ describe('requests from other websites', () => {
     expect(res.status).toBe(201);
   });
 });
+
+describe('requests passed along by a proxy (like the Vite dev server)', () => {
+  it('are accepted when the forwarded address matches where they came from', async () => {
+    const res = await request(setup().app)
+      .post('/api/auth/signup')
+      .set('Host', 'localhost:3001')
+      .set('X-Forwarded-Host', 'localhost:5173')
+      .set('Origin', 'http://localhost:5173')
+      .send({ username: 'daniel', password: PASSWORD });
+
+    expect(res.status).toBe(201);
+  });
+
+  it('are still refused when neither address matches', async () => {
+    const res = await request(setup().app)
+      .post('/api/auth/signup')
+      .set('Host', 'localhost:3001')
+      .set('X-Forwarded-Host', 'localhost:5173')
+      .set('Origin', 'https://evil.example')
+      .send({ username: 'daniel', password: PASSWORD });
+
+    expect(res.status).toBe(403);
+  });
+});

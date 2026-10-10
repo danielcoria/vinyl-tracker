@@ -4,8 +4,8 @@
 
 import { expect, importKindOfBlue, test, unique } from './fixtures';
 
-test('log one side, see it in the diary and stats, then delete it', async ({ page, request }) => {
-  const recordId = await importKindOfBlue(request);
+test('log one side, see it in the diary and stats, then delete it', async ({ page }) => {
+  const recordId = await importKindOfBlue(page.request);
   const note = unique('e2e play');
 
   await page.goto(`/records/${recordId}`);
