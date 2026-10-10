@@ -2,6 +2,8 @@
 
 How the app runs in production, and what any host needs.
 
+**Live demo: https://vinyl-tracker-qu7q.onrender.com**
+
 The public demo runs on **Render's free plan** (set up by `render.yaml`). Render's free services have no permanent disk and sleep after 15 minutes without visitors (waking up takes about a minute), so the demo runs in **demo mode**: every time it starts, it fills itself with 14 sample albums, about 6 months of plays and a stylus (`server/src/db/demo.ts`). Visitors can try anything; it all resets on the next restart.
 
 ## Putting the demo on Render (step by step)

@@ -8,7 +8,7 @@ Portfolio project, so code quality, tests, and a clean commit history matter as 
 
 ## Status
 
-M0–M9 are done (scaffold, CI, database + records API, collection UI, Discogs search + import, listening log by side, stats, dust report, stylus wear tracker, end-to-end tests). M10 (deploy) is nearly done: the host is **Render free**, as a public **demo** that refills itself on every start (`DEMO_MODE`, `render.yaml`); the owner still has to connect the repo on Render (steps in docs/DEPLOY.md). After that comes **M11 (accounts)**. Update this section and the milestone checklist as work lands.
+M0–M9 are done (scaffold, CI, database + records API, collection UI, Discogs search + import, listening log by side, stats, dust report, stylus wear tracker, end-to-end tests). M0–M10 are done. The public demo is live at https://vinyl-tracker-qu7q.onrender.com (Render free, `DEMO_MODE`, refills itself on every start; deploys automatically after GitHub's checks pass). The next milestone is **M11 (accounts)**. Update this section and the milestone checklist as work lands.
 
 ## Features
 
@@ -185,7 +185,7 @@ Validation errors are 400 `VALIDATION` with `field: message` pairs joined by `; 
 - [x] M7 Dust report
 - [x] M8 Stylus wear tracker
 - [x] M9 Playwright E2E for core flows; add to CI
-- [ ] M10 Deploy (CD): Docker image + host with a persistent volume for SQLite
+- [x] M10 Deploy (CD): Docker image + host with a persistent volume for SQLite
 - [ ] M11 Accounts: sign up, log in, sessions, per-user collections (migrate existing data to a first user)
 - [ ] M12 Public profiles: shareable shelf, most-played, year in records
 - [ ] M13 Ratings and reviews (on records and on diary entries)
