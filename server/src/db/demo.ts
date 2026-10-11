@@ -60,21 +60,46 @@ const DAY = 24 * 60 * 60 * 1000;
 /**
  * How each album is played in the demo, matched by title. Not listed = never played.
  * `plays`: how many plays in the last ~6 months. `lastPlayedDaysAgo`: when the most
- * recent one was (older than 90 days = "gathering dust").
+ * recent one was (older than 90 days = "gathering dust"). `rating` and `review`:
+ * the demo listener's stars and write-up for the album.
  */
-const LISTENING: Record<string, { plays: number; lastPlayedDaysAgo?: number }> = {
-  'kind of blue': { plays: 9 },
-  'to pimp a butterfly': { plays: 7 },
-  rumours: { plays: 6 },
-  'back to black': { plays: 6 },
-  'ok computer': { plays: 5 },
-  blue: { plays: 5 },
-  "what's going on": { plays: 4 },
-  'the dark side of the moon': { plays: 4 },
-  discovery: { plays: 4 },
-  'a love supreme': { plays: 3 },
-  'purple rain': { plays: 2, lastPlayedDaysAgo: 130 },
-  nevermind: { plays: 2, lastPlayedDaysAgo: 210 },
+type Plan = { plays: number; lastPlayedDaysAgo?: number; rating?: number; review?: string };
+const LISTENING: Record<string, Plan> = {
+  'kind of blue': {
+    plays: 9,
+    rating: 5,
+    review:
+      "The record I put on when I can't decide what to put on. Side A is perfect late at night with the lights low.",
+  },
+  'to pimp a butterfly': {
+    plays: 7,
+    rating: 5,
+    review:
+      'Four sides and not a wasted minute. Sounds huge on vinyl; the bass on side B shakes the shelf.',
+  },
+  rumours: { plays: 6, rating: 4.5 },
+  'back to black': {
+    plays: 6,
+    rating: 4.5,
+    review: 'Short enough to play twice in a row, and I usually do.',
+  },
+  'ok computer': { plays: 5, rating: 4 },
+  blue: {
+    plays: 5,
+    rating: 4.5,
+    review: 'A quiet Sunday-morning record. My copy crackles a little and I like it that way.',
+  },
+  "what's going on": { plays: 4, rating: 5 },
+  'the dark side of the moon': { plays: 4, rating: 4 },
+  discovery: { plays: 4, rating: 3.5 },
+  'a love supreme': { plays: 3, rating: 4.5 },
+  'purple rain': { plays: 2, lastPlayedDaysAgo: 130, rating: 4 },
+  nevermind: {
+    plays: 2,
+    lastPlayedDaysAgo: 210,
+    rating: 3,
+    review: 'Loved it at sixteen. These days it mostly gathers dust, but side A still holds up.',
+  },
 };
 
 const CONDITIONS: Condition[][] = [
@@ -135,6 +160,15 @@ export function seedDemoData(db: Db, now: number = Date.now()) {
     const plan = LISTENING[record.title.toLowerCase()];
     if (!plan) return; // never played
 
+    if (plan.rating) {
+      // Reviewed a month after it was added to the shelf.
+      const reviewedAt = new Date(Date.parse(addedAt) + 30 * DAY).toISOString();
+      db.update(records)
+        .set({ rating: plan.rating, review: plan.review ?? null, reviewedAt })
+        .where(eq(records.id, record.id))
+        .run();
+    }
+
     const sides = [...new Set(getTracks(db, record.id).flatMap((t) => (t.side ? [t.side] : [])))];
     for (let i = 0; i < plan.plays; i++) {
       // The most recent play is `lastPlayedDaysAgo` (or within the last week);
@@ -163,6 +197,11 @@ export function seedDemoData(db: Db, now: number = Date.now()) {
           playedAt: day.toISOString(),
           sides: oneSide ? [oneSide] : null,
           durationSeconds,
+          // Every other listen is rated: around the album's rating, a bit up or down.
+          rating:
+            plan.rating && i % 2 === 0
+              ? Math.min(5, Math.max(0.5, plan.rating + ([0, -0.5, 0.5][(i / 2) % 3] ?? 0)))
+              : null,
         }),
       );
       spinCount += 1;

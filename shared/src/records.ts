@@ -11,6 +11,7 @@
 // ============================================================================
 
 import { z } from 'zod';
+import { ratingSchema } from './ratings.js';
 
 /** Goldmine grading, the standard scale collectors and Discogs use. */
 export const CONDITION_GRADES = ['M', 'NM', 'VG+', 'VG', 'G+', 'G', 'F', 'P'] as const;
@@ -114,6 +115,11 @@ export const recordSchema = z.object({
   styles: z.array(z.string()),
   addedAt: z.string(),
   updatedAt: z.string(),
+  /** The owner's star rating and review (null = none yet), set through PUT /api/records/:id/review. */
+  rating: ratingSchema.nullable(),
+  review: z.string().nullable(),
+  /** When the rating or review last changed. */
+  reviewedAt: z.string().nullable(),
   /** Worked out from the listening diary (never stored): how many plays, and the latest. */
   spinCount: z.number().int(),
   lastPlayedAt: z.string().nullable(),
@@ -121,7 +127,7 @@ export const recordSchema = z.object({
 
 export type VinylRecord = z.infer<typeof recordSchema>;
 
-export const RECORD_SORTS = ['added', 'artist', 'title', 'year'] as const;
+export const RECORD_SORTS = ['added', 'artist', 'title', 'year', 'rating'] as const;
 
 /** Query string for GET /api/records. */
 export const recordListQuerySchema = z.object({

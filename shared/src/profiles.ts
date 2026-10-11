@@ -7,11 +7,12 @@
 //                        have a "year in records"
 //   yearInRecordsSchema  /u/username/year/2026: a recap of one year
 //
-// Only things that are fine to share are here: no notes, no record conditions,
-// nothing about the stylus or settings.
+// Only things that are fine to share are here: ratings and reviews, but no
+// notes, no record conditions, nothing about the stylus or settings.
 // ============================================================================
 
 import { z } from 'zod';
+import { ratingSchema } from './ratings.js';
 import { spinRecordSchema } from './spins.js';
 import { statsSchema } from './stats.js';
 
@@ -44,7 +45,11 @@ const viewerSchema = {
 export const shelfRecordSchema = spinRecordSchema.extend({
   year: z.number().int().nullable(),
   spinCount: z.number().int(),
+  rating: ratingSchema.nullable(),
 });
+
+/** A record with the stars its owner gave it. */
+const ratedRecordSchema = z.object({ record: spinRecordSchema, rating: ratingSchema });
 
 export type ShelfRecord = z.infer<typeof shelfRecordSchema>;
 
@@ -66,7 +71,20 @@ export const profileSchema = z.object({
       playedAt: z.string(),
       durationSeconds: z.number().int(),
       sides: z.array(z.string()).nullable(),
+      /** How that listen went, if it was rated. */
+      rating: ratingSchema.nullable(),
       record: spinRecordSchema,
+    }),
+  ),
+  /** The best-rated records (up to 6), highest first. */
+  highestRated: z.array(ratedRecordSchema),
+  /** Written reviews, newest first (up to 10). */
+  reviews: z.array(
+    z.object({
+      record: spinRecordSchema,
+      rating: ratingSchema.nullable(),
+      review: z.string(),
+      reviewedAt: z.string(),
     }),
   ),
   /** Every record they own, sorted by artist. */
@@ -90,6 +108,8 @@ export const yearInRecordsSchema = z.object({
   topGenres: z.array(z.object({ name: z.string(), listeningSeconds: z.number().int() })),
   /** Records added to the shelf during the year. */
   addedCount: z.number().int(),
+  /** The best-rated record among those played during the year (null if none is rated). */
+  highestRated: ratedRecordSchema.nullable(),
 });
 
 export type YearInRecords = z.infer<typeof yearInRecordsSchema>;

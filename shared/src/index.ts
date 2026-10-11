@@ -9,6 +9,7 @@
 
 export * from './health.js';
 export * from './errors.js';
+export * from './ratings.js';
 export * from './records.js';
 export * from './discogs.js';
 export * from './spins.js';

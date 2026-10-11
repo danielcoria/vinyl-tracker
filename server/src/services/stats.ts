@@ -8,13 +8,14 @@
 //   genresByMonth   listening time per genre per month. A record with two
 //                   genres splits its time between them, so each month's
 //                   total still equals the real listening time.
+//   ratings         how many records got each star rating (whole collection)
 //
 // The adding-up happens in TypeScript rather than SQL: one person's diary is
 // small, and this way each step is easy to read and test.
 // ============================================================================
 
 import { and, asc, eq, gte, inArray, lt, type SQL } from 'drizzle-orm';
-import type { Stats } from '@vinyl/shared';
+import { RATING_STEPS, type Stats } from '@vinyl/shared';
 import type { Db } from '../db/client.js';
 import { records, spins } from '../db/schema.js';
 import { getRecordsByIds } from './records.js';
@@ -119,6 +120,26 @@ export function getStats(
     topArtists,
     topRecords,
     genresByMonth: { months, genres: topGenresWithOther(genreMonths, months) },
+    ratings: ratingSpread(db, userId),
+  };
+}
+
+/** How many of this person's records got each star rating, and the average. */
+function ratingSpread(db: Db, userId: number): Stats['ratings'] {
+  const rated = db
+    .select({ rating: records.rating })
+    .from(records)
+    .where(eq(records.userId, userId))
+    .all()
+    .flatMap((r) => (r.rating === null ? [] : [r.rating]));
+  const sum = rated.reduce((total, rating) => total + rating, 0);
+  return {
+    ratedCount: rated.length,
+    average: rated.length > 0 ? Math.round((sum / rated.length) * 100) / 100 : null,
+    counts: RATING_STEPS.map((step) => ({
+      rating: step,
+      count: rated.filter((rating) => rating === step).length,
+    })),
   };
 }
 

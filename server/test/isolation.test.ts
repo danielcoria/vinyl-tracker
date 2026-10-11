@@ -101,17 +101,19 @@ describe("someone else's records", () => {
     expect(search.records).toEqual([]);
   });
 
-  it("can't be opened, edited, deleted, or have their tracklist read", async () => {
+  it("can't be opened, edited, reviewed, deleted, or have their tracklist read", async () => {
     const url = `/api/records/${alexRecordId}`;
 
     expect((await ctx.blair.get(url)).status).toBe(404);
     expect((await ctx.blair.put(url).send(recordInput({ title: 'Mine now' }))).status).toBe(404);
+    expect((await ctx.blair.put(`${url}/review`).send({ rating: 1 })).status).toBe(404);
     expect((await ctx.blair.delete(url)).status).toBe(404);
     expect((await ctx.blair.get(`${url}/tracks`)).status).toBe(404);
 
     const stillAlexs = await ctx.alex.get(url);
     expect(stillAlexs.status).toBe(200);
     expect(stillAlexs.body.title).toBe("Alex's LP");
+    expect(stillAlexs.body.rating).toBeNull();
   });
 });
 

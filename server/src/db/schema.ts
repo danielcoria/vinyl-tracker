@@ -16,6 +16,7 @@ import {
   index,
   integer,
   primaryKey,
+  real,
   sqliteTable,
   text,
   uniqueIndex,
@@ -45,6 +46,11 @@ export const records = sqliteTable(
     mediaCondition: text('media_condition', { enum: CONDITION_GRADES }),
     sleeveCondition: text('sleeve_condition', { enum: CONDITION_GRADES }),
     notes: text('notes'),
+    /** Stars, 0.5 to 5 in half steps (null = not rated). Reviews can be shared; notes can't. */
+    rating: real('rating'),
+    review: text('review'),
+    /** When the rating or review last changed. */
+    reviewedAt: text('reviewed_at'),
     addedAt: text('added_at').notNull().$defaultFn(now),
     updatedAt: text('updated_at').notNull().$defaultFn(now),
   },
@@ -135,6 +141,8 @@ export const spins = sqliteTable(
     /** Sides played, comma-separated in record order ("A,B"), or null for the whole record. */
     sides: text('sides'),
     notes: text('notes'),
+    /** How this listen went, in stars (0.5 to 5, or null). */
+    rating: real('rating'),
     createdAt: text('created_at').notNull().$defaultFn(now),
   },
   (t) => [

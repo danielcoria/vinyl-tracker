@@ -10,11 +10,12 @@
 // The owner can always see their own page (as a preview).
 //
 // Everything is built from the same services as the private pages, then
-// copied field by field into what's safe to share (no notes, no conditions).
+// copied field by field into what's safe to share: ratings and reviews are,
+// notes and conditions are not.
 // ============================================================================
 
-import { inArray, eq } from 'drizzle-orm';
-import type { Profile, User, YearInRecords } from '@vinyl/shared';
+import { and, eq, gte, inArray, lt } from 'drizzle-orm';
+import type { Profile, User, VinylRecord, YearInRecords } from '@vinyl/shared';
 import type { Db } from '../db/client.js';
 import { records, spins } from '../db/schema.js';
 import { AppError } from '../errors.js';
@@ -25,6 +26,23 @@ import { listSpins } from './spins.js';
 import { getStats, localMonth, monthsBetween } from './stats.js';
 
 const RECENT_PLAYS = 8;
+const HIGHEST_RATED = 6;
+const REVIEWS = 10;
+
+/** The few details of a record shown next to a play, a rating or a review. */
+const summary = ({ id, title, artists, coverImageUrl }: VinylRecord) => ({
+  id,
+  title,
+  artists,
+  coverImageUrl,
+});
+
+/** Best rating first; ties in alphabetical order. Unrated records are left out. */
+function byRating(owned: VinylRecord[]) {
+  return owned
+    .flatMap((r) => (r.rating === null ? [] : [{ record: summary(r), rating: r.rating }]))
+    .sort((a, b) => b.rating - a.rating || a.record.title.localeCompare(b.record.title));
+}
 
 /** The profile's owner, if the viewer is allowed to see it. */
 function visibleProfile(db: Db, username: string, viewer: User | null | undefined) {
@@ -55,19 +73,35 @@ export function getProfile(
   const { owner, ...who } = visibleProfile(db, username, viewer);
   const stats = getStats(db, owner.id, { utcOffsetMinutes });
 
-  const shelf = listRecords(db, owner.id, { sort: 'artist' }).map((r) => ({
-    id: r.id,
-    title: r.title,
-    artists: r.artists,
-    coverImageUrl: r.coverImageUrl,
+  const owned = listRecords(db, owner.id, { sort: 'artist' });
+  const shelf = owned.map((r) => ({
+    ...summary(r),
     year: r.year,
     spinCount: r.spinCount,
+    rating: r.rating,
   }));
+
+  const reviews = owned
+    .flatMap((r) =>
+      r.review === null
+        ? []
+        : [
+            {
+              record: summary(r),
+              rating: r.rating,
+              review: r.review,
+              reviewedAt: r.reviewedAt ?? r.updatedAt,
+            },
+          ],
+    )
+    .sort((a, b) => b.reviewedAt.localeCompare(a.reviewedAt))
+    .slice(0, REVIEWS);
 
   const recentPlays = listSpins(db, owner.id, { limit: RECENT_PLAYS }).map((spin) => ({
     playedAt: spin.playedAt,
     durationSeconds: spin.durationSeconds,
     sides: spin.sides,
+    rating: spin.rating,
     record: spin.record,
   }));
 
@@ -81,6 +115,8 @@ export function getProfile(
     topRecords: stats.topRecords,
     topArtists: stats.topArtists,
     recentPlays,
+    highestRated: byRating(owned).slice(0, HIGHEST_RATED),
+    reviews,
     shelf,
     years: yearsWithPlays(db, owner.id, utcOffsetMinutes),
   };
@@ -121,6 +157,17 @@ export function getYearInRecords(
     .all()
     .filter((r) => r.addedAt >= from && r.addedAt < to).length;
 
+  // The best-rated record among the ones played this year.
+  const playedIds = db
+    .selectDistinct({ recordId: spins.recordId })
+    .from(spins)
+    .where(and(gte(spins.playedAt, from), lt(spins.playedAt, to)))
+    .all()
+    .map((s) => s.recordId);
+  const played = listRecords(db, owner.id, { sort: 'artist' }).filter((r) =>
+    playedIds.includes(r.id),
+  );
+
   return {
     ...who,
     year,
@@ -130,6 +177,7 @@ export function getYearInRecords(
     months,
     topGenres,
     addedCount,
+    highestRated: byRating(played)[0] ?? null,
   };
 }
 

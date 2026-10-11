@@ -11,5 +11,8 @@ export default defineConfig({
   test: {
     environment: 'node',
     include: ['test/**/*.test.ts'],
+    // Scrambling passwords is slow on purpose, so tests that sign up or log in
+    // several times get 15 s (instead of 5) before they count as stuck.
+    testTimeout: 15_000,
   },
 });

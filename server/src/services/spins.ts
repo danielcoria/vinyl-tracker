@@ -52,6 +52,7 @@ export function createSpin(db: Db, userId: number, input: ParsedSpinInput): Spin
         durationSeconds: input.durationSeconds,
         sides: sides ? sides.join(',') : null,
         notes: input.notes,
+        rating: input.rating,
       })
       .returning({ id: spins.id })
       .get();
@@ -115,6 +116,7 @@ function withRecords(db: Db, userId: number, rows: SpinRow[]): Spin[] {
         durationSeconds: row.durationSeconds,
         sides: row.sides ? row.sides.split(',') : null,
         notes: row.notes,
+        rating: row.rating,
         record: {
           id: record.id,
           title: record.title,

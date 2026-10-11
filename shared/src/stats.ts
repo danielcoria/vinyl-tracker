@@ -3,13 +3,15 @@
 //
 //   statsQuerySchema   which period (from / to) and the viewer's time zone
 //   statsSchema        totals, most-listened artists and records, and
-//                      listening time per genre for each month
+//                      listening time per genre for each month, plus how
+//                      the collection's star ratings are spread
 //
 // Rankings are by listening TIME, not by number of plays: playing one side
 // counts for less than playing the whole double album.
 // ============================================================================
 
 import { z } from 'zod';
+import { ratingSchema } from './ratings.js';
 import { spinRecordSchema } from './spins.js';
 
 export const statsQuerySchema = z.object({
@@ -51,6 +53,16 @@ export const statsSchema = z.object({
      * `seconds[i]` is the listening time in `months[i]`.
      */
     genres: z.array(z.object({ name: z.string(), seconds: z.array(z.number().int()) })),
+  }),
+  /**
+   * Star ratings across the whole collection (not just the chosen period):
+   * how many records got each rating, lowest rating first (all 10 steps).
+   */
+  ratings: z.object({
+    ratedCount: z.number().int(),
+    /** The average rating, or null when nothing is rated. */
+    average: z.number().nullable(),
+    counts: z.array(z.object({ rating: ratingSchema, count: z.number().int() })),
   }),
 });
 

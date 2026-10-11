@@ -12,6 +12,7 @@
 // ============================================================================
 
 import { z } from 'zod';
+import { optionalRatingSchema, ratingSchema } from './ratings.js';
 import { artistCreditSchema } from './records.js';
 
 export const trackSchema = z.object({
@@ -66,6 +67,8 @@ export const spinInputSchema = z.object({
     .max(1000, 'Keep notes under 1000 characters')
     .nullish()
     .transform((value) => value || null),
+  /** How this listen went, in stars (optional). */
+  rating: optionalRatingSchema,
 });
 
 export type SpinInput = z.input<typeof spinInputSchema>;
@@ -85,6 +88,7 @@ export const spinSchema = z.object({
   durationSeconds: z.number().int(),
   sides: z.array(z.string()).nullable(),
   notes: z.string().nullable(),
+  rating: ratingSchema.nullable(),
   record: spinRecordSchema,
 });
 

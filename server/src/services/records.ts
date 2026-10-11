@@ -3,7 +3,7 @@
 //
 // Routes receive requests; services do the actual work. This file reads
 // and writes records in the database: list (with search and sort), get one,
-// create, update and delete.
+// create, update, delete, and rate/review.
 //
 // It uses Drizzle, a library that lets us write database queries in
 // TypeScript, e.g. db.select().from(records).where(...), instead of raw SQL
@@ -17,7 +17,12 @@
 // ============================================================================
 
 import { and, asc, count, desc, eq, inArray, max, notInArray, sql, type SQL } from 'drizzle-orm';
-import type { ParsedRecordInput, ParsedRecordListQuery, VinylRecord } from '@vinyl/shared';
+import type {
+  ParsedRecordInput,
+  ParsedRecordListQuery,
+  ParsedReviewInput,
+  VinylRecord,
+} from '@vinyl/shared';
 import type { Db } from '../db/client.js';
 import { artists, recordArtists, records, recordTags, spins } from '../db/schema.js';
 import { NotFoundError } from '../errors.js';
@@ -64,6 +69,8 @@ const ORDER_BY: Record<ParsedRecordListQuery['sort'], SQL[]> = {
   ],
   title: [sql`${records.title} COLLATE NOCASE`, asc(records.id)],
   year: [sql`${records.year} ASC NULLS LAST`, sql`${records.title} COLLATE NOCASE`],
+  // Highest rated first; records without a rating go last.
+  rating: [sql`${records.rating} DESC NULLS LAST`, sql`${records.title} COLLATE NOCASE`],
 };
 
 /** "This record, and it belongs to this person." */
@@ -135,6 +142,31 @@ export function updateRecord(
     writeCreditsAndTags(tx, id, input);
     deleteOrphanArtists(tx);
   });
+  return getRecord(db, userId, id);
+}
+
+/**
+ * Sets the star rating and review (either can be cleared with null). Kept apart
+ * from updateRecord so editing a record's details never wipes its review.
+ */
+export function setReview(
+  db: Db,
+  userId: number,
+  id: number,
+  input: ParsedReviewInput,
+): VinylRecord {
+  const hasReview = input.rating !== null || input.review !== null;
+  const updated = db
+    .update(records)
+    .set({
+      rating: input.rating,
+      review: input.review,
+      reviewedAt: hasReview ? new Date().toISOString() : null,
+    })
+    .where(ownRecord(userId, id))
+    .returning({ id: records.id })
+    .get();
+  if (!updated) throw new NotFoundError(`Record ${id} not found`);
   return getRecord(db, userId, id);
 }
 

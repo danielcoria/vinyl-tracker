@@ -9,7 +9,7 @@
 // ============================================================================
 
 import { beforeEach, describe, expect, it } from 'vitest';
-import { statsSchema, type RecordInput } from '@vinyl/shared';
+import { RATING_STEPS, statsSchema, type RecordInput } from '@vinyl/shared';
 import { monthsBetween } from '../src/services/stats.js';
 import { makeTestApp, recordInput } from './helpers.js';
 
@@ -158,6 +158,12 @@ describe('GET /api/stats', () => {
       topArtists: [],
       topRecords: [],
       genresByMonth: { months: [], genres: [] },
+      // Ratings cover the whole collection, whatever the period: nothing is rated here.
+      ratings: {
+        ratedCount: 0,
+        average: null,
+        counts: RATING_STEPS.map((rating) => ({ rating, count: 0 })),
+      },
     });
   });
 

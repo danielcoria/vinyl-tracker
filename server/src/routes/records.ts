@@ -8,6 +8,7 @@
 //   GET    /api/records/5/tracks -> record 5's tracklist (songs and sides)
 //   POST   /api/records       -> add a new record
 //   PUT    /api/records/5     -> replace record 5 with new details
+//   PUT    /api/records/5/review -> set record 5's star rating and review
 //   DELETE /api/records/5     -> delete record 5
 //
 // Routes stay short on purpose: check the input, call the "service" (which
@@ -18,6 +19,7 @@ import { Router } from 'express';
 import {
   recordInputSchema,
   recordListQuerySchema,
+  reviewInputSchema,
   type RecordList,
   type TrackList,
 } from '@vinyl/shared';
@@ -28,6 +30,7 @@ import {
   deleteRecord,
   getRecord,
   listRecords,
+  setReview,
   updateRecord,
 } from '../services/records.js';
 import { getTracks } from '../services/tracks.js';
@@ -72,6 +75,12 @@ export function recordsRouter(db: Db) {
   router.put('/:id', (req, res) => {
     const id = idParam.parse(req.params.id);
     res.json(updateRecord(db, userIdOf(req), id, recordInputSchema.parse(req.body)));
+  });
+
+  // PUT /api/records/:id/review: { rating, review } (null clears either one).
+  router.put('/:id/review', (req, res) => {
+    const id = idParam.parse(req.params.id);
+    res.json(setReview(db, userIdOf(req), id, reviewInputSchema.parse(req.body)));
   });
 
   // DELETE /api/records/:id: 204 means "done, nothing to send back".
