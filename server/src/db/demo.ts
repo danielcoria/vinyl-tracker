@@ -105,6 +105,11 @@ export function seedDemoData(db: Db, now: number = Date.now()) {
     db.select({ n: count() }).from(records).where(eq(records.userId, userId)).get()?.n ?? 0;
   if (existing > 0) return { userId, records: 0, spins: 0 };
 
+  // The records were collected over the past two years, so the account "joined" then
+  // (the profile says "Collecting since ...").
+  const joinedAt = new Date(now - 730 * DAY).toISOString();
+  db.update(users).set({ createdAt: joinedAt }).where(eq(users.id, userId)).run();
+
   const random = seededRandom(1971);
   let spinCount = 0;
   let playedSeconds = 0;

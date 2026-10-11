@@ -7,7 +7,7 @@
 // someone is logged in. On the public demo, a note under the header says so.
 // ============================================================================
 
-import { Link, NavLink, Outlet, useNavigate } from 'react-router';
+import { Link, NavLink, Outlet, useLocation, useNavigate } from 'react-router';
 import { useLogout, useMe } from '../api/auth';
 import { useHealth } from '../api/health';
 import { StylusBanner } from '../features/stylus/StylusBanner';
@@ -17,6 +17,8 @@ export function Layout() {
   const me = useMe();
   const logout = useLogout();
   const navigate = useNavigate();
+  const { pathname } = useLocation();
+  const onAuthPage = pathname === '/login' || pathname === '/signup';
   const user = me.data?.user ?? null;
   const status = health.isPending
     ? 'checking…'
@@ -47,9 +49,14 @@ export function Layout() {
         )}
         {user && (
           <div className="account">
-            <span className="account-name" title={`@${user.username}`}>
+            {/* The name links to your public profile (only you can see it until you share it). */}
+            <Link
+              to={`/u/${user.username}`}
+              className="account-name"
+              title={`Your profile (@${user.username})`}
+            >
               {user.displayName}
-            </span>
+            </Link>
             <button
               type="button"
               className="button button-small"
@@ -58,6 +65,14 @@ export function Layout() {
             >
               Log out
             </button>
+          </div>
+        )}
+        {/* Visitors looking at a public profile get a way in. */}
+        {me.isSuccess && !user && !onAuthPage && (
+          <div className="account">
+            <Link to="/login" className="button button-small">
+              Log in
+            </Link>
           </div>
         )}
       </header>

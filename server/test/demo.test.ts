@@ -113,6 +113,8 @@ describe('the demo profile', () => {
 
     expect(res.status).toBe(200);
     expect(res.body.shelf).toHaveLength(14);
+    // "Collecting since" two years ago, when its first records were added.
+    expect(res.body.user.memberSince).toBe('2024-10-09T12:00:00.000Z');
   });
 });
 

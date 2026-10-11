@@ -6,7 +6,7 @@
 
 ### 🔗 Live demo: [vinyl-tracker-qu7q.onrender.com](https://vinyl-tracker-qu7q.onrender.com)
 
-Click **Try the demo** on the login page to open a shared demo account filled with 14 sample albums and about six months of listening, so every page has something to show. Try anything; it resets to the sample data whenever the server restarts. You can also create your own account.
+Click **Try the demo** on the login page to open a shared demo account filled with 14 sample albums and about six months of listening, so every page has something to show. Try anything; it resets to the sample data whenever the server restarts. You can also create your own account. To see a public profile without logging in, open [/u/demo](https://vinyl-tracker-qu7q.onrender.com/u/demo).
 
 > **Heads-up:** the demo runs on a free server. After 15 minutes without visitors it sleeps, and the next visit takes about a minute. After that it's fast.
 
@@ -15,6 +15,7 @@ Click **Try the demo** on the login page to open a shared demo account filled wi
 ## What it does
 
 - **Accounts.** Sign up with a username and password; everyone gets their own private collection, diary, stats and stylus.
+- **Public profiles.** Each account has a page at `/u/username` with its shelf, most-played records and artists, recent plays, and a "year in records" recap for every year. Private until its owner turns it on; notes and record conditions are never shown.
 
 - **Collection.** Search Discogs and add the exact pressing you own in one click (cover, label, catalog number, tracklist, genres), or add records by hand. Search and sort your shelf.
 - **Listening diary.** Log each play by side: tick the sides you played (A, B, C…), and the length fills itself in from the tracklist. Every play lands in a diary, grouped by day.
@@ -106,7 +107,6 @@ New to the code? **[docs/HOW-IT-WORKS.md](docs/HOW-IT-WORKS.md)** walks through 
 
 The plan is to grow this into a "Letterboxd for physical music":
 
-- **Public profiles** to share your shelf and your year in records
 - **Ratings and reviews** on records and on diary entries
 - **"What should I play tonight?"** suggestions from your own shelf
 - **Streaming vs. shelf:** albums you stream a lot on Last.fm but don't own, with current Discogs prices

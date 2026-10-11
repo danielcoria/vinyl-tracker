@@ -20,7 +20,8 @@ export type RankedItem = {
   /** Shown before the label, e.g. a small cover. */
   leading?: ReactNode;
   listeningSeconds: number;
-  spinCount: number;
+  /** Left out for things that have time but no plays of their own (genres). */
+  spinCount?: number;
 };
 
 export function RankedBars({ title, items }: { title: string; items: RankedItem[] }) {
@@ -50,7 +51,9 @@ export function RankedBars({ title, items }: { title: string; items: RankedItem[
                 />
                 <span className="ranked-value">
                   {formatListening(item.listeningSeconds)}
-                  <span className="muted"> · {formatPlays(item.spinCount)}</span>
+                  {item.spinCount !== undefined && (
+                    <span className="muted"> · {formatPlays(item.spinCount)}</span>
+                  )}
                 </span>
               </div>
             </div>

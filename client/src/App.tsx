@@ -17,6 +17,8 @@
 //   /stats            -> StatsPage (totals, top artists/records, genres by month)
 //   /dust             -> DustPage (records you haven't played in a while)
 //   /stylus           -> StylusPage (stylus wear tracker)
+//   /u/daniel         -> ProfilePage (a public profile; no login needed)
+//   /u/daniel/year/2026 -> YearInRecordsPage (one year's recap)
 //   anything else     -> NotFoundPage
 // ============================================================================
 
@@ -32,6 +34,7 @@ import { EditRecordPage } from './pages/EditRecordPage';
 import { LoginPage } from './pages/LoginPage';
 import { NewRecordPage } from './pages/NewRecordPage';
 import { NotFoundPage } from './pages/NotFoundPage';
+import { ProfilePage } from './pages/ProfilePage';
 import { RecordDetailPage } from './pages/RecordDetailPage';
 import { SignupPage } from './pages/SignupPage';
 import { StylusPage } from './pages/StylusPage';
@@ -39,6 +42,9 @@ import { StylusPage } from './pages/StylusPage';
 // "Lazy" = only downloaded when someone opens the Stats page. It brings in the
 // chart library (Recharts), which is big, so other pages load faster without it.
 const StatsPage = lazy(() => import('./pages/StatsPage').then((m) => ({ default: m.StatsPage })));
+const YearInRecordsPage = lazy(() =>
+  import('./pages/YearInRecordsPage').then((m) => ({ default: m.YearInRecordsPage })),
+);
 
 export function App() {
   return (
@@ -50,6 +56,17 @@ export function App() {
           <Route path="login" element={<LoginPage />} />
           <Route path="signup" element={<SignupPage />} />
         </Route>
+
+        {/* Public profiles: for everyone, logged in or not. */}
+        <Route path="u/:username" element={<ProfilePage />} />
+        <Route
+          path="u/:username/year/:year"
+          element={
+            <Suspense fallback={<p className="muted">Loading…</p>}>
+              <YearInRecordsPage />
+            </Suspense>
+          }
+        />
 
         {/* Everything else needs a login. */}
         <Route element={<RequireLogin />}>

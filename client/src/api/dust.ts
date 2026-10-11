@@ -12,6 +12,7 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { dustReportSchema, settingsSchema, type SettingsUpdate } from '@vinyl/shared';
 import { apiGet, apiSend } from './client';
+import { profileKeys } from './profiles';
 
 export const dustKeys = {
   report: ['records', 'dust'] as const,
@@ -38,8 +39,12 @@ export function useUpdateSettings() {
     mutationFn: (update: SettingsUpdate) => apiSend('PUT', '/api/settings', update, settingsSchema),
     onSuccess: (saved) => {
       queryClient.setQueryData(dustKeys.settings, saved);
-      // A new threshold changes which records count as dusty.
-      return queryClient.invalidateQueries({ queryKey: dustKeys.report });
+      // A new threshold changes which records count as dusty, and turning the
+      // profile on or off changes who can see it.
+      return Promise.all([
+        queryClient.invalidateQueries({ queryKey: dustKeys.report }),
+        queryClient.invalidateQueries({ queryKey: profileKeys.all }),
+      ]);
     },
   });
 }
