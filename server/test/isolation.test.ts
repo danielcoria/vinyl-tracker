@@ -75,6 +75,19 @@ describe('without logging in', () => {
     expect((await visitor.get('/api/health')).status).toBe(200);
     expect((await visitor.get('/api/auth/me')).status).toBe(200);
   });
+
+  it('profiles stay hidden until made public (profiles.test.ts has the details)', async () => {
+    const visitor = request(ctx.app);
+    expect((await visitor.get('/api/profiles/alex')).status).toBe(404);
+
+    await ctx.alex.put('/api/settings').send({ profilePublic: true });
+
+    const res = await visitor.get('/api/profiles/alex');
+    expect(res.status).toBe(200);
+    expect(JSON.stringify(res.body)).toContain("Alex's LP");
+    // Blair's profile is still private, so it can't be seen either.
+    expect((await visitor.get('/api/profiles/blair')).status).toBe(404);
+  });
 });
 
 describe("someone else's records", () => {
@@ -155,10 +168,16 @@ describe('styluses and settings', () => {
   });
 
   it('settings are kept separately', async () => {
-    await ctx.alex.put('/api/settings').send({ dustThresholdDays: 30 });
+    await ctx.alex.put('/api/settings').send({ dustThresholdDays: 30, profilePublic: true });
 
-    expect((await ctx.alex.get('/api/settings')).body).toEqual({ dustThresholdDays: 30 });
-    expect((await ctx.blair.get('/api/settings')).body).toEqual({ dustThresholdDays: 90 });
+    expect((await ctx.alex.get('/api/settings')).body).toEqual({
+      dustThresholdDays: 30,
+      profilePublic: true,
+    });
+    expect((await ctx.blair.get('/api/settings')).body).toEqual({
+      dustThresholdDays: 90,
+      profilePublic: false,
+    });
   });
 });
 

@@ -105,6 +105,17 @@ describe('seedDemoData', () => {
   });
 });
 
+describe('the demo profile', () => {
+  it('is public, so visitors can see an example at /u/demo', async () => {
+    const { db } = seeded();
+
+    const res = await request(createApp({ db, demo: true })).get('/api/profiles/demo');
+
+    expect(res.status).toBe(200);
+    expect(res.body.shelf).toHaveLength(14);
+  });
+});
+
 describe('health check', () => {
   it('tells the website whether this is the demo', async () => {
     const demo = createApp({ db: createDb(':memory:'), demo: true });

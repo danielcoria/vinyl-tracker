@@ -29,7 +29,8 @@ export function getSettings(db: Db, userId: number): Settings {
   const result: Settings = { ...DEFAULT_SETTINGS };
   for (const key of Object.keys(DEFAULT_SETTINGS) as (keyof Settings)[]) {
     const parsed = settingsSchema.shape[key].safeParse(saved[key]);
-    if (parsed.success) result[key] = parsed.data;
+    // (Object.assign because settings have different types: numbers, on/off...)
+    if (parsed.success) Object.assign(result, { [key]: parsed.data });
   }
   return result;
 }

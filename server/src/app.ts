@@ -26,6 +26,7 @@ import { loadUser, requireUser, sameOrigin } from './middleware/session.js';
 import { authRouter } from './routes/auth.js';
 import { discogsRouter } from './routes/discogs.js';
 import { dustRouter, settingsRouter } from './routes/dust.js';
+import { profilesRouter } from './routes/profiles.js';
 import { recordsRouter } from './routes/records.js';
 import { spinsRouter } from './routes/spins.js';
 import { statsRouter } from './routes/stats.js';
@@ -104,6 +105,8 @@ export function createApp({
   app.use(loadUser(db));
   // Accounts: sign up, log in, log out, "who am I?" (routes/auth.ts).
   app.use('/api/auth', authRouter(db, { secureCookies, demo }));
+  // Public profile pages, which anyone can see once turned on: routes/profiles.ts.
+  app.use('/api/profiles', profilesRouter(db));
   // Everything else under /api is someone's own data: log in first.
   app.use('/api', requireUser);
 

@@ -15,6 +15,8 @@ export const settingsSchema = z.object({
     .int()
     .min(7, 'Pick at least 7 days')
     .max(3650, 'Pick at most 10 years'),
+  /** Anyone with the link can see the profile page (/u/username). Off until turned on. */
+  profilePublic: z.boolean(),
 });
 
 export type Settings = z.infer<typeof settingsSchema>;
@@ -24,4 +26,5 @@ export type SettingsUpdate = z.infer<typeof settingsUpdateSchema>;
 
 export const DEFAULT_SETTINGS: Settings = {
   dustThresholdDays: 90,
+  profilePublic: false,
 };

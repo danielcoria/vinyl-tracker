@@ -99,7 +99,10 @@ describe('getDustReport', () => {
 
 describe('settings', () => {
   it('starts with the defaults', () => {
-    expect(getSettings(ctx.db, ctx.user.id)).toEqual({ dustThresholdDays: 90 });
+    expect(getSettings(ctx.db, ctx.user.id)).toEqual({
+      dustThresholdDays: 90,
+      profilePublic: false,
+    });
   });
 
   it('falls back to the default when a saved value is broken', () => {
@@ -114,8 +117,11 @@ describe('settings', () => {
     const res = await ctx.api.put('/api/settings').send({ dustThresholdDays: 60 });
 
     expect(res.status).toBe(200);
-    expect(res.body).toEqual({ dustThresholdDays: 60 });
-    expect((await ctx.api.get('/api/settings')).body).toEqual({ dustThresholdDays: 60 });
+    expect(res.body).toEqual({ dustThresholdDays: 60, profilePublic: false });
+    expect((await ctx.api.get('/api/settings')).body).toEqual({
+      dustThresholdDays: 60,
+      profilePublic: false,
+    });
   });
 
   it('rejects values out of range', async () => {

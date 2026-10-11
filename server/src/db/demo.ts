@@ -25,6 +25,7 @@ import {
 import { releaseToRecordInput, releaseToTracks } from '../integrations/discogs/mapping.js';
 import { rawReleaseSchema } from '../integrations/discogs/schemas.js';
 import { createRecord } from '../services/records.js';
+import { updateSettings } from '../services/settings.js';
 import { createSpin } from '../services/spins.js';
 import { addStylus } from '../services/styluses.js';
 import { getTracks, replaceTracks } from '../services/tracks.js';
@@ -98,6 +99,8 @@ function seededRandom(seed: number) {
 /** Adds the demo data if the collection is empty. Returns what was added. */
 export function seedDemoData(db: Db, now: number = Date.now()) {
   const userId = demoUserId(db);
+  // Its profile page is public, so visitors can see what one looks like (/u/demo).
+  updateSettings(db, userId, { profilePublic: true });
   const existing =
     db.select({ n: count() }).from(records).where(eq(records.userId, userId)).get()?.n ?? 0;
   if (existing > 0) return { userId, records: 0, spins: 0 };
