@@ -19,6 +19,7 @@ import {
   recordSchema,
   type RecordInput,
   type RecordListQuery,
+  type ReviewInput,
   type VinylRecord,
 } from '@vinyl/shared';
 import { apiDelete, apiGet, apiSend } from './client';
@@ -66,6 +67,24 @@ export function useUpdateRecord(id: number) {
   return useMutation({
     mutationFn: (input: RecordInput) => apiSend('PUT', `/api/records/${id}`, input, recordSchema),
     onSuccess: (record) => afterChange(queryClient, record),
+  });
+}
+
+/** Sets a record's star rating and review (null clears either one). */
+export function useSetReview(id: number) {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (input: ReviewInput) =>
+      apiSend('PUT', `/api/records/${id}/review`, input, recordSchema),
+    onSuccess: (record) => {
+      queryClient.setQueryData(recordKeys.detail(record.id), record);
+      // Ratings show in the collection, on the profile and in the stats.
+      return Promise.all([
+        queryClient.invalidateQueries({ queryKey: ['records', 'list'] }),
+        queryClient.invalidateQueries({ queryKey: ['records', 'profile'] }),
+        queryClient.invalidateQueries({ queryKey: ['stats'] }),
+      ]);
+    },
   });
 }
 

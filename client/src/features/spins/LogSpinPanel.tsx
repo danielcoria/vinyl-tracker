@@ -16,6 +16,7 @@ import { spinInputSchema, type Track, type VinylRecord } from '@vinyl/shared';
 import { describeError } from '../../api/client';
 import { useLogSpin } from '../../api/spins';
 import { formatDuration, parseDuration } from '../collection/format';
+import { StarRating } from '../ratings/StarRating';
 import { toLocalInputValue } from './dates';
 import { formatSides, groupBySide, playLength, sideLetters } from './sides';
 
@@ -38,6 +39,7 @@ export function LogSpinPanel({ record, tracks, onClose }: Props) {
   const [when, setWhen] = useState<When>('finished');
   const [customTime, setCustomTime] = useState(() => toLocalInputValue(new Date()));
   const [notes, setNotes] = useState('');
+  const [rating, setRating] = useState<number | null>(null);
   // The length box follows the ticked sides until the person types their own.
   const [typedLength, setTypedLength] = useState<string | null>(null);
   const [problem, setProblem] = useState<string | null>(null);
@@ -80,6 +82,7 @@ export function LogSpinPanel({ record, tracks, onClose }: Props) {
       playedAt: startedAt.toISOString(),
       durationSeconds,
       notes,
+      rating,
     };
     // Check with the same rules the server uses (e.g. not in the future).
     const parsed = spinInputSchema.safeParse(input);
@@ -171,6 +174,11 @@ export function LogSpinPanel({ record, tracks, onClose }: Props) {
           />
         </div>
       </div>
+
+      <fieldset>
+        <legend>How was it? (optional)</legend>
+        <StarRating label="Rate this listen" value={rating} onChange={setRating} />
+      </fieldset>
 
       {(problem || logSpin.error) && (
         <div className="error-box" role="alert">

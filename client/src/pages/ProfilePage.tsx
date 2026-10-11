@@ -3,7 +3,7 @@
 //
 // Anyone can open it once its owner has made it public, without logging in:
 // totals, links to each "year in records", most-played records and artists,
-// recent plays, and the whole shelf. The owner also sees it while it's private,
+// recent plays, highest-rated records, reviews, and the whole shelf. The owner also sees it while it's private,
 // with the switch to make it public.
 // ============================================================================
 
@@ -15,6 +15,7 @@ import { formatArtists } from '../features/collection/format';
 import { RecordCover } from '../features/collection/RecordCover';
 import { ProfileHeader } from '../features/profiles/ProfileHeader';
 import { RecentPlays } from '../features/profiles/RecentPlays';
+import { HighestRated, Reviews } from '../features/profiles/Reviews';
 import { Shelf } from '../features/profiles/Shelf';
 import { formatHours } from '../features/stats/format';
 import { RankedBars } from '../features/stats/RankedBars';
@@ -114,6 +115,8 @@ function ProfileBody({ profile }: { profile: Profile }) {
         <p className="muted">No plays logged yet.</p>
       )}
 
+      <HighestRated records={profile.highestRated} />
+      <Reviews reviews={profile.reviews} />
       <Shelf records={profile.shelf} />
     </section>
   );

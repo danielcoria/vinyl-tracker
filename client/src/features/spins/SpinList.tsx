@@ -13,6 +13,7 @@ import { describeError } from '../../api/client';
 import { useDeleteSpin } from '../../api/spins';
 import { formatArtists, formatDuration } from '../collection/format';
 import { RecordCover } from '../collection/RecordCover';
+import { Stars } from '../ratings/Stars';
 import { formatShortDate, formatTime } from './dates';
 import { formatSides } from './sides';
 
@@ -58,6 +59,12 @@ export function SpinList({ spins, showRecord = false }: Props) {
                 {showRecord ? formatTime(spin.playedAt) : formatShortDate(spin.playedAt)}
                 {' · '}
                 {formatSides(spin.sides)} · {formatDuration(spin.durationSeconds)}
+                {spin.rating !== null && (
+                  <>
+                    {' · '}
+                    <Stars rating={spin.rating} />
+                  </>
+                )}
               </span>
               {spin.notes && <span className="spin-notes">{spin.notes}</span>}
             </div>

@@ -83,6 +83,9 @@ export function makeRecord(overrides: Partial<VinylRecord> = {}): VinylRecord {
     mediaCondition: 'VG+',
     sleeveCondition: 'VG',
     notes: null,
+    rating: null,
+    review: null,
+    reviewedAt: null,
     genres: ['Jazz'],
     styles: ['Modal'],
     addedAt: '2026-10-01T12:00:00.000Z',
@@ -110,6 +113,7 @@ export function makeSpin(overrides: Partial<Spin> = {}): Spin {
     durationSeconds: 1435,
     sides: ['A'],
     notes: null,
+    rating: null,
     record: {
       id: 1,
       title: 'Kind of Blue',

@@ -31,12 +31,30 @@ function makeProfile(overrides: Partial<Profile> = {}): Profile {
         playedAt: '2026-10-06T19:00:00.000Z',
         durationSeconds: 1435,
         sides: ['A'],
+        rating: 4.5,
         record: KIND_OF_BLUE,
       },
     ],
+    highestRated: [{ record: KIND_OF_BLUE, rating: 5 }],
+    reviews: [
+      {
+        record: KIND_OF_BLUE,
+        rating: 5,
+        review: 'Perfect late at night.',
+        reviewedAt: '2026-09-01T12:00:00.000Z',
+      },
+    ],
     shelf: [
-      { ...KIND_OF_BLUE, year: 1959, spinCount: 3 },
-      { id: 2, title: 'Blue Train', artists: [], coverImageUrl: null, year: 1957, spinCount: 0 },
+      { ...KIND_OF_BLUE, year: 1959, spinCount: 3, rating: 5 },
+      {
+        id: 2,
+        title: 'Blue Train',
+        artists: [],
+        coverImageUrl: null,
+        year: 1957,
+        spinCount: 0,
+        rating: null,
+      },
     ],
     years: [2026, 2025],
     ...overrides,
@@ -65,6 +83,17 @@ describe('ProfilePage', () => {
       'Kind of Blue',
     );
     expect(screen.getByRole('region', { name: 'Recent plays' })).toHaveTextContent('Side A');
+    // Ratings and reviews are shared too.
+    const best = screen.getByRole('region', { name: 'Highest rated' });
+    expect(within(best).getByRole('img', { name: '5 stars' })).toBeInTheDocument();
+    expect(screen.getByRole('region', { name: 'Reviews' })).toHaveTextContent(
+      'Perfect late at night.',
+    );
+    expect(
+      within(screen.getByRole('region', { name: 'Recent plays' })).getByRole('img', {
+        name: '4.5 stars',
+      }),
+    ).toBeInTheDocument();
     // No switch for visitors.
     expect(screen.queryByRole('checkbox', { name: 'Public profile' })).not.toBeInTheDocument();
   });
@@ -163,6 +192,7 @@ function makeYear(overrides: Partial<YearInRecords> = {}): YearInRecords {
     months,
     topGenres: [{ name: 'Jazz', listeningSeconds: 7200 }],
     addedCount: 1,
+    highestRated: { record: KIND_OF_BLUE, rating: 5 },
     ...overrides,
   };
 }
@@ -177,6 +207,7 @@ describe('YearInRecordsPage', () => {
     expect(screen.getByText('Artist of the year').nextSibling).toHaveTextContent('Miles Davis');
     expect(screen.getByText('Busiest month').nextSibling).toHaveTextContent(/Mar.*1 h 30 min/);
     expect(screen.getByText('New on the shelf').nextSibling).toHaveTextContent('1 record');
+    expect(screen.getByText('Highest rated').nextSibling).toHaveTextContent('Kind of Blue');
     expect(screen.getByRole('region', { name: 'Top genres' })).toHaveTextContent('Jazz');
     expect(screen.getByRole('link', { name: '← Alex' })).toHaveAttribute('href', '/u/alex');
 

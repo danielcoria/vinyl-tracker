@@ -4,7 +4,7 @@
 
 import { screen, waitFor, within } from '@testing-library/react';
 import { describe, expect, it } from 'vitest';
-import type { Stats } from '@vinyl/shared';
+import { RATING_STEPS, type Stats } from '@vinyl/shared';
 import { json, mockApi } from '../test/fake-api';
 import { renderApp } from '../test/render';
 // The app loads the Stats page lazily (on first visit). Loading it here, before
@@ -36,6 +36,15 @@ const STATS: Stats = {
       { name: 'Rock', seconds: [0, 3000] },
     ],
   },
+  // Three records rated: two with 5 stars, one with 3.5.
+  ratings: {
+    ratedCount: 3,
+    average: 4.5,
+    counts: RATING_STEPS.map((rating) => ({
+      rating,
+      count: rating === 5 ? 2 : rating === 3.5 ? 1 : 0,
+    })),
+  },
 };
 
 const EMPTY: Stats = {
@@ -43,6 +52,11 @@ const EMPTY: Stats = {
   topArtists: [],
   topRecords: [],
   genresByMonth: { months: [], genres: [] },
+  ratings: {
+    ratedCount: 0,
+    average: null,
+    counts: RATING_STEPS.map((rating) => ({ rating, count: 0 })),
+  },
 };
 
 describe('StatsPage', () => {
@@ -66,6 +80,31 @@ describe('StatsPage', () => {
       'href',
       '/records/7',
     );
+  });
+
+  it('shows how the ratings are spread, highest first', async () => {
+    mockApi({ 'GET /api/stats': () => json(STATS) });
+
+    renderApp('/stats');
+
+    const ratings = await screen.findByRole('region', { name: 'Your ratings' });
+    expect(ratings).toHaveTextContent('3 rated · average 4.5');
+    const rows = within(ratings).getAllByRole('listitem');
+    expect(rows).toHaveLength(10);
+    // 5 stars is the first row, with its 2 records.
+    expect(
+      within(rows[0] as HTMLElement).getByRole('img', { name: '5 stars' }),
+    ).toBeInTheDocument();
+    expect(rows[0]).toHaveTextContent('2');
+  });
+
+  it('leaves the ratings out when nothing is rated', async () => {
+    mockApi({ 'GET /api/stats': () => json(EMPTY) });
+
+    renderApp('/stats');
+
+    await screen.findByRole('heading', { name: /No plays/ });
+    expect(screen.queryByRole('region', { name: 'Your ratings' })).not.toBeInTheDocument();
   });
 
   it('shows genres by month, with a legend and a table view', async () => {

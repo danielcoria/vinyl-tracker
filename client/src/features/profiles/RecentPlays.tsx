@@ -1,12 +1,14 @@
 // ============================================================================
 // RecentPlays.tsx: THE LATEST PLAYS ON A PROFILE
 //
-// A read-only version of the diary list: no notes and no delete buttons.
+// A read-only version of the diary list: no notes and no delete buttons, but
+// with the stars a listen was given.
 // ============================================================================
 
 import type { Profile } from '@vinyl/shared';
 import { formatArtists, formatDuration } from '../collection/format';
 import { RecordCover } from '../collection/RecordCover';
+import { Stars } from '../ratings/Stars';
 import { formatShortDate } from '../spins/dates';
 import { formatSides } from '../spins/sides';
 
@@ -26,6 +28,12 @@ export function RecentPlays({ plays }: { plays: Profile['recentPlays'] }) {
               <span className="spin-meta">
                 {formatShortDate(play.playedAt)} · {formatSides(play.sides)} ·{' '}
                 {formatDuration(play.durationSeconds)}
+                {play.rating !== null && (
+                  <>
+                    {' · '}
+                    <Stars rating={play.rating} />
+                  </>
+                )}
               </span>
             </div>
           </li>

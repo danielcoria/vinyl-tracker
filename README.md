@@ -16,6 +16,7 @@ Click **Try the demo** on the login page to open a shared demo account filled wi
 
 - **Accounts.** Sign up with a username and password; everyone gets their own private collection, diary, stats and stylus.
 - **Public profiles.** Each account has a page at `/u/username` with its shelf, most-played records and artists, recent plays, and a "year in records" recap for every year. Private until its owner turns it on; notes and record conditions are never shown.
+- **Ratings and reviews.** Rate records from half a star to five and write a review; rate individual listens in the diary. Sort the collection by rating, see how the ratings are spread, and share reviews on the public profile (private notes are never shared).
 
 - **Collection.** Search Discogs and add the exact pressing you own in one click (cover, label, catalog number, tracklist, genres), or add records by hand. Search and sort your shelf.
 - **Listening diary.** Log each play by side: tick the sides you played (A, B, C…), and the length fills itself in from the tracklist. Every play lands in a diary, grouped by day.
@@ -107,7 +108,6 @@ New to the code? **[docs/HOW-IT-WORKS.md](docs/HOW-IT-WORKS.md)** walks through 
 
 The plan is to grow this into a "Letterboxd for physical music":
 
-- **Ratings and reviews** on records and on diary entries
 - **"What should I play tonight?"** suggestions from your own shelf
 - **Streaming vs. shelf:** albums you stream a lot on Last.fm but don't own, with current Discogs prices
 - **Recommendations** based on what you own

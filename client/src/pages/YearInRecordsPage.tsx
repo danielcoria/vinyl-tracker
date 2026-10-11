@@ -13,6 +13,7 @@ import { formatArtists } from '../features/collection/format';
 import { RecordCover } from '../features/collection/RecordCover';
 import { MonthChart } from '../features/profiles/MonthChart';
 import { busiestMonth } from '../features/profiles/year';
+import { Stars } from '../features/ratings/Stars';
 import { formatListening, formatMonth, formatPlays } from '../features/stats/format';
 import { RankedBars } from '../features/stats/RankedBars';
 import { StatTiles } from '../features/stats/StatTiles';
@@ -81,6 +82,14 @@ function YearBody({ recap }: { recap: YearInRecords }) {
                 <div>
                   <dt>Artist of the year</dt>
                   <dd>{recap.topArtists[0].name}</dd>
+                </div>
+              )}
+              {recap.highestRated && (
+                <div>
+                  <dt>Highest rated</dt>
+                  <dd>
+                    {recap.highestRated.record.title} <Stars rating={recap.highestRated.rating} />
+                  </dd>
                 </div>
               )}
               <div>

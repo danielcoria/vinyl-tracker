@@ -20,6 +20,7 @@ const SORT_LABELS: Record<Sort, string> = {
   artist: 'Artist',
   title: 'Title',
   year: 'Year',
+  rating: 'Highest rated',
 };
 
 function isSort(value: string | null): value is Sort {

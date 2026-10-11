@@ -8,6 +8,7 @@
 import type { ShelfRecord } from '@vinyl/shared';
 import { formatArtists } from '../collection/format';
 import { RecordCover } from '../collection/RecordCover';
+import { Stars } from '../ratings/Stars';
 import { formatPlays } from '../stats/format';
 
 export function Shelf({ records }: { records: ShelfRecord[] }) {
@@ -33,6 +34,7 @@ export function Shelf({ records }: { records: ShelfRecord[] }) {
                   .filter(Boolean)
                   .join(' · ')}
               </span>
+              {record.rating !== null && <Stars rating={record.rating} />}
             </li>
           ))}
         </ul>

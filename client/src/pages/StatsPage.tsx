@@ -16,6 +16,7 @@ import { describeError } from '../api/client';
 import { PERIOD_LABELS, PERIODS, useStats, type Period } from '../api/stats';
 import { formatArtists } from '../features/collection/format';
 import { RecordCover } from '../features/collection/RecordCover';
+import { RatingSpread } from '../features/ratings/RatingSpread';
 import { GenresByMonth } from '../features/stats/GenresByMonth';
 import { RankedBars } from '../features/stats/RankedBars';
 import { StatTiles } from '../features/stats/StatTiles';
@@ -97,6 +98,13 @@ export function StatsPage() {
           </div>
 
           <GenresByMonth data={stats.data.genresByMonth} />
+        </div>
+      )}
+
+      {/* Ratings cover the whole collection, so they show whatever the period. */}
+      {stats.data && stats.data.ratings.ratedCount > 0 && (
+        <div className="stats-extra">
+          <RatingSpread ratings={stats.data.ratings} />
         </div>
       )}
     </section>

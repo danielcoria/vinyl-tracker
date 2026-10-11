@@ -139,6 +139,7 @@ Every code file also starts with a comment explaining what it does, so you can o
 | `src/dust.ts`     | What the dust report looks like: records gathering dust and never played.                                                                  |
 | `src/settings.ts` | The app's settings (like how many days counts as "dusty") and their defaults.                                                              |
 | `src/profiles.ts` | What a public profile page and a "year in records" look like. Only shareable things: no notes, conditions or stylus.                       |
+| `src/ratings.ts`  | Star ratings (half a star to 5, in half steps) and what's sent to rate and review a record.                                                |
 | `src/styluses.ts` | What a stylus (turntable needle) looks like, with its wear and status.                                                                     |
 | `src/auth.ts`     | What signing up and logging in look like, and the rules for usernames and passwords.                                                       |
 | `src/index.ts`    | Re-exports everything so other code can `import { … } from '@vinyl/shared'`.                                                               |
@@ -245,6 +246,12 @@ pages/ ─▶ features/collection/ ─▶ api/ ─▶ server
 | `src/features/profiles/RecentPlays.tsx`        | The latest plays on a profile, without notes or delete buttons.                                                                                               |
 | `src/features/profiles/MonthChart.tsx`         | The "listening by month" chart on the year page, with a hover box and "Show as table".                                                                        |
 | `src/features/profiles/year.ts`                | Finds the busiest month.                                                                                                                                      |
+| `src/features/profiles/Reviews.tsx`            | The "Highest rated" and "Reviews" sections of a profile.                                                                                                      |
+| `src/features/ratings/Stars.tsx`               | Shows a star rating (read-only): grey stars with colored ones on top, cut off at the rating.                                                                  |
+| `src/features/ratings/StarRating.tsx`          | The clickable stars: each star has two halves, and underneath they're ten ordinary radio buttons so the keyboard works too.                                   |
+| `src/features/ratings/RecordReview.tsx`        | The "Your rating" box on a record's page: stars save on click, the review has its own Save button.                                                            |
+| `src/features/ratings/RatingSpread.tsx`        | The "Your ratings" card on the Stats page: how many records got each rating.                                                                                  |
+| `src/features/ratings/format.ts`               | Words for ratings ("4.5 stars").                                                                                                                              |
 | `src/features/stats/format.ts`                 | Writes times like "12.5 h" and "1 h 05 min", and months like "Oct".                                                                                           |
 | `src/features/dust/DustGrid.tsx`               | A grid of forgotten records, each saying "Last played 4 months ago" or "Added 2 years ago".                                                                   |
 | `src/features/dust/time-ago.ts`                | Turns a number of days into words like "4 months ago".                                                                                                        |
@@ -313,6 +320,7 @@ Records added by hand have no tracklist, so they log the whole record using the 
 | `tests/diary.spec.ts`       | Log side A, then see it in the Diary and Stats, then delete it.                                           |
 | `tests/vinyl-tools.spec.ts` | The dust report and the stylus warning (including hiding it with ×).                                      |
 | `tests/profile.spec.ts`     | Make a profile public, then see it (and its year) as a visitor in another browser; make it private again. |
+| `tests/ratings.spec.ts`     | Rate and review a record, then see the stars in the collection and the review on the profile.             |
 
 ### How accounts keep everyone's data separate
 
@@ -320,6 +328,13 @@ Records added by hand have no tracklist, so they log the whole record using the 
 2. Every request after that carries the cookie, so the server knows who's asking (`middleware/session.ts`).
 3. Every record and stylus belongs to one account, and every part of the server only looks at **your** things. Asking for someone else's record number answers "not found", as if it didn't exist.
 4. Plays and tracklists belong to whoever owns their record, so they're covered too. `test/isolation.test.ts` checks all of this with two accounts trying to reach each other's data.
+
+### How ratings and reviews work
+
+1. A **record** has one star rating and one written review: your overall opinion. Click the stars on its page and they save straight away; the review has its own Save button. They're saved through their own address (`PUT /api/records/5/review`), so editing a record's details can never wipe them.
+2. A **play** in the diary can have its own stars ("how was this listen?"), picked when logging it.
+3. **Reviews can be shared, notes can't**: ratings and reviews appear on the public profile when it's turned on; notes on records and plays never do.
+4. Nothing is worked out ahead of time: "highest rated", the average and the spread on the Stats page are all computed from the saved ratings when asked.
 
 ### How public profiles stay private until shared
 

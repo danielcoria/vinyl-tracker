@@ -1426,3 +1426,159 @@ a.account-name:hover {
   color: var(--text);
   text-decoration: underline;
 }
+
+/* ---------- Star ratings ---------- */
+.stars {
+  display: inline-block;
+  line-height: 1;
+  font-size: 0.95rem;
+  vertical-align: middle;
+}
+
+.stars-large {
+  font-size: 1.9rem;
+}
+
+/* Grey stars, with the colored ones on top cut off at the rating. */
+.star-row {
+  position: relative;
+  display: inline-block;
+  color: var(--border);
+  white-space: nowrap;
+  letter-spacing: 0.05em;
+}
+
+.star-row-fill {
+  position: absolute;
+  inset: 0 auto 0 0;
+  overflow: hidden;
+  color: var(--accent);
+}
+
+.star-rating {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.star-input {
+  position: relative;
+}
+
+/* Ten invisible click areas (two per star) over the row of stars. */
+.star-hits {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  grid-template-columns: repeat(10, 1fr);
+}
+
+.star-hits label {
+  cursor: pointer;
+  border-radius: 3px;
+}
+
+.star-hits label:has(input:focus-visible) {
+  outline: 2px solid var(--focus);
+  outline-offset: 2px;
+}
+
+.star-hits label:has(input:disabled) {
+  cursor: default;
+}
+
+/* ---------- Ratings and reviews ---------- */
+.record-review {
+  display: grid;
+  gap: 0.75rem;
+  justify-items: start;
+  margin: 1.5rem 0;
+  padding: 1rem 1.1rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--surface);
+}
+
+.record-review h2 {
+  margin: 0;
+  font-size: 1.05rem;
+}
+
+.review-form {
+  display: grid;
+  gap: 0.75rem;
+  width: 100%;
+}
+
+.review-form textarea {
+  width: 100%;
+  resize: vertical;
+}
+
+/* Keeps the line breaks people type in a review. */
+.review-text {
+  margin: 0;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.stats-extra {
+  margin-top: 1.25rem;
+}
+
+.rating-spread {
+  display: grid;
+  gap: 0.45rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.rating-spread li {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.rating-spread .stars {
+  width: 5.5rem;
+  flex-shrink: 0;
+}
+
+.record-grid-small {
+  grid-template-columns: repeat(auto-fill, minmax(8rem, 1fr));
+}
+
+.review-list {
+  display: grid;
+  gap: 0.75rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.review {
+  display: grid;
+  grid-template-columns: 4.5rem 1fr;
+  gap: 0.9rem;
+  padding: 0.9rem 1rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--surface);
+}
+
+.review-cover .cover {
+  box-shadow: none;
+}
+
+.review-body {
+  display: grid;
+  gap: 0.2rem;
+  justify-items: start;
+  min-width: 0;
+}
+
+.review-body .review-text {
+  margin-top: 0.35rem;
+}

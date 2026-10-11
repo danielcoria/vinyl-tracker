@@ -14,6 +14,8 @@ test('make a profile public, share it, and see it as a visitor', async ({
   browser,
   baseURL,
 }) => {
+  // Two browsers and many steps: allow more than the usual 30 seconds.
+  test.setTimeout(60_000);
   const title = unique('Profile Album');
   const recordId = await addRecord(page.request, title);
   const res = await page.request.post('/api/spins', {
