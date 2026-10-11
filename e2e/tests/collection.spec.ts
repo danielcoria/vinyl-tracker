@@ -13,6 +13,9 @@ test('add a record by hand, find it, edit it and delete it', async ({ page }) =>
   await page.goto('/');
   await expect(page.getByText('Loading your records…')).toBeHidden();
   await page.locator('.page-header').getByRole('link', { name: 'Add manually' }).click();
+  // Wait for the form before typing (the sort menu on the collection page also
+  // mentions "Title", and slower machines may still be showing it).
+  await expect(page.getByRole('heading', { name: 'Add a record' })).toBeVisible();
   await page.getByLabel('Title').fill(title);
   await page.getByLabel('Artist 1').fill('E2E Artist');
   await page.getByLabel('Year').fill('1999');
@@ -36,6 +39,7 @@ test('add a record by hand, find it, edit it and delete it', async ({ page }) =>
 
   // Edit it.
   await page.getByRole('link', { name: 'Edit', exact: true }).click();
+  await expect(page.getByRole('heading', { name: 'Edit record' })).toBeVisible();
   await page.getByLabel('Title').fill(`${title} (Remastered)`);
   await page.getByRole('button', { name: 'Save changes' }).click();
   await expect(page.getByRole('heading', { level: 1 })).toHaveText(`${title} (Remastered)`);

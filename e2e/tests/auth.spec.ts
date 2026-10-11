@@ -14,6 +14,9 @@ test('sign up, log out, and log back in, landing where you meant to go', async (
 
   // Create an account; you land on the page you were going to.
   await page.getByRole('link', { name: 'Create an account' }).click();
+  // Wait for the new page: the login page has a Username box too, and typing
+  // before the switch would fill the box that's about to disappear.
+  await expect(page.getByRole('heading', { name: 'Create an account' })).toBeVisible();
   await page.getByLabel('Username').fill(username);
   await page.getByLabel('Display name (optional)').fill('E2E Listener');
   await page.getByLabel('Password').fill(PASSWORD);

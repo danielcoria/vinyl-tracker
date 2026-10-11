@@ -5,8 +5,9 @@
 # Run by GitHub on every push (and by anyone with Docker):
 #   bash scripts/docker-smoke-test.sh
 # It builds the image, starts it with a password and a fresh data disk, and
-# checks: the health check, the password lock, the website, saving a record,
-# and that the record is still there after the container is restarted.
+# checks: the health check, the password lock, the website, signing up,
+# saving a record, and that the record (and the login) are still there after
+# the container is restarted.
 # Everything it creates is removed at the end.
 # ============================================================================
 
@@ -17,10 +18,13 @@ NAME=vinyl-smoke
 VOLUME=vinyl-smoke-data
 PASSWORD=smoke-test-password
 URL=http://localhost:3000
+# Where curl keeps the login cookie between requests, like a browser would.
+COOKIES=$(mktemp)
 
 cleanup() {
   docker rm -f "$NAME" >/dev/null 2>&1 || true
   docker volume rm "$VOLUME" >/dev/null 2>&1 || true
+  rm -f "$COOKIES"
 }
 trap cleanup EXIT
 cleanup
@@ -58,8 +62,11 @@ echo "Checking the website is delivered..."
 page=$(curl -fs -u "me:$PASSWORD" "$URL/records/1") || fail "the website was not served"
 grep -q '<div id="root">' <<<"$page" || fail "the website was not served"
 
+echo "Creating an account..."
+curl -fs -u "me:$PASSWORD" -c "$COOKIES" -H 'Content-Type: application/json' \n  -d '{"username":"smoke_tester","password":"smoke-test-account"}' "$URL/api/auth/signup" >/dev/null \n  || fail "could not create an account"
+
 echo "Saving a record..."
-curl -fs -u "me:$PASSWORD" -H 'Content-Type: application/json' \
+curl -fs -u "me:$PASSWORD" -b "$COOKIES" -H 'Content-Type: application/json' \
   -d '{"title":"Smoke Test Album","artists":["Smoke Tester"]}' "$URL/api/records" >/dev/null \
   || fail "could not save a record"
 
@@ -68,7 +75,7 @@ docker restart "$NAME" >/dev/null
 for _ in $(seq 1 30); do curl -fs "$URL/api/health" >/dev/null && break; sleep 1; done
 
 echo "Checking the record survived the restart..."
-records=$(curl -fs -u "me:$PASSWORD" "$URL/api/records") || fail "could not list records"
+records=$(curl -fs -u "me:$PASSWORD" -b "$COOKIES" "$URL/api/records") || fail "could not list records"
 grep -q 'Smoke Test Album' <<<"$records" \
   || fail "the record was lost after a restart (is the data disk working?)"
 
