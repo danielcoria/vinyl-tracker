@@ -63,7 +63,9 @@ page=$(curl -fs -u "me:$PASSWORD" "$URL/records/1") || fail "the website was not
 grep -q '<div id="root">' <<<"$page" || fail "the website was not served"
 
 echo "Creating an account..."
-curl -fs -u "me:$PASSWORD" -c "$COOKIES" -H 'Content-Type: application/json' \n  -d '{"username":"smoke_tester","password":"smoke-test-account"}' "$URL/api/auth/signup" >/dev/null \n  || fail "could not create an account"
+curl -fs -u "me:$PASSWORD" -c "$COOKIES" -H 'Content-Type: application/json' \
+  -d '{"username":"smoke_tester","password":"smoke-test-account"}' "$URL/api/auth/signup" >/dev/null \
+  || fail "could not create an account"
 
 echo "Saving a record..."
 curl -fs -u "me:$PASSWORD" -b "$COOKIES" -H 'Content-Type: application/json' \
