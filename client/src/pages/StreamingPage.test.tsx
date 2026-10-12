@@ -18,6 +18,7 @@ function album(rank: number, title: string, overrides: Partial<StreamedAlbum> = 
     coverImageUrl: null,
     lastfmUrl: null,
     ownedRecordId: null,
+    otherEdition: null,
     wishlistItemId: null,
     ...overrides,
   };
@@ -150,8 +151,44 @@ describe('StreamingPage', () => {
       'href',
       '/records/7',
     );
-    expect(screen.getByText(/You own/)).toHaveTextContent(
+    expect(screen.getByText(/most-streamed albums/)).toHaveTextContent(
       'You own 1 of your 3 most-streamed albums on vinyl.',
+    );
+  });
+
+  it('lists albums owned in a different edition separately, still open to wishlisting', async () => {
+    server({
+      streaming: {
+        albums: [
+          album(1, 'In Rainbows'),
+          album(2, 'Rumours (Super Deluxe)', { otherEdition: { recordId: 3, title: 'Rumours' } }),
+          album(3, 'Kind of Blue', { ownedRecordId: 7 }),
+        ],
+      },
+    });
+
+    renderApp('/streaming');
+
+    const editions = await screen.findByRole('region', { name: 'You own a different edition' });
+    const row = within(editions).getByRole('listitem');
+    expect(row).toHaveTextContent('Rumours (Super Deluxe)');
+    // It says which edition is on the shelf, and links to it...
+    expect(within(row).getByRole('link', { name: 'Rumours' })).toHaveAttribute(
+      'href',
+      '/records/3',
+    );
+    // ...and a collector can still want this one.
+    expect(within(row).getByRole('button', { name: '+ Wishlist' })).toBeInTheDocument();
+    expect(within(row).getByRole('button', { name: 'Check price' })).toBeInTheDocument();
+    // It's in neither of the other groups.
+    expect(screen.getByRole('region', { name: 'Not on your shelf' })).not.toHaveTextContent(
+      'Rumours',
+    );
+    expect(screen.getByRole('region', { name: 'Already on your shelf' })).not.toHaveTextContent(
+      'Rumours',
+    );
+    expect(screen.getByText(/most-streamed albums/)).toHaveTextContent(
+      'You own 1 of your 3 most-streamed albums on vinyl, and a different edition of 1 more.',
     );
   });
 

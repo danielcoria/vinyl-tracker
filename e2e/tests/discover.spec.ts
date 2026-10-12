@@ -23,8 +23,9 @@ test('get recommendations from the shelf and add one to the wishlist', async ({ 
   await expect(first).toContainText('From $24.99 on vinyl');
   // "Miles Davis Quintet" is similar too, but it's Miles Davis again, so it's left out.
   await expect(list).not.toContainText('Miles Davis Quintet');
-  // At most two suggestions for the same reason.
-  await expect(list.getByRole('listitem')).toHaveCount(2);
+  // The fake Last.fm knows five similar artists; the other four are all suggested
+  // (with only one artist on the shelf, that artist can fill the list).
+  await expect(list.getByRole('listitem')).toHaveCount(4);
 
   await first.getByRole('button', { name: '+ Wishlist' }).click();
   await expect(first.getByText('✓ On your wishlist')).toBeVisible();

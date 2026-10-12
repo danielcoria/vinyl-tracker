@@ -143,17 +143,18 @@ describe('GET /api/recommendations', () => {
     await jazzShelf(ctx);
   });
 
-  it('suggests albums by similar artists, best match first, with the reasons', async () => {
+  it('suggests albums by similar artists, taking turns between the shelf’s artists', async () => {
     const result = await recommend(ctx.alex);
 
     expect(result.basedOn).toEqual(['Miles Davis', 'John Coltrane']);
     expect(result.sample).toBe(false);
     expect(result.recommendations.map((r) => [r.artist, r.title, r.because])).toEqual([
-      // Similar to both artists on the shelf, so it comes first.
+      // Miles Davis's turn: Charles Mingus is first in line (he's similar to both artists).
       ['Charles Mingus', 'Mingus Ah Um', ['Miles Davis', 'John Coltrane']],
-      // 0.7 x Miles Davis (weight 1) beats 0.8 x John Coltrane (weight 1.5 / 3.5).
-      ['Herbie Hancock', 'Head Hunters', ['Miles Davis']],
+      // John Coltrane's turn: Mingus is taken, so the next in his line.
       ['Thelonious Monk', "Monk's Dream", ['John Coltrane']],
+      // Miles Davis's second turn.
+      ['Herbie Hancock', 'Head Hunters', ['Miles Davis']],
     ]);
     expect(result.recommendations[0]?.coverImageUrl).toBe(
       'https://example.com/Mingus%20Ah%20Um.png',
@@ -191,16 +192,17 @@ describe('GET /api/recommendations', () => {
 
     const titles = (await recommend(ctx.alex)).recommendations.map((r) => r.title);
 
-    expect(titles).toEqual(['Mingus Ah Um', 'Head Hunters', "Monk's Dream"]);
+    expect(titles).toEqual(['Mingus Ah Um', "Monk's Dream", 'Head Hunters']);
   });
 
-  it('suggests at most two albums for the same reason, so the list stays varied', async () => {
-    const many: [string, number][] = ['One', 'Two', 'Three', 'Four'].map((n, i) => [
+  it('gives every artist on the shelf a turn, so a favorite cannot fill the list', async () => {
+    const many: [string, number][] = ['One', 'Two', 'Three'].map((n, i) => [
       `Jazz Artist ${n}`,
       0.9 - i * 0.1,
     ]);
     lastfm = pretendLastfm(
-      { 'Miles Davis': many, 'John Coltrane': [['Thelonious Monk', 0.8]] },
+      // John Coltrane counts for less (one unrated record) and his match is weaker...
+      { 'Miles Davis': many, 'John Coltrane': [['Thelonious Monk', 0.5]] },
       {
         ...Object.fromEntries(many.map(([name]) => [name, [`Album by ${name}`]])),
         'Thelonious Monk': ["Monk's Dream"],
@@ -211,12 +213,60 @@ describe('GET /api/recommendations', () => {
 
     const result = await recommend(ctx.alex);
 
-    // Four artists are similar to Miles Davis, but only the best two are kept.
+    // ...but his suggestion still comes second, before Miles Davis's second one.
     expect(result.recommendations.map((r) => [r.artist, r.because[0]])).toEqual([
       ['Jazz Artist One', 'Miles Davis'],
-      ['Jazz Artist Two', 'Miles Davis'],
       ['Thelonious Monk', 'John Coltrane'],
+      ['Jazz Artist Two', 'Miles Davis'],
+      ['Jazz Artist Three', 'Miles Davis'],
     ]);
+  });
+
+  it('moves on to the next similar artist when the closest ones are owned or have no album', async () => {
+    lastfm = pretendLastfm(
+      {
+        'Miles Davis': [
+          ['John Coltrane', 1], // on the shelf
+          ['Miles Davis Quintet', 0.95], // Miles Davis again
+          ['No Albums Known', 0.9], // Last.fm knows no album of theirs
+          ['Only Compilations', 0.8], // nothing but a greatest hits
+          ['Next In Line', 0.3],
+        ],
+      },
+      {
+        'No Albums Known': [],
+        'Only Compilations': ['Greatest Hits'],
+        'Next In Line': ['A Fine Album'],
+      },
+    );
+    ctx = setup(lastfm.source);
+    await jazzShelf(ctx);
+
+    const result = await recommend(ctx.alex);
+
+    expect(result.recommendations.map((r) => [r.artist, r.title, r.because])).toEqual([
+      ['Next In Line', 'A Fine Album', ['Miles Davis']],
+    ]);
+  });
+
+  it('stops at ten suggestions', async () => {
+    const many: [string, number][] = Array.from({ length: 14 }, (_, i) => [
+      `Artist ${String(i + 1).padStart(2, '0')}`,
+      0.9 - i * 0.01,
+    ]);
+    lastfm = pretendLastfm(
+      { 'Miles Davis': many },
+      Object.fromEntries(many.map(([name]) => [name, [`Album by ${name}`]])),
+    );
+    ctx = setup(lastfm.source);
+    await ctx.add(ctx.alex, 'Kind of Blue', { artists: ['Miles Davis'] });
+
+    const result = await recommend(ctx.alex);
+
+    expect(result.recommendations).toHaveLength(10);
+    expect(result.recommendations[0]?.artist).toBe('Artist 01');
+    // Albums were only looked up for the front of the line (10 + 2 spare), not all 14.
+    expect(lastfm.asked.filter((q) => q.startsWith('albums:'))).toHaveLength(12);
   });
 
   it('leaves out an artist when Last.fm knows none of their albums', async () => {
@@ -236,7 +286,7 @@ describe('GET /api/recommendations', () => {
 
     const result = await recommend(ctx.alex);
 
-    expect(result.recommendations.map((r) => r.wishlistItemId)).toEqual([null, id, null]);
+    expect(result.recommendations.map((r) => r.wishlistItemId)).toEqual([null, null, id]);
   });
 
   it('is based on your own shelf only', async () => {

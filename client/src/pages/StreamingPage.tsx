@@ -5,8 +5,10 @@
 // their shelf: "streamed 412 times, not on your shelf, from $28 on vinyl".
 // Albums can be added to the wishlist from here.
 //
-// First visit: asks for a Last.fm username. After that: a list of streamed
-// albums that aren't on the shelf, then the ones that are.
+// First visit: asks for a Last.fm username. After that, three groups: streamed
+// albums that aren't on the shelf, ones owned in a different edition (a
+// collector may want both, so they keep their price and wishlist button), and
+// ones that are on the shelf.
 // ============================================================================
 
 import { useState } from 'react';
@@ -172,8 +174,12 @@ function StreamingError({ error }: { error: Error }) {
 type ComparisonProps = { albums: StreamedAlbum[]; sample: boolean; refreshing: boolean };
 
 function Comparison({ albums, sample, refreshing }: ComparisonProps) {
-  const missing = albums.filter((album) => album.ownedRecordId === null);
   const owned = albums.filter((album) => album.ownedRecordId !== null);
+  // The same album, but the shelf has another edition of it (regular vs. deluxe...).
+  const otherEditions = albums.filter((album) => album.otherEdition !== null);
+  const missing = albums.filter(
+    (album) => album.ownedRecordId === null && album.otherEdition === null,
+  );
 
   if (albums.length === 0) {
     return (
@@ -194,7 +200,13 @@ function Comparison({ albums, sample, refreshing }: ComparisonProps) {
       )}
       <p className="streaming-summary">
         You own <strong>{owned.length}</strong> of your <strong>{albums.length}</strong>{' '}
-        most-streamed albums on vinyl.
+        most-streamed albums on vinyl
+        {otherEditions.length > 0 && (
+          <>
+            , and a different edition of <strong>{otherEditions.length}</strong> more
+          </>
+        )}
+        .
       </p>
 
       <section aria-label="Not on your shelf">
@@ -211,6 +223,22 @@ function Comparison({ albums, sample, refreshing }: ComparisonProps) {
           </ul>
         )}
       </section>
+
+      {otherEditions.length > 0 && (
+        <section aria-label="You own a different edition">
+          <h2>
+            You own a different edition <span className="count">{otherEditions.length}</span>
+          </h2>
+          <p className="muted">
+            The album is on your shelf, but not this version of it. Still want this one?
+          </p>
+          <ul className="album-list">
+            {otherEditions.map((album) => (
+              <MissingAlbum key={album.rank} album={album} autoPrice={false} />
+            ))}
+          </ul>
+        </section>
+      )}
 
       {owned.length > 0 && (
         <section aria-label="Already on your shelf">
@@ -248,6 +276,12 @@ function MissingAlbum({ album, autoPrice }: { album: StreamedAlbum; autoPrice: b
         <span className="album-title">{album.title}</span>
         <span className="muted">{album.artist}</span>
         <span>{formatStreams(album.playCount)}</span>
+        {album.otherEdition && (
+          <span>
+            On your shelf:{' '}
+            <Link to={`/records/${album.otherEdition.recordId}`}>{album.otherEdition.title}</Link>
+          </span>
+        )}
         <PriceTag artist={album.artist} title={album.title} auto={autoPrice} />
         {addToWishlist.isError && (
           <span className="field-error" role="alert">

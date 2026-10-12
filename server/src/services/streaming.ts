@@ -7,9 +7,13 @@
 //                   (compares the top few pressings)
 //
 // The tricky part is deciding that a streamed album and a record on the shelf
-// are the same album: streaming services write "Rumours (Super Deluxe)" or
-// "Abbey Road - Remastered", the shelf says "Rumours". `albumKey` boils both
-// down to the same plain text before comparing.
+// are the same album. Names are compared in plain text (no capitals, accents
+// or punctuation), in two steps:
+//   exactKey   the same album AND edition: "Kind of Blue" = "Kind Of Blue".
+//              Only this counts as "on your shelf".
+//   albumKey   the same album in any edition: "Rumours (Super Deluxe)" and
+//              "Rumours". Shown as "you own a different edition", because a
+//              collector may want both.
 // ============================================================================
 
 import type { Streaming, StreamingPeriod, VinylPrice } from '@vinyl/shared';
@@ -38,15 +42,21 @@ export async function getStreaming(
 
   const topAlbums = await lastfm.getTopAlbums(username, period);
 
-  // The shelf and the wishlist, looked up by "artist|title" in plain text.
+  // The shelf, looked up two ways: by exact album, and by album in any edition.
   const owned = new Map<string, number>();
+  const anyEdition = new Map<string, { recordId: number; title: string }>();
   for (const record of listRecords(db, userId, { sort: 'added' })) {
     for (const artist of record.artists) {
-      owned.set(albumKey(artist.name, record.title), record.id);
+      owned.set(exactKey(artist.name, record.title), record.id);
+      anyEdition.set(albumKey(artist.name, record.title), {
+        recordId: record.id,
+        title: record.title,
+      });
     }
   }
+  // A wishlist entry is for one edition: wishing for the deluxe isn't wishing for the regular.
   const wished = new Map(
-    listWishlist(db, userId).map((item) => [albumKey(item.artist, item.title), item.id]),
+    listWishlist(db, userId).map((item) => [exactKey(item.artist, item.title), item.id]),
   );
 
   return {
@@ -54,7 +64,8 @@ export async function getStreaming(
     period,
     sample: lastfm.isSample(username),
     albums: topAlbums.map((album) => {
-      const key = albumKey(album.artist, album.title);
+      const key = exactKey(album.artist, album.title);
+      const ownedRecordId = owned.get(key) ?? null;
       return {
         rank: album.rank,
         title: album.title,
@@ -62,14 +73,23 @@ export async function getStreaming(
         playCount: album.playCount,
         coverImageUrl: album.coverImageUrl,
         lastfmUrl: album.url,
-        ownedRecordId: owned.get(key) ?? null,
+        ownedRecordId,
+        otherEdition:
+          ownedRecordId === null
+            ? (anyEdition.get(albumKey(album.artist, album.title)) ?? null)
+            : null,
         wishlistItemId: wished.get(key) ?? null,
       };
     }),
   };
 }
 
-/** "Rumours (Super Deluxe)" by "Fleetwood Mac" and "Rumours" by "fleetwood mac" give the same key. */
+/** The same album and edition: "Kind of Blue" by "Miles Davis" and "KIND OF BLUE" by "miles davis". */
+export function exactKey(artist: string, title: string): string {
+  return `${plainName(artist)}|${plainName(title)}`;
+}
+
+/** The same album in any edition: "Rumours (Super Deluxe)" and "Rumours" give the same key. */
 export function albumKey(artist: string, title: string): string {
   return `${plainName(artist)}|${plainName(stripEdition(title))}`;
 }

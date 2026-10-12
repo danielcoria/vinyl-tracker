@@ -39,8 +39,14 @@ export const streamedAlbumSchema = z.object({
   playCount: z.number().int(),
   coverImageUrl: z.string().nullable(),
   lastfmUrl: z.string().nullable(),
-  /** The record's id if it's on the shelf, otherwise null. */
+  /** The record's id if this exact album is on the shelf, otherwise null. */
   ownedRecordId: z.number().int().nullable(),
+  /**
+   * Set when the shelf has the same album in another edition (the streamed one is
+   * "Rumours (Super Deluxe)", the shelf has "Rumours"). Collectors may want both,
+   * so this doesn't count as owning it.
+   */
+  otherEdition: z.object({ recordId: z.number().int(), title: z.string() }).nullable(),
   /** The wishlist item's id if it's on the wishlist, otherwise null. */
   wishlistItemId: z.number().int().nullable(),
 });

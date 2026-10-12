@@ -7,12 +7,16 @@
 //      record owned, for plays, and for star ratings. The top 6 are used.
 //   2. Ask Last.fm which artists are similar to each key artist.
 //   3. Drop artists already on the shelf (and near-duplicates like "Miles
-//      Davis Quintet"), then add up each remaining artist's similarity across
-//      the key artists. Someone similar to three of your artists beats
-//      someone similar to one.
-//   4. For the best of them, ask Last.fm for their best-known album and
-//      suggest it, unless it's already owned. At most two suggestions come
-//      from the same key artist, so one favorite doesn't fill the whole list.
+//      Davis Quintet"). Each key artist now has its own line of similar
+//      artists, best first; someone similar to several of your artists moves
+//      up the line.
+//   4. Take turns: every key artist gets its best available suggestion before
+//      anyone gets a second one. So a favorite can't fill the whole list, and
+//      an artist whose closest matches you already own still gets the next
+//      one down.
+//   5. A suggestion is the similar artist's best-known proper album that you
+//      don't own in any edition. If Last.fm knows no such album, the next
+//      artist in line is used instead.
 //
 // Everything Last.fm says is remembered for a day by its client, so opening
 // the page again is instant and doesn't ask twice.
@@ -20,21 +24,24 @@
 
 import type { Recommendation, Recommendations, VinylRecord } from '@vinyl/shared';
 import type { Db } from '../db/client.js';
-import type { LastfmSource } from '../integrations/lastfm/client.js';
+import type { ArtistAlbum, LastfmSource } from '../integrations/lastfm/client.js';
 import { listRecords } from './records.js';
 import { albumKey, plainName, stripEdition } from './streaming.js';
 import { listWishlist } from './wishlist.js';
 
 const KEY_ARTISTS = 6;
 const RECOMMENDATIONS = 10;
-/** How many similar artists to look up albums for (more than shown, to allow for variety). */
-const CANDIDATES = 18;
-/** At most this many suggestions whose main reason is the same key artist. */
-const PER_KEY_ARTIST = 2;
+/** With few key artists each one may give more, so the list still fills up. */
+const MIN_PER_KEY_ARTIST = 2;
+/** Extra artists looked up per key artist, in case some have no album to suggest. */
+const SPARE_LOOKUPS = 2;
 const REASONS = 3;
 /** Not proper albums: compilations, and singles like "Song (with Someone)" or "Song (feat. X)". */
 const NOT_AN_ALBUM =
   /greatest hits|best of|the essential|anthology|collection|singles|\(with |\bfeat\b|\bfeaturing\b/i;
+
+type Reason = { artist: string; points: number };
+type Candidate = { key: string; name: string; score: number; because: Reason[] };
 
 export async function getRecommendations(
   db: Db,
@@ -62,74 +69,83 @@ export async function getRecommendations(
     return [...ownedArtists].some((owned) => plain === owned || plain.includes(owned));
   };
 
-  // Similar artist -> total score, and which key artists pointed to them.
-  const candidates = new Map<string, { name: string; score: number; because: Reason[] }>();
+  // Every similar artist not on the shelf: total score, and which key artists pointed to them.
+  const candidates = new Map<string, Candidate>();
   answers.forEach((answer, i) => {
     const keyArtist = keyArtists[i];
     if (answer.status !== 'fulfilled' || !keyArtist) return;
     for (const similar of answer.value) {
       if (isOwnedArtist(similar.name)) continue;
+      const key = plainName(similar.name);
       const points = similar.match * keyArtist.weight;
-      const entry = candidates.get(plainName(similar.name)) ?? {
-        name: similar.name,
-        score: 0,
-        because: [],
-      };
+      const entry = candidates.get(key) ?? { key, name: similar.name, score: 0, because: [] };
       entry.score += points;
       entry.because.push({ artist: keyArtist.name, points });
-      candidates.set(plainName(similar.name), entry);
+      candidates.set(key, entry);
     }
   });
 
-  const best = [...candidates.values()]
-    .sort((a, b) => b.score - a.score || a.name.localeCompare(b.name))
-    .slice(0, CANDIDATES);
+  // Each key artist's own line of similar artists, best first.
+  const perKeyArtist = Math.max(MIN_PER_KEY_ARTIST, Math.ceil(RECOMMENDATIONS / keyArtists.length));
+  const lines = keyArtists.map((keyArtist) =>
+    [...candidates.values()]
+      .filter((candidate) => candidate.because.some((r) => r.artist === keyArtist.name))
+      .sort((a, b) => b.score - a.score || a.name.localeCompare(b.name))
+      // Only the front of the line is looked up, to keep the number of requests small.
+      .slice(0, perKeyArtist + SPARE_LOOKUPS),
+  );
 
+  // Ask for the albums of everyone near the front of a line (each artist once).
+  const toLookUp = [...new Map(lines.flat().map((c) => [c.key, c])).values()];
+  const albumAnswers = await Promise.allSettled(
+    toLookUp.map((candidate) => lastfm.getArtistTopAlbums(candidate.name)),
+  );
   const ownedAlbums = new Set(
     shelf.flatMap((r) => r.artists.map((a) => albumKey(a.name, r.title))),
   );
+  // Similar artist -> their best-known proper album that isn't on the shelf already.
+  const albumOf = new Map<string, ArtistAlbum>();
+  toLookUp.forEach((candidate, i) => {
+    const answer = albumAnswers[i];
+    if (answer?.status !== 'fulfilled') return;
+    const album = answer.value.find(
+      (a) => !NOT_AN_ALBUM.test(a.title) && !ownedAlbums.has(albumKey(candidate.name, a.title)),
+    );
+    if (album) albumOf.set(candidate.key, album);
+  });
+
   const wished = new Map(
     listWishlist(db, userId).map((item) => [albumKey(item.artist, item.title), item.id]),
   );
 
-  const albums = await Promise.allSettled(
-    best.map((candidate) => lastfm.getArtistTopAlbums(candidate.name)),
-  );
-  const found = best.flatMap((candidate, i): Recommendation[] => {
-    const answer = albums[i];
-    if (answer?.status !== 'fulfilled') return [];
-    // Their best-known proper album that isn't on the shelf already.
-    const album =
-      answer.value.find(
-        (a) => !NOT_AN_ALBUM.test(a.title) && !ownedAlbums.has(albumKey(candidate.name, a.title)),
-      ) ?? null;
-    if (!album) return [];
-    return [
-      {
+  // Take turns: round 1 gives every key artist one suggestion, round 2 a second...
+  const recommendations: Recommendation[] = [];
+  const used = new Set<string>();
+  for (let round = 0; round < perKeyArtist; round++) {
+    keyArtists.forEach((keyArtist, i) => {
+      if (recommendations.length === RECOMMENDATIONS) return;
+      // The next artist in this line who has an album and hasn't been suggested yet.
+      const candidate = lines[i]?.find((c) => albumOf.has(c.key) && !used.has(c.key));
+      const album = candidate && albumOf.get(candidate.key);
+      if (!candidate || !album) return;
+      used.add(candidate.key);
+
+      // The reasons: this turn's key artist first, then the others, strongest first.
+      const others = candidate.because
+        .filter((reason) => reason.artist !== keyArtist.name)
+        .sort((a, b) => b.points - a.points)
+        .map((reason) => reason.artist);
+      recommendations.push({
         // "Bella Donna (2016 Remastered)" is shown as "Bella Donna".
         title: stripEdition(album.title).trim() || album.title,
         artist: candidate.name,
         coverImageUrl: album.coverImageUrl,
         lastfmUrl: album.url,
-        because: candidate.because
-          .sort((a, b) => b.points - a.points)
-          .slice(0, REASONS)
-          .map((reason) => reason.artist),
+        because: [keyArtist.name, ...others].slice(0, REASONS),
         wishlistItemId: wished.get(albumKey(candidate.name, album.title)) ?? null,
-      },
-    ];
-  });
-
-  // Keep the order (best first), but no more than two per main reason.
-  const perKeyArtist = new Map<string, number>();
-  const recommendations = found
-    .filter((recommendation) => {
-      const main = recommendation.because[0] ?? '';
-      const soFar = perKeyArtist.get(main) ?? 0;
-      perKeyArtist.set(main, soFar + 1);
-      return soFar < PER_KEY_ARTIST;
-    })
-    .slice(0, RECOMMENDATIONS);
+      });
+    });
+  }
 
   return {
     recommendations,
@@ -137,8 +153,6 @@ export async function getRecommendations(
     sample: lastfm.sampleArtists,
   };
 }
-
-type Reason = { artist: string; points: number };
 
 /**
  * The artists that best describe the shelf, with a weight from 0 to 1 (the top

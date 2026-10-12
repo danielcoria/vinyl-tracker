@@ -22,7 +22,7 @@ const ALBUMS: [string, string, number][] = [
   ['In Rainbows', 'Radiohead', 412],
   ['To Pimp a Butterfly', 'Kendrick Lamar', 388],
   ['Blonde', 'Frank Ocean', 341],
-  // Spelled the way streaming services do, to show it still matches the shelf.
+  // A different edition from the "Rumours" on the demo shelf, to show that group.
   ['Rumours (Super Deluxe)', 'Fleetwood Mac', 305],
   ['Currents', 'Tame Impala', 274],
   ['Kind of Blue', 'Miles Davis', 251],

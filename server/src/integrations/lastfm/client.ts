@@ -27,7 +27,8 @@ const TOP_ALBUMS_TTL = HOUR; // someone's top albums change slowly
 const ARTIST_TTL = 24 * HOUR; // which artists are alike barely changes at all
 const TIMEOUT_MS = 10_000;
 const LIMIT = 50;
-const SIMILAR_LIMIT = 15;
+// Plenty, because many get dropped: artists already owned, and the same artist under other names.
+const SIMILAR_LIMIT = 30;
 const ARTIST_ALBUMS_LIMIT = 5;
 
 export class LastfmError extends AppError {}

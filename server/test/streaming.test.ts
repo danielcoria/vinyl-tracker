@@ -214,13 +214,13 @@ describe('GET /api/streaming', () => {
     expect(off.body.lastfmUsername).toBeNull();
   });
 
-  it('marks each streamed album as on the shelf, on the wishlist, or neither', async () => {
+  it('marks each streamed album as on the shelf, another edition, on the wishlist, or none', async () => {
     await connect();
-    const kindOfBlue = (
-      await ctx.alex
-        .post('/api/records')
-        .send(recordInput({ title: 'Kind Of Blue', artists: ['Miles Davis'] }))
-    ).body.id;
+    const add = async (title: string, artist: string) =>
+      (await ctx.alex.post('/api/records').send(recordInput({ title, artists: [artist] }))).body
+        .id as number;
+    const inRainbows = await add('IN RAINBOWS', 'radiohead'); // capitals don't matter
+    const kindOfBlue = await add('Kind Of Blue', 'Miles Davis');
     const wished = (
       await ctx.alex.post('/api/wishlist').send({ title: 'vespertine', artist: 'Bjork' })
     ).body.id;
@@ -231,13 +231,31 @@ describe('GET /api/streaming', () => {
     const streaming = streamingSchema.parse(res.body);
     expect(streaming).toMatchObject({ username: 'vinyl_fan', period: '6month', sample: false });
     expect(
-      streaming.albums.map((a) => [a.title, a.playCount, a.ownedRecordId, a.wishlistItemId]),
+      streaming.albums.map((a) => [a.title, a.ownedRecordId, a.otherEdition, a.wishlistItemId]),
     ).toEqual([
-      ['In Rainbows', 412, null, null],
-      // "Kind of Blue (Legacy Edition)" is the "Kind Of Blue" on the shelf.
-      ['Kind of Blue (Legacy Edition)', 251, kindOfBlue, null],
-      ['Vespertine', 90, null, wished],
+      // The very same album: on the shelf.
+      ['In Rainbows', inRainbows, null, null],
+      // The shelf has "Kind Of Blue", not the Legacy Edition: a collector may want both,
+      // so it isn't counted as owned, but the page can say which edition is on the shelf.
+      [
+        'Kind of Blue (Legacy Edition)',
+        null,
+        { recordId: kindOfBlue, title: 'Kind Of Blue' },
+        null,
+      ],
+      ['Vespertine', null, null, wished],
     ]);
+  });
+
+  it('keeps wishlist entries apart per edition too', async () => {
+    await connect();
+    await ctx.alex.post('/api/wishlist').send({ title: 'Kind of Blue', artist: 'Miles Davis' });
+
+    const streaming = streamingSchema.parse((await ctx.alex.get('/api/streaming')).body);
+
+    // Wishing for the regular album isn't wishing for the Legacy Edition.
+    const legacy = streaming.albums.find((a) => a.title === 'Kind of Blue (Legacy Edition)');
+    expect(legacy?.wishlistItemId).toBeNull();
   });
 
   it("only compares with your own shelf, not anyone else's", async () => {
