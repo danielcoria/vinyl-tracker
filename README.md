@@ -19,6 +19,7 @@ Click **Try the demo** on the login page to open a shared demo account filled wi
 - **Ratings and reviews.** Rate records from half a star to five and write a review; rate individual listens in the diary. Sort the collection by rating, see how the ratings are spread, and share reviews on the public profile (private notes are never shared).
 - **"What should I play tonight?"** Say how much time there is, a genre and a mood, and get three picks from the shelf with the reasons: "Never played", "Side A fits your 30 minutes". One click logs the play.
 - **Streaming vs. shelf.** Connect a Last.fm username to see the albums streamed most but not owned on vinyl ("streamed 412 times, from $20.98 on vinyl"), with live Discogs prices, and keep a wishlist. The demo uses sample streaming data.
+- **Recommendations.** A Discover page suggests albums by artists similar to the ones on the shelf, weighted by what is owned, played and rated most, and explains each one: "Because you own Miles Davis and John Coltrane". With vinyl prices and one-click wishlisting.
 
 - **Collection.** Search Discogs and add the exact pressing you own in one click (cover, label, catalog number, tracklist, genres), or add records by hand. Search and sort your shelf.
 - **Listening diary.** Log each play by side: tick the sides you played (A, B, C…), and the length fills itself in from the tracklist. Every play lands in a diary, grouped by day.
@@ -98,9 +99,9 @@ The Discogs token is only needed for "Add from Discogs". You can get one free at
 
 ## Connecting Last.fm
 
-"Streaming vs. shelf" compares what you stream with what you own. There are two separate steps, for two different people:
+"Streaming vs. shelf" compares what you stream with what you own, and "Discover" recommends albums; both get their information from Last.fm. There are two separate steps, for two different people:
 
-- **Using the page** (anyone with an account on the site): enter a Last.fm username.
+- **Using the Streaming page** (anyone with an account on the site): enter a Last.fm username. (Discover needs no username: it works from the shelf.)
 - **Setting up the server** (whoever runs the site, once): give it a Last.fm API key.
 
 ### Using it: connect your Last.fm username
@@ -157,7 +158,6 @@ New to the code? **[docs/HOW-IT-WORKS.md](docs/HOW-IT-WORKS.md)** walks through 
 
 The plan is to grow this into a "Letterboxd for physical music":
 
-- **Recommendations** based on what you own
 - **Scrobbling to Last.fm:** sending vinyl plays logged here to your Last.fm history, so records count alongside streams
 
 ## Credits

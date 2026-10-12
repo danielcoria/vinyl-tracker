@@ -18,6 +18,11 @@ export function formatStreams(count: number): string {
   return `Streamed ${count.toLocaleString()} times`;
 }
 
+/** "A", "A and B", "A, B and C": a list written the way the visitor's language writes it. */
+export function formatList(names: string[]): string {
+  return new Intl.ListFormat(undefined, { style: 'long', type: 'conjunction' }).format(names);
+}
+
 /** The Discogs search page of this app, already filled in with the album. */
 export function findOnDiscogsUrl(album: { artist: string; title: string }): string {
   return `/discogs?${new URLSearchParams({ q: `${album.artist} ${album.title}` })}`;

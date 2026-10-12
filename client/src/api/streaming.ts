@@ -63,6 +63,7 @@ function refresh(queryClient: ReturnType<typeof useQueryClient>) {
   return Promise.all([
     queryClient.invalidateQueries({ queryKey: streamingKeys.wishlist }),
     queryClient.invalidateQueries({ queryKey: streamingKeys.all }),
+    queryClient.invalidateQueries({ queryKey: ['records', 'recommendations'] }),
   ]);
 }
 

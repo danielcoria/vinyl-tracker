@@ -19,6 +19,7 @@
 //   /dust             -> DustPage (records you haven't played in a while)
 //   /stylus           -> StylusPage (stylus wear tracker)
 //   /streaming        -> StreamingPage (most-streamed albums vs. the shelf, with prices)
+//   /discover         -> DiscoverPage (recommendations based on the shelf)
 //   /wishlist         -> WishlistPage (albums to buy one day)
 //   /u/daniel         -> ProfilePage (a public profile; no login needed)
 //   /u/daniel/year/2026 -> YearInRecordsPage (one year's recap)
@@ -32,6 +33,7 @@ import { GuestOnly, RequireLogin } from './features/auth/guards';
 import { CollectionPage } from './pages/CollectionPage';
 import { DiaryPage } from './pages/DiaryPage';
 import { DiscogsPage } from './pages/DiscogsPage';
+import { DiscoverPage } from './pages/DiscoverPage';
 import { DustPage } from './pages/DustPage';
 import { EditRecordPage } from './pages/EditRecordPage';
 import { LoginPage } from './pages/LoginPage';
@@ -88,6 +90,7 @@ export function App() {
           <Route path="dust" element={<DustPage />} />
           <Route path="stylus" element={<StylusPage />} />
           <Route path="streaming" element={<StreamingPage />} />
+          <Route path="discover" element={<DiscoverPage />} />
           <Route path="wishlist" element={<WishlistPage />} />
           <Route
             path="stats"

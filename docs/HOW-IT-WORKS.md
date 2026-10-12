@@ -65,6 +65,7 @@ The terminal goes quiet after startup because both programs are just waiting. Th
 | `/dust`               | Records gathering dust and never played, plus "Pick one for me"                                    | `pages/DustPage.tsx`                          |
 | `/stylus`             | Stylus wear meter, "install a new stylus", past styluses                                           | `pages/StylusPage.tsx`                        |
 | `/streaming`          | Streaming vs. shelf: albums streamed a lot (Last.fm) but not owned, with vinyl prices              | `pages/StreamingPage.tsx`                     |
+| `/discover`           | Recommendations: albums you don't own by artists similar to yours, with the reasons and prices     | `pages/DiscoverPage.tsx`                      |
 | `/wishlist`           | Albums to buy one day, with current prices                                                         | `pages/WishlistPage.tsx`                      |
 | `/u/daniel`           | A public profile: shelf, most-played, recent plays (no login needed once it's made public)         | `pages/ProfilePage.tsx`                       |
 | `/u/daniel/year/2026` | "Year in records": one year's recap with a chart                                                   | `pages/YearInRecordsPage.tsx`                 |
@@ -131,23 +132,24 @@ Every code file also starts with a comment explaining what it does, so you can o
 
 ### `shared/`: the contracts
 
-| File                 | What it does                                                                                                                               |
-| -------------------- | ------------------------------------------------------------------------------------------------------------------------------------------ |
-| `src/records.ts`     | **What a record looks like**: the rules for adding or editing one (title required, valid year, condition grades…) and the shape sent back. |
-| `src/health.ts`      | The shape of the "are you alive?" answer.                                                                                                  |
-| `src/errors.ts`      | The one format every error uses: `{ "error": { "code", "message" } }`.                                                                     |
-| `src/discogs.ts`     | What Discogs search results and imports look like, as our server sends them to the website.                                                |
-| `src/spins.ts`       | What a track and a logged play ("spin") look like, and the rules for logging one (e.g. no plays in the future).                            |
-| `src/stats.ts`       | What the Stats page gets: totals, top artists and records, and genres by month.                                                            |
-| `src/dust.ts`        | What the dust report looks like: records gathering dust and never played.                                                                  |
-| `src/settings.ts`    | The app's settings (like how many days counts as "dusty") and their defaults.                                                              |
-| `src/profiles.ts`    | What a public profile page and a "year in records" look like. Only shareable things: no notes, conditions or stylus.                       |
-| `src/ratings.ts`     | Star ratings (half a star to 5, in half steps) and what's sent to rate and review a record.                                                |
-| `src/suggestions.ts` | "What should I play tonight?": what can be asked (time, genre, mood) and what a suggestion looks like.                                     |
-| `src/streaming.ts`   | Streaming vs. shelf: the most-streamed albums (each marked as owned, wished for, or neither), vinyl prices, and the wishlist.              |
-| `src/styluses.ts`    | What a stylus (turntable needle) looks like, with its wear and status.                                                                     |
-| `src/auth.ts`        | What signing up and logging in look like, and the rules for usernames and passwords.                                                       |
-| `src/index.ts`       | Re-exports everything so other code can `import { … } from '@vinyl/shared'`.                                                               |
+| File                     | What it does                                                                                                                               |
+| ------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------ |
+| `src/records.ts`         | **What a record looks like**: the rules for adding or editing one (title required, valid year, condition grades…) and the shape sent back. |
+| `src/health.ts`          | The shape of the "are you alive?" answer.                                                                                                  |
+| `src/errors.ts`          | The one format every error uses: `{ "error": { "code", "message" } }`.                                                                     |
+| `src/discogs.ts`         | What Discogs search results and imports look like, as our server sends them to the website.                                                |
+| `src/spins.ts`           | What a track and a logged play ("spin") look like, and the rules for logging one (e.g. no plays in the future).                            |
+| `src/stats.ts`           | What the Stats page gets: totals, top artists and records, and genres by month.                                                            |
+| `src/dust.ts`            | What the dust report looks like: records gathering dust and never played.                                                                  |
+| `src/settings.ts`        | The app's settings (like how many days counts as "dusty") and their defaults.                                                              |
+| `src/profiles.ts`        | What a public profile page and a "year in records" look like. Only shareable things: no notes, conditions or stylus.                       |
+| `src/ratings.ts`         | Star ratings (half a star to 5, in half steps) and what's sent to rate and review a record.                                                |
+| `src/suggestions.ts`     | "What should I play tonight?": what can be asked (time, genre, mood) and what a suggestion looks like.                                     |
+| `src/streaming.ts`       | Streaming vs. shelf: the most-streamed albums (each marked as owned, wished for, or neither), vinyl prices, and the wishlist.              |
+| `src/recommendations.ts` | What a recommendation looks like: the album, and which of your artists it's similar to.                                                    |
+| `src/styluses.ts`        | What a stylus (turntable needle) looks like, with its wear and status.                                                                     |
+| `src/auth.ts`            | What signing up and logging in look like, and the rules for usernames and passwords.                                                       |
+| `src/index.ts`           | Re-exports everything so other code can `import { … } from '@vinyl/shared'`.                                                               |
 
 ### `server/`: the kitchen
 
@@ -184,6 +186,8 @@ request ─▶ app.ts ─▶ routes/ ─▶ services/ ─▶ db/ ─▶ database
 | `src/routes/streaming.ts`                                                  | The streaming vs. shelf, price and wishlist addresses.                                                                                                            |
 | `src/services/streaming.ts`                                                | **Streaming vs. shelf**: matches streamed albums to the shelf (so "Rumours (Super Deluxe)" counts as "Rumours"), and looks up the cheapest vinyl copy on Discogs. |
 | `src/services/wishlist.ts`                                                 | The wishlist: list, add (never twice), remove.                                                                                                                    |
+| `src/routes/recommendations.ts`                                            | The recommendations address.                                                                                                                                      |
+| `src/services/recommendations.ts`                                          | **Recommendations**: picks the shelf's key artists, asks Last.fm who is similar, and suggests the best-known album of the best matches.                           |
 | `src/routes/styluses.ts`                                                   | The stylus addresses: list, install a new one, edit, delete.                                                                                                      |
 | `src/services/styluses.ts`                                                 | **The stylus wear tracker**: adds up the plays logged while each stylus was installed.                                                                            |
 | `src/middleware/password-lock.ts`                                          | **The site password** (online only): the browser asks for it, and wrong guesses are slowed down.                                                                  |
@@ -210,7 +214,7 @@ request ─▶ app.ts ─▶ routes/ ─▶ services/ ─▶ db/ ─▶ database
 | `drizzle/`                                                                 | **Migrations**: generated files of instructions that create and update the tables. Committed; never edited by hand.                                               |
 | `test/`                                                                    | Automatic tests. `helpers.ts` gives each test its own temporary database.                                                                                         |
 | `test/fixtures/discogs/`                                                   | Real Discogs answers saved as files, so tests never contact Discogs or need a token.                                                                              |
-| `test/fixtures/lastfm/`                                                    | Last.fm answers saved as files (written by hand in Last.fm's format), so tests never contact Last.fm or need a key.                                               |
+| `test/fixtures/lastfm/`                                                    | Last.fm answers saved as files (most recorded from the real Last.fm, one written by hand in its format), so tests never contact Last.fm or need a key.            |
 | `drizzle.config.ts`, `tsup.config.ts`, `vitest.config.ts`, `tsconfig.json` | Settings for the database tools, the build, the tests and TypeScript.                                                                                             |
 
 ### `client/`: the dining room
@@ -238,6 +242,7 @@ pages/ ─▶ features/collection/ ─▶ api/ ─▶ server
 | `src/pages/StatsPage.tsx`                      | The Stats page: pick a period, see totals, top 10 lists and the genre chart. Loaded lazily (see below).                                                         |
 | `src/pages/TonightPage.tsx`                    | **What should I play tonight?**: the time, mood and genre buttons, the three picks, and Shuffle.                                                                |
 | `src/pages/StreamingPage.tsx`                  | **Streaming vs. shelf**: asks for a Last.fm username, then lists streamed albums that aren't on the shelf (with prices and "+ Wishlist") and the ones that are. |
+| `src/pages/DiscoverPage.tsx`                   | **Discover**: the recommended albums, each with "Because you own...", a price and "+ Wishlist".                                                                 |
 | `src/pages/WishlistPage.tsx`                   | **The wishlist**: each album with why it's there, its price, a Discogs link and Remove.                                                                         |
 | `src/pages/ProfilePage.tsx`                    | **A public profile**: totals, links to each year, most-played records and artists, recent plays and the shelf. "No profile here" for private or missing ones.   |
 | `src/pages/YearInRecordsPage.tsx`              | **Year in records**: record and artist of the year, busiest month, a chart by month, top records, artists and genres. Loaded lazily, like Stats.                |
@@ -297,6 +302,7 @@ pages/ ─▶ features/collection/ ─▶ api/ ─▶ server
 | `src/api/stats.ts`                             | `useStats(period)`: turns "this year" into an exact start time in your time zone and fetches the numbers.                                                       |
 | `src/api/suggestions.ts`                       | `useSuggestions(ask)`: fetches the picks for a time, genre and mood.                                                                                            |
 | `src/api/streaming.ts`                         | Hooks for streaming vs. shelf, prices, and the wishlist (list, add, remove).                                                                                    |
+| `src/api/recommendations.ts`                   | `useRecommendations()`: fetches the suggestions.                                                                                                                |
 | `src/api/profiles.ts`                          | `useProfile` and `useYearInRecords`: fetch a public profile or a year recap, in your time zone.                                                                 |
 | `src/api/dust.ts`                              | Hooks for the dust report and settings: `useDustReport`, `useSettings`, `useUpdateSettings`.                                                                    |
 | `src/api/styluses.ts`                          | Hooks for styluses: `useStyluses`, `useActiveStylus`, `useAddStylus`, `useUpdateStylus`, `useDeleteStylus`.                                                     |
@@ -346,6 +352,7 @@ Records added by hand have no tracklist, so they log the whole record using the 
 | `tests/ratings.spec.ts`     | Rate and review a record, then see the stars in the collection and the review on the profile.             |
 | `tests/tonight.spec.ts`     | Ask what to play with different amounts of time, then log a pick in one click.                            |
 | `tests/streaming.spec.ts`   | Connect a Last.fm username, see what's missing with a price, add it to the wishlist and remove it.        |
+| `tests/discover.spec.ts`    | Get recommendations from the shelf and add one to the wishlist.                                           |
 
 ### How accounts keep everyone's data separate
 
@@ -375,6 +382,16 @@ Records added by hand have no tracklist, so they log the whole record using the 
 3. For albums you don't own, the server asks **Discogs** for the top three vinyl pressings and shows the cheapest one that has copies for sale. Only the first few albums look this up by themselves; the rest wait for "Check price", to stay under Discogs' limit.
 4. "+ Wishlist" saves the album to your wishlist. Adding the same album twice never makes a duplicate.
 5. The public demo has no real Last.fm account, so it uses a made-up listener and says so. The prices are still real.
+
+### How recommendations are made
+
+1. **Key artists.** Every artist on your shelf gets points: for each record of theirs you own, for how much you've played it, and for its star rating. The top six are your key artists.
+2. **Similar artists.** The server asks Last.fm which artists are similar to each key artist, and how similar (a number from 0 to 1).
+3. **Ranking.** Artists you already own are dropped (and near-duplicates like "Miles Davis Quintet"). The rest are scored by adding up their similarity to your key artists, so someone similar to three of your artists beats someone similar to one.
+4. **The album.** For the best matches, Last.fm is asked for the artist's best-known albums. The first proper album you don't own is suggested (not a greatest-hits collection or a single), with the reason: "Because you own Miles Davis and John Coltrane".
+5. **Variety.** At most two suggestions share the same main reason, so one favorite artist can't fill the whole list.
+
+Last.fm's answers are remembered for a day, so the page is instant after the first visit.
 
 ### How public profiles stay private until shared
 
