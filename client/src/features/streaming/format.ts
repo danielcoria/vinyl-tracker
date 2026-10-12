@@ -2,10 +2,18 @@
 // format.ts (streaming): WORDS AND NUMBERS FOR STREAMING VS. SHELF
 // ============================================================================
 
-/** "$24.99", "€18.50"... written the way the visitor's own country writes money. */
-export function formatPrice(value: number, currency: string): string {
+/**
+ * "$24.99", "€18.50"... written the way the visitor's own country writes money.
+ * `whole` drops the cents ("$480"), for chart axes.
+ */
+export function formatPrice(value: number, currency: string, whole = false): string {
   try {
-    return new Intl.NumberFormat(undefined, { style: 'currency', currency }).format(value);
+    return new Intl.NumberFormat(undefined, {
+      style: 'currency',
+      currency,
+      maximumFractionDigits: whole ? 0 : 2,
+      minimumFractionDigits: whole ? 0 : 2,
+    }).format(value);
   } catch {
     // An unknown currency code: show it as plain text instead of failing.
     return `${value.toFixed(2)} ${currency}`;

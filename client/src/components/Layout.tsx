@@ -43,6 +43,7 @@ export function Layout() {
             <NavLink to="/tonight">Tonight</NavLink>
             <NavLink to="/diary">Diary</NavLink>
             <NavLink to="/stats">Stats</NavLink>
+            <NavLink to="/value">Value</NavLink>
             <NavLink to="/dust">Dust</NavLink>
             <NavLink to="/stylus">Stylus</NavLink>
             <NavLink to="/streaming">Streaming</NavLink>

@@ -20,6 +20,7 @@ Click **Try the demo** on the login page to open a shared demo account filled wi
 - **"What should I play tonight?"** Say how much time there is, a genre and a mood, and get three picks from the shelf with the reasons: "Never played", "Side A fits your 30 minutes". One click logs the play.
 - **Streaming vs. shelf.** Connect a Last.fm username to see the albums streamed most but not owned on vinyl ("streamed 412 times, from $20.98 on vinyl"), with live Discogs prices, and keep a wishlist. The demo uses sample streaming data.
 - **Recommendations.** A Discover page suggests albums by artists similar to the ones on the shelf, weighted by what is owned, played and rated most, and explains each one: "Because you own Miles Davis and John Coltrane". With vinyl prices and one-click wishlisting.
+- **Collection value over time.** The server looks up what each record sells for on Discogs about once a day and keeps every price, so a chart shows the collection's value over time, how prices have moved, and the records from most to least valuable.
 
 - **Collection.** Search Discogs and add the exact pressing you own in one click (cover, label, catalog number, tracklist, genres), or add records by hand. Search and sort your shelf.
 - **Listening diary.** Log each play by side: tick the sides you played (A, B, C…), and the length fills itself in from the tracklist. Every play lands in a diary, grouped by day.

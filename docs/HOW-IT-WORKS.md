@@ -66,6 +66,7 @@ The terminal goes quiet after startup because both programs are just waiting. Th
 | `/stylus`             | Stylus wear meter, "install a new stylus", past styluses                                           | `pages/StylusPage.tsx`                        |
 | `/streaming`          | Streaming vs. shelf: albums streamed a lot (Last.fm) but not owned, with vinyl prices              | `pages/StreamingPage.tsx`                     |
 | `/discover`           | Recommendations: albums you don't own by artists similar to yours, with the reasons and prices     | `pages/DiscoverPage.tsx`                      |
+| `/value`              | What the collection is worth: the total, a chart over time, and records by value                   | `pages/ValuePage.tsx`                         |
 | `/wishlist`           | Albums to buy one day, with current prices                                                         | `pages/WishlistPage.tsx`                      |
 | `/u/daniel`           | A public profile: shelf, most-played, recent plays (no login needed once it's made public)         | `pages/ProfilePage.tsx`                       |
 | `/u/daniel/year/2026` | "Year in records": one year's recap with a chart                                                   | `pages/YearInRecordsPage.tsx`                 |
@@ -246,6 +247,7 @@ pages/ ─▶ features/collection/ ─▶ api/ ─▶ server
 | `src/pages/TonightPage.tsx`                    | **What should I play tonight?**: the time, mood and genre buttons, the three picks, and Shuffle.                                                                                                             |
 | `src/pages/StreamingPage.tsx`                  | **Streaming vs. shelf**: asks for a Last.fm username, then lists streamed albums that aren't on the shelf (with prices and "+ Wishlist"), ones owned in a different edition, and ones that are on the shelf. |
 | `src/pages/DiscoverPage.tsx`                   | **Discover**: the recommended albums, each with "Because you own...", a price and "+ Wishlist".                                                                                                              |
+| `src/pages/ValuePage.tsx`                      | **Collection value**: the total, how prices moved, the chart, records by value, and "Update prices now". Loaded lazily, like Stats.                                                                          |
 | `src/pages/WishlistPage.tsx`                   | **The wishlist**: each album with why it's there, its price, a Discogs link and Remove.                                                                                                                      |
 | `src/pages/ProfilePage.tsx`                    | **A public profile**: totals, links to each year, most-played records and artists, recent plays and the shelf. "No profile here" for private or missing ones.                                                |
 | `src/pages/YearInRecordsPage.tsx`              | **Year in records**: record and artist of the year, busiest month, a chart by month, top records, artists and genres. Loaded lazily, like Stats.                                                             |
@@ -270,6 +272,8 @@ pages/ ─▶ features/collection/ ─▶ api/ ─▶ server
 | `src/features/streaming/PriceTag.tsx`          | Shows an album's cheapest vinyl price. The first few on a page look it up by themselves; the rest wait for "Check price".                                                                                    |
 | `src/features/streaming/LastfmConnect.tsx`     | The box for entering, changing or disconnecting the Last.fm username.                                                                                                                                        |
 | `src/features/streaming/format.ts`             | Words and numbers: "Streamed 412 times", prices, the Discogs search link.                                                                                                                                    |
+| `src/features/value/ValueChart.tsx`            | The "value over time" line chart, with a hover box and "Show as table".                                                                                                                                      |
+| `src/features/value/format.ts`                 | Words for days and price changes ("up $6.00", "15%").                                                                                                                                                        |
 | `src/features/profiles/ProfileHeader.tsx`      | The top of a profile: name, "collecting since", the Share button (copies the link) and, for the owner, the Public profile switch.                                                                            |
 | `src/features/profiles/Shelf.tsx`              | Someone's records as a grid of covers (read-only).                                                                                                                                                           |
 | `src/features/profiles/RecentPlays.tsx`        | The latest plays on a profile, without notes or delete buttons.                                                                                                                                              |
@@ -306,6 +310,7 @@ pages/ ─▶ features/collection/ ─▶ api/ ─▶ server
 | `src/api/suggestions.ts`                       | `useSuggestions(ask)`: fetches the picks for a time, genre and mood.                                                                                                                                         |
 | `src/api/streaming.ts`                         | Hooks for streaming vs. shelf, prices, and the wishlist (list, add, remove).                                                                                                                                 |
 | `src/api/recommendations.ts`                   | `useRecommendations()`: fetches the suggestions.                                                                                                                                                             |
+| `src/api/value.ts`                             | `useCollectionValue()` and `useRefreshPrices()` ("Update prices now").                                                                                                                                       |
 | `src/api/profiles.ts`                          | `useProfile` and `useYearInRecords`: fetch a public profile or a year recap, in your time zone.                                                                                                              |
 | `src/api/dust.ts`                              | Hooks for the dust report and settings: `useDustReport`, `useSettings`, `useUpdateSettings`.                                                                                                                 |
 | `src/api/styluses.ts`                          | Hooks for styluses: `useStyluses`, `useActiveStylus`, `useAddStylus`, `useUpdateStylus`, `useDeleteStylus`.                                                                                                  |
@@ -356,6 +361,7 @@ Records added by hand have no tracklist, so they log the whole record using the 
 | `tests/tonight.spec.ts`     | Ask what to play with different amounts of time, then log a pick in one click.                            |
 | `tests/streaming.spec.ts`   | Connect a Last.fm username, see what's missing with a price, add it to the wishlist and remove it.        |
 | `tests/discover.spec.ts`    | Get recommendations from the shelf and add one to the wishlist.                                           |
+| `tests/value.spec.ts`       | Look prices up and see the collection's value, with a hand-added record left out.                         |
 
 ### How accounts keep everyone's data separate
 

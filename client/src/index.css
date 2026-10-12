@@ -1783,3 +1783,53 @@ a.account-name:hover {
   padding-left: 1.25rem;
   color: var(--muted);
 }
+
+/* ---------- Collection value ---------- */
+.stat-tile .stat-tile-note {
+  margin-top: 0.1rem;
+  font-size: 0.9rem;
+  font-weight: 400;
+  color: var(--muted);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.save-note {
+  margin: 0 0 1rem;
+  padding: 0.6rem 0.9rem;
+  border-radius: 8px;
+  background: var(--success-bg);
+  color: var(--success);
+}
+
+.value-list {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 0.5rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.value-list li {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.value-list .ranked-main {
+  flex: 1;
+  min-width: 0;
+}
+
+.value-price {
+  flex-shrink: 0;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+.value-footnote {
+  margin: 0;
+  font-size: 0.9rem;
+}

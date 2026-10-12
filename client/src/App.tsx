@@ -20,6 +20,7 @@
 //   /stylus           -> StylusPage (stylus wear tracker)
 //   /streaming        -> StreamingPage (most-streamed albums vs. the shelf, with prices)
 //   /discover         -> DiscoverPage (recommendations based on the shelf)
+//   /value            -> ValuePage (what the collection is worth, over time)
 //   /wishlist         -> WishlistPage (albums to buy one day)
 //   /u/daniel         -> ProfilePage (a public profile; no login needed)
 //   /u/daniel/year/2026 -> YearInRecordsPage (one year's recap)
@@ -50,6 +51,7 @@ import { WishlistPage } from './pages/WishlistPage';
 // "Lazy" = only downloaded when someone opens the Stats page. It brings in the
 // chart library (Recharts), which is big, so other pages load faster without it.
 const StatsPage = lazy(() => import('./pages/StatsPage').then((m) => ({ default: m.StatsPage })));
+const ValuePage = lazy(() => import('./pages/ValuePage').then((m) => ({ default: m.ValuePage })));
 const YearInRecordsPage = lazy(() =>
   import('./pages/YearInRecordsPage').then((m) => ({ default: m.YearInRecordsPage })),
 );
@@ -91,6 +93,14 @@ export function App() {
           <Route path="stylus" element={<StylusPage />} />
           <Route path="streaming" element={<StreamingPage />} />
           <Route path="discover" element={<DiscoverPage />} />
+          <Route
+            path="value"
+            element={
+              <Suspense fallback={<p className="muted">Loading…</p>}>
+                <ValuePage />
+              </Suspense>
+            }
+          />
           <Route path="wishlist" element={<WishlistPage />} />
           <Route
             path="stats"
