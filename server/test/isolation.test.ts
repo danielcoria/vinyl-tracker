@@ -68,6 +68,10 @@ describe('without logging in', () => {
       '/api/styluses',
       '/api/settings',
       '/api/suggestions',
+      '/api/streaming',
+      '/api/wishlist',
+      '/api/recommendations',
+      '/api/value',
     ]) {
       const res = await visitor.get(address);
       expect(res.status, address).toBe(401);

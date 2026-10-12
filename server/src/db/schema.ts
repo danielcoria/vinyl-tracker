@@ -237,6 +237,29 @@ export const wishlistItems = sqliteTable(
   ],
 );
 
+/**
+ * What a record was selling for on Discogs at one moment (M17). A new row is
+ * added about once a day per record; together they show the collection's
+ * value over time. Only records linked to a Discogs release have these.
+ */
+export const priceSnapshots = sqliteTable(
+  'price_snapshots',
+  {
+    id: integer('id').primaryKey({ autoIncrement: true }),
+    recordId: integer('record_id')
+      .notNull()
+      .references(() => records.id, { onDelete: 'cascade' }),
+    /** When the price was looked up (ISO-8601 UTC). */
+    capturedAt: text('captured_at').notNull(),
+    /** The cheapest copy for sale, or null when none was for sale. */
+    lowestPrice: real('lowest_price'),
+    /** e.g. "USD" (null when there was no price). */
+    currency: text('currency'),
+    numForSale: integer('num_for_sale').notNull().default(0),
+  },
+  (t) => [index('price_snapshots_record_idx').on(t.recordId, t.capturedAt)],
+);
+
 /** People with accounts (M11). Usernames are unique, ignoring capital letters. */
 export const users = sqliteTable(
   'users',

@@ -32,7 +32,7 @@ import { addStylus } from '../services/styluses.js';
 import { getTracks, replaceTracks } from '../services/tracks.js';
 import type { Db } from './client.js';
 import demoReleases from './demo-releases.json';
-import { records, users } from './schema.js';
+import { priceSnapshots, records, users } from './schema.js';
 
 export const DEMO_USERNAME = 'demo';
 
@@ -224,5 +224,49 @@ export function seedDemoData(db: Db, now: number = Date.now()) {
     }),
   );
 
+  seedDemoPrices(db, userId, now);
+
   return { userId, records: demoReleases.length, spins: spinCount };
+}
+
+/** What each demo album "sells for" today, in the order they're added (made-up, in dollars). */
+const DEMO_PRICES = [34, 28, 22, 45, 60, 26, 31, 38, 24, 55, 29, 19, 36, 42];
+const PRICE_WEEKS = 26;
+
+/**
+ * A made-up price history for the "collection value" chart: one price a week
+ * for the last six months, for every album from the week it joined the shelf.
+ * Prices drift a little each week and mostly creep upward. Real prices are
+ * never looked up for the demo account, so the made-up history stays whole.
+ */
+function seedDemoPrices(db: Db, userId: number, now: number) {
+  // Its own random numbers, so the plays above come out the same as before.
+  const random = seededRandom(1984);
+  const shelf = db
+    .select({ id: records.id, addedAt: records.addedAt })
+    .from(records)
+    .where(eq(records.userId, userId))
+    .orderBy(records.addedAt)
+    .all();
+
+  const rows: (typeof priceSnapshots.$inferInsert)[] = [];
+  shelf.forEach((record, index) => {
+    const today = DEMO_PRICES[index % DEMO_PRICES.length] ?? 30;
+    // Work backwards from today's price, so the newest point is a tidy number.
+    let price = today;
+    for (let week = 0; week <= PRICE_WEEKS; week++) {
+      const capturedAt = new Date(now - week * 7 * DAY);
+      if (capturedAt.toISOString() < record.addedAt) break; // not on the shelf yet
+      rows.push({
+        recordId: record.id,
+        capturedAt: capturedAt.toISOString(),
+        lowestPrice: Math.round(price * 100) / 100,
+        currency: 'USD',
+        numForSale: 5 + Math.floor(random() * 40),
+      });
+      // A week earlier it was a little different: usually a bit cheaper.
+      price = price / (1 + (random() - 0.4) * 0.04);
+    }
+  });
+  if (rows.length > 0) db.insert(priceSnapshots).values(rows).run();
 }

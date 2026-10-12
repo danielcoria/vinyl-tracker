@@ -22,3 +22,4 @@ export * from './profiles.js';
 export * from './suggestions.js';
 export * from './streaming.js';
 export * from './recommendations.js';
+export * from './value.js';

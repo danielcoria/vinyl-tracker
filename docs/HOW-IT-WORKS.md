@@ -147,6 +147,7 @@ Every code file also starts with a comment explaining what it does, so you can o
 | `src/suggestions.ts`     | "What should I play tonight?": what can be asked (time, genre, mood) and what a suggestion looks like.                                     |
 | `src/streaming.ts`       | Streaming vs. shelf: the most-streamed albums (each marked as owned, wished for, or neither), vinyl prices, and the wishlist.              |
 | `src/recommendations.ts` | What a recommendation looks like: the album, and which of your artists it's similar to.                                                    |
+| `src/value.ts`           | The collection's value: the total, how prices moved, a point per day for the chart, and each record's price.                               |
 | `src/styluses.ts`        | What a stylus (turntable needle) looks like, with its wear and status.                                                                     |
 | `src/auth.ts`            | What signing up and logging in look like, and the rules for usernames and passwords.                                                       |
 | `src/index.ts`           | Re-exports everything so other code can `import { … } from '@vinyl/shared'`.                                                               |
@@ -188,6 +189,8 @@ request ─▶ app.ts ─▶ routes/ ─▶ services/ ─▶ db/ ─▶ database
 | `src/services/wishlist.ts`                                                 | The wishlist: list, add (never twice), remove.                                                                                                                                      |
 | `src/routes/recommendations.ts`                                            | The recommendations address.                                                                                                                                                        |
 | `src/services/recommendations.ts`                                          | **Recommendations**: picks the shelf's key artists, asks Last.fm who is similar, and suggests the best-known album of the best matches.                                             |
+| `src/routes/value.ts`                                                      | The collection value addresses: read it, and "update prices now".                                                                                                                   |
+| `src/services/value.ts`                                                    | **Collection value**: looks up each linked record's price on Discogs about once a day (a few at a time) and adds the saved prices up into a history.                                |
 | `src/routes/styluses.ts`                                                   | The stylus addresses: list, install a new one, edit, delete.                                                                                                                        |
 | `src/services/styluses.ts`                                                 | **The stylus wear tracker**: adds up the plays logged while each stylus was installed.                                                                                              |
 | `src/middleware/password-lock.ts`                                          | **The site password** (online only): the browser asks for it, and wrong guesses are slowed down.                                                                                    |
@@ -382,6 +385,14 @@ Records added by hand have no tracklist, so they log the whole record using the 
 3. For albums you don't own, the server asks **Discogs** for the top three vinyl pressings and shows the cheapest one that has copies for sale. Only the first few albums look this up by themselves; the rest wait for "Check price", to stay under Discogs' limit.
 4. "+ Wishlist" saves the album to your wishlist. Adding the same album twice never makes a duplicate.
 5. The public demo has no real Last.fm account, so it uses a made-up listener and says so. The prices are still real.
+
+### How the collection's value is tracked
+
+1. A record's **price** is the cheapest copy of that exact pressing for sale on Discogs. So only records linked to a Discogs release can be priced (imported ones, or ones linked with "Find on Discogs").
+2. Every 10 minutes the server (`index.ts`) looks up prices for a few records that haven't been priced in the last 20 hours, and saves each as a **snapshot** in the `price_snapshots` table. Small batches keep it far below Discogs' limit. "Update prices now" does the same on demand, for your own records.
+3. The value on any day is worked out from the snapshots: each record counts with its most recent price up to that day. Nothing is stored as a total.
+4. "How prices moved" compares first and latest prices only for records priced on more than one day, so adding a new record doesn't look like the collection gaining value.
+5. The demo account has a made-up price history (labelled as a sample) and is never looked up for real.
 
 ### How recommendations are made
 

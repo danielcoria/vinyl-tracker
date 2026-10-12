@@ -35,6 +35,7 @@ import { statsRouter } from './routes/stats.js';
 import { streamingRouter, wishlistRouter } from './routes/streaming.js';
 import { stylusesRouter } from './routes/styluses.js';
 import { suggestionsRouter } from './routes/suggestions.js';
+import { valueRouter } from './routes/value.js';
 
 /**
  * What the server needs from outside to work. Tests pass in a temporary
@@ -131,6 +132,8 @@ export function createApp({
   // Streaming vs. shelf (Last.fm), vinyl prices and the wishlist: routes/streaming.ts.
   app.use('/api/streaming', streamingRouter(db, lastfm, discogs));
   app.use('/api/wishlist', wishlistRouter(db));
+  // What the collection is worth, over time: routes/value.ts.
+  app.use('/api/value', valueRouter(db, { discogs, demo }));
   // Albums to consider, based on the shelf: routes/recommendations.ts.
   app.use('/api/recommendations', recommendationsRouter(db, lastfm));
   // Stylus wear tracker: routes/styluses.ts.

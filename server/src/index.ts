@@ -18,6 +18,7 @@ import { DiscogsClient } from './integrations/discogs/client.js';
 import { LastfmClient } from './integrations/lastfm/client.js';
 import { sampleLastfm } from './integrations/lastfm/sample.js';
 import { REPO_ROOT } from './paths.js';
+import { snapshotPrices } from './services/value.js';
 
 const config = loadConfig(); // 1. settings from .env
 const db = createDb(config.databasePath); // 2. open (or create) data/vinyl.db
@@ -60,6 +61,23 @@ const app = createApp({
 }); // build the server with what it needs
 
 // 3. Start listening on port 3001. The function inside runs once it's ready.
+// Collection value: every 10 minutes, look up prices for a few records that
+// haven't been priced in the last day. Small batches keep it far below Discogs'
+// limit of 60 requests a minute, so it never gets in the way of people using
+// the site. (Off during tests, and the demo account's made-up prices are skipped.)
+const PRICE_CHECK_MINUTES = 10;
+const PRICES_PER_CHECK = 15;
+if (discogs && config.nodeEnv !== 'test') {
+  const checkPrices = () =>
+    snapshotPrices(db, discogs, { limit: PRICES_PER_CHECK, exceptUserId: demo?.userId }).catch(
+      (error: unknown) => console.error('Price update failed:', error),
+    );
+  // unref(): this timer alone doesn't keep the server running when it's told to stop.
+  setInterval(checkPrices, PRICE_CHECK_MINUTES * 60 * 1000).unref();
+  // And once shortly after starting, so a fresh server doesn't wait 10 minutes.
+  setTimeout(checkPrices, 30 * 1000).unref();
+}
+
 app.listen(config.port, () => {
   console.log(`API listening on http://localhost:${config.port}`);
   console.log(`Database: ${config.databasePath}`);
