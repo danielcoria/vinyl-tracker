@@ -1,9 +1,12 @@
 // ============================================================================
 // lastfm/client.ts: TALKS TO LAST.FM
 //
-// Last.fm keeps a history of what someone streamed. This asks it one thing:
-// "which albums did this user play most?" (their public top albums; only the
-// username is needed, no Last.fm password).
+// Last.fm keeps a history of what people stream, and knows which artists are
+// alike. This asks it three things:
+//   getTopAlbums        which albums did this user play most? (their public
+//                       top albums; only the username is needed, no password)
+//   getSimilarArtists   which artists are like this one?
+//   getArtistTopAlbums  what are this artist's best-known albums?
 //
 // Like the Discogs client: answers are remembered for a while (so reloading
 // the page doesn't ask again), the API key stays on the server, and problems
@@ -19,9 +22,13 @@ import { AppError } from '../../errors.js';
 import { TtlCache } from '../discogs/ttl-cache.js';
 
 const DEFAULT_API_URL = 'https://ws.audioscrobbler.com/2.0/';
-const TOP_ALBUMS_TTL = 60 * 60 * 1000; // an hour: top albums change slowly
+const HOUR = 60 * 60 * 1000;
+const TOP_ALBUMS_TTL = HOUR; // someone's top albums change slowly
+const ARTIST_TTL = 24 * HOUR; // which artists are alike barely changes at all
 const TIMEOUT_MS = 10_000;
 const LIMIT = 50;
+const SIMILAR_LIMIT = 15;
+const ARTIST_ALBUMS_LIMIT = 5;
 
 export class LastfmError extends AppError {}
 
@@ -34,13 +41,34 @@ export type TopAlbum = {
   url: string | null;
 };
 
+export type SimilarArtist = {
+  name: string;
+  /** How alike, from 0 to 1 (1 = the closest). */
+  match: number;
+};
+
+export type ArtistAlbum = {
+  title: string;
+  artist: string;
+  coverImageUrl: string | null;
+  url: string | null;
+};
+
 export type LastfmSource = {
   /** True when this username's albums are built-in samples rather than a real account's. */
   isSample(username: string): boolean;
+  /** True when similar artists and their albums are built-in samples. */
+  readonly sampleArtists: boolean;
   getTopAlbums(username: string, period: StreamingPeriod): Promise<TopAlbum[]>;
+  /** The most similar first. Empty if Last.fm doesn't know the artist. */
+  getSimilarArtists(artist: string): Promise<SimilarArtist[]>;
+  /** The best-known first. Empty if Last.fm doesn't know the artist. */
+  getArtistTopAlbums(artist: string): Promise<ArtistAlbum[]>;
 };
 
-// Only the parts of Last.fm's answer that are used. Numbers arrive as text.
+// Only the parts of Last.fm's answers that are used. Numbers often arrive as text.
+const rawImages = z.array(z.object({ '#text': z.string(), size: z.string() })).default([]);
+
 const rawTopAlbumsSchema = z.object({
   topalbums: z.object({
     album: z.array(
@@ -49,12 +77,24 @@ const rawTopAlbumsSchema = z.object({
         playcount: z.coerce.number().int(),
         url: z.string().optional(),
         artist: z.object({ name: z.string() }),
-        image: z.array(z.object({ '#text': z.string(), size: z.string() })).default([]),
+        image: rawImages,
         '@attr': z.object({ rank: z.coerce.number().int() }).optional(),
       }),
     ),
   }),
 });
+
+const rawSimilarSchema = z.object({
+  similarartists: z.object({
+    artist: z.array(z.object({ name: z.string(), match: z.coerce.number() })),
+  }),
+});
+
+/** Covers come in several sizes, smallest first; the last non-empty one is the biggest. */
+function biggestImage(images: z.infer<typeof rawImages>): string | null {
+  const cover = images.findLast((image) => image['#text'] !== '');
+  return cover ? cover['#text'] : null;
+}
 
 export type LastfmClientOptions = {
   apiKey: string;
@@ -67,29 +107,106 @@ export type LastfmClientOptions = {
   now?: () => number;
 };
 
+/** Thrown inside the client when Last.fm says "no such user/artist" (its error 6). */
+class NotFound extends Error {}
+
 export class LastfmClient implements LastfmSource {
+  readonly sampleArtists = false;
+  private readonly fetch: typeof fetch;
+  private readonly cache: TtlCache<unknown>;
+
+  constructor(private readonly options: LastfmClientOptions) {
+    this.fetch = options.fetch ?? fetch;
+    this.cache = new TtlCache(500, options.now);
+  }
+
   isSample() {
     return false;
   }
 
-  private readonly fetch: typeof fetch;
-  private readonly cache: TtlCache<TopAlbum[]>;
-
-  constructor(private readonly options: LastfmClientOptions) {
-    this.fetch = options.fetch ?? fetch;
-    this.cache = new TtlCache(200, options.now);
+  async getTopAlbums(username: string, period: StreamingPeriod): Promise<TopAlbum[]> {
+    try {
+      const data = await this.call(
+        { method: 'user.gettopalbums', user: username, period, limit: String(LIMIT) },
+        rawTopAlbumsSchema,
+        TOP_ALBUMS_TTL,
+      );
+      return data.topalbums.album.map((album, index) => ({
+        rank: album['@attr']?.rank ?? index + 1,
+        title: album.name,
+        artist: album.artist.name,
+        playCount: album.playcount,
+        coverImageUrl: biggestImage(album.image),
+        url: album.url ?? null,
+      }));
+    } catch (error) {
+      if (!(error instanceof NotFound)) throw error;
+      throw new LastfmError(
+        404,
+        'LASTFM_USER_NOT_FOUND',
+        `Last.fm has no user called “${username}”. Check the spelling.`,
+      );
+    }
   }
 
-  async getTopAlbums(username: string, period: StreamingPeriod): Promise<TopAlbum[]> {
-    const cacheKey = `${username.toLowerCase()}|${period}`;
+  async getSimilarArtists(artist: string): Promise<SimilarArtist[]> {
+    try {
+      const data = await this.call(
+        // autocorrect: Last.fm fixes small spelling differences ("Bjork" -> "Björk").
+        { method: 'artist.getsimilar', artist, limit: String(SIMILAR_LIMIT), autocorrect: '1' },
+        rawSimilarSchema,
+        ARTIST_TTL,
+      );
+      return data.similarartists.artist.map(({ name, match }) => ({ name, match }));
+    } catch (error) {
+      // An artist Last.fm has never heard of simply has no similar artists.
+      if (error instanceof NotFound) return [];
+      throw error;
+    }
+  }
+
+  async getArtistTopAlbums(artist: string): Promise<ArtistAlbum[]> {
+    try {
+      const data = await this.call(
+        {
+          method: 'artist.gettopalbums',
+          artist,
+          limit: String(ARTIST_ALBUMS_LIMIT),
+          autocorrect: '1',
+        },
+        rawTopAlbumsSchema,
+        ARTIST_TTL,
+      );
+      return (
+        data.topalbums.album
+          // Last.fm sometimes lists a nameless album, literally called "(null)".
+          .filter((album) => album.name !== '' && album.name !== '(null)')
+          .map((album) => ({
+            title: album.name,
+            artist: album.artist.name,
+            coverImageUrl: biggestImage(album.image),
+            url: album.url ?? null,
+          }))
+      );
+    } catch (error) {
+      if (error instanceof NotFound) return [];
+      throw error;
+    }
+  }
+
+  /** One question to Last.fm: remembered for `ttlMs`, checked against `schema`. */
+  private async call<T>(
+    question: Record<string, string>,
+    schema: z.ZodType<T>,
+    ttlMs: number,
+  ): Promise<T> {
+    // The key for remembering the answer: the question, without the API key.
+    const cacheKey = new URLSearchParams(question).toString().toLowerCase();
     const cached = this.cache.get(cacheKey);
-    if (cached !== undefined) return cached;
+    if (cached !== undefined) return cached as T;
 
     const params = new URLSearchParams({
-      method: 'user.gettopalbums',
-      user: username,
-      period,
-      limit: String(LIMIT),
+      ...question,
       api_key: this.options.apiKey,
       format: 'json',
     });
@@ -105,15 +222,9 @@ export class LastfmClient implements LastfmSource {
     }
 
     const body: unknown = await res.json().catch(() => undefined);
-    // Last.fm reports problems as { error: <number>, message }, whatever the status.
+    // Last.fm reports problems as { error: <number>, message }, sometimes with status 200.
     const errorCode = z.object({ error: z.number() }).safeParse(body).data?.error;
-    if (errorCode === 6 || res.status === 404) {
-      throw new LastfmError(
-        404,
-        'LASTFM_USER_NOT_FOUND',
-        `Last.fm has no user called “${username}”. Check the spelling.`,
-      );
-    }
+    if (errorCode === 6 || res.status === 404) throw new NotFound();
     if (errorCode === 10 || errorCode === 26 || res.status === 403) {
       throw new LastfmError(
         502,
@@ -130,26 +241,13 @@ export class LastfmClient implements LastfmSource {
     }
     if (errorCode !== undefined || !res.ok) throw unavailableError();
 
-    const parsed = rawTopAlbumsSchema.safeParse(body);
+    const parsed = schema.safeParse(body);
     if (!parsed.success) {
       throw new LastfmError(502, 'LASTFM_BAD_RESPONSE', 'Last.fm sent an answer we did not expect');
     }
 
-    const albums = parsed.data.topalbums.album.map((album, index): TopAlbum => {
-      // Covers come in several sizes, smallest first; the last non-empty one is the biggest.
-      const cover = album.image.findLast((image) => image['#text'] !== '');
-      return {
-        rank: album['@attr']?.rank ?? index + 1,
-        title: album.name,
-        artist: album.artist.name,
-        playCount: album.playcount,
-        coverImageUrl: cover ? cover['#text'] : null,
-        url: album.url ?? null,
-      };
-    });
-
-    this.cache.set(cacheKey, albums, TOP_ALBUMS_TTL);
-    return albums;
+    this.cache.set(cacheKey, parsed.data, ttlMs);
+    return parsed.data;
   }
 }
 

@@ -65,6 +65,7 @@ describe('matching streamed albums to the shelf', () => {
       'Rumours [Expanded Edition]',
       'Rumours - Remastered',
       'Rumours (35th Anniversary Edition)',
+      'Rumours (Extended Version)',
     ]) {
       expect(albumKey('Fleetwood Mac', title), title).toBe(plain);
     }

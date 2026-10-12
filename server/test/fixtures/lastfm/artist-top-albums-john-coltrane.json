@@ -1,0 +1,133 @@
+{
+  "topalbums": {
+    "album": [
+      {
+        "name": "Blue Train",
+        "playcount": 3109162,
+        "mbid": "04a9972c-4a18-4eab-b700-06146b72c795",
+        "url": "https://www.last.fm/music/John+Coltrane/Blue+Train",
+        "artist": {
+          "name": "John Coltrane",
+          "mbid": "b625448e-bf4a-41c3-a421-72ad46cdb831",
+          "url": "https://www.last.fm/music/John+Coltrane"
+        },
+        "image": [
+          {
+            "#text": "https://lastfm-img.freetls.fastly.net/i/u/34s/63051c23fc4216cdf5ce5abea4ad4550.png",
+            "size": "small"
+          },
+          {
+            "#text": "https://lastfm-img.freetls.fastly.net/i/u/64s/63051c23fc4216cdf5ce5abea4ad4550.png",
+            "size": "medium"
+          },
+          {
+            "#text": "https://lastfm-img.freetls.fastly.net/i/u/174s/63051c23fc4216cdf5ce5abea4ad4550.png",
+            "size": "large"
+          },
+          {
+            "#text": "https://lastfm-img.freetls.fastly.net/i/u/300x300/63051c23fc4216cdf5ce5abea4ad4550.png",
+            "size": "extralarge"
+          }
+        ],
+        "@attr": { "rank": "1" }
+      },
+      {
+        "name": "A Love Supreme",
+        "playcount": 4104885,
+        "mbid": "0b7255e0-a35a-3821-b13e-213388c2eac9",
+        "url": "https://www.last.fm/music/John+Coltrane/A+Love+Supreme",
+        "artist": {
+          "name": "John Coltrane",
+          "mbid": "b625448e-bf4a-41c3-a421-72ad46cdb831",
+          "url": "https://www.last.fm/music/John+Coltrane"
+        },
+        "image": [
+          {
+            "#text": "https://lastfm-img.freetls.fastly.net/i/u/34s/29555acae2ed44eea3882de43a606fd9.png",
+            "size": "small"
+          },
+          {
+            "#text": "https://lastfm-img.freetls.fastly.net/i/u/64s/29555acae2ed44eea3882de43a606fd9.png",
+            "size": "medium"
+          },
+          {
+            "#text": "https://lastfm-img.freetls.fastly.net/i/u/174s/29555acae2ed44eea3882de43a606fd9.png",
+            "size": "large"
+          },
+          {
+            "#text": "https://lastfm-img.freetls.fastly.net/i/u/300x300/29555acae2ed44eea3882de43a606fd9.png",
+            "size": "extralarge"
+          }
+        ],
+        "@attr": { "rank": "2" }
+      },
+      {
+        "name": "John Coltrane and Johnny Hartman",
+        "playcount": 1959155,
+        "mbid": "02fa4dd1-e603-447f-91ac-4df2a5adbdd7",
+        "url": "https://www.last.fm/music/John+Coltrane/John+Coltrane+and+Johnny+Hartman",
+        "artist": {
+          "name": "John Coltrane",
+          "mbid": "b625448e-bf4a-41c3-a421-72ad46cdb831",
+          "url": "https://www.last.fm/music/John+Coltrane"
+        },
+        "image": [
+          {
+            "#text": "https://lastfm-img.freetls.fastly.net/i/u/34s/d40f1fb9c91046f9b99ae0fadc02074c.png",
+            "size": "small"
+          },
+          {
+            "#text": "https://lastfm-img.freetls.fastly.net/i/u/64s/d40f1fb9c91046f9b99ae0fadc02074c.png",
+            "size": "medium"
+          },
+          {
+            "#text": "https://lastfm-img.freetls.fastly.net/i/u/174s/d40f1fb9c91046f9b99ae0fadc02074c.png",
+            "size": "large"
+          },
+          {
+            "#text": "https://lastfm-img.freetls.fastly.net/i/u/300x300/d40f1fb9c91046f9b99ae0fadc02074c.png",
+            "size": "extralarge"
+          }
+        ],
+        "@attr": { "rank": "3" }
+      },
+      {
+        "name": "Giant Steps",
+        "playcount": 3565459,
+        "mbid": "22689758-ffc1-450f-bb48-52b577077dba",
+        "url": "https://www.last.fm/music/John+Coltrane/Giant+Steps",
+        "artist": {
+          "name": "John Coltrane",
+          "mbid": "b625448e-bf4a-41c3-a421-72ad46cdb831",
+          "url": "https://www.last.fm/music/John+Coltrane"
+        },
+        "image": [
+          {
+            "#text": "https://lastfm-img.freetls.fastly.net/i/u/34s/69755fdd7532efee2811bb5cc81e0dc7.png",
+            "size": "small"
+          },
+          {
+            "#text": "https://lastfm-img.freetls.fastly.net/i/u/64s/69755fdd7532efee2811bb5cc81e0dc7.png",
+            "size": "medium"
+          },
+          {
+            "#text": "https://lastfm-img.freetls.fastly.net/i/u/174s/69755fdd7532efee2811bb5cc81e0dc7.png",
+            "size": "large"
+          },
+          {
+            "#text": "https://lastfm-img.freetls.fastly.net/i/u/300x300/69755fdd7532efee2811bb5cc81e0dc7.png",
+            "size": "extralarge"
+          }
+        ],
+        "@attr": { "rank": "4" }
+      }
+    ],
+    "@attr": {
+      "artist": "John Coltrane",
+      "page": "1",
+      "perPage": "4",
+      "totalPages": "10614",
+      "total": "42456"
+    }
+  }
+}

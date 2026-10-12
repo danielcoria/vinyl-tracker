@@ -71,12 +71,13 @@ export async function getStreaming(
 
 /** "Rumours (Super Deluxe)" by "Fleetwood Mac" and "Rumours" by "fleetwood mac" give the same key. */
 export function albumKey(artist: string, title: string): string {
-  return `${plain(artist)}|${plain(stripEdition(title))}`;
+  return `${plainName(artist)}|${plainName(stripEdition(title))}`;
 }
 
 /** Drops the extras streaming services add: "(Deluxe Edition)", "[Remastered]", " - 2011 Remaster". */
-function stripEdition(title: string): string {
-  const EDITION = /deluxe|remaster|edition|anniversary|expanded|bonus|version|mono|stereo|reissue/i;
+export function stripEdition(title: string): string {
+  const EDITION =
+    /deluxe|remaster|edition|anniversary|expanded|extended|bonus|version|mono|stereo|reissue/i;
   let result = title
     // Brackets are only dropped when they hold an edition word: "(What's the Story)" stays.
     .replace(/\s*[([]([^)\]]*)[)\]]/g, (whole, inside: string) =>
@@ -88,7 +89,7 @@ function stripEdition(title: string): string {
 }
 
 /** Lowercase letters and numbers only: no accents, punctuation, spaces or leading "the". */
-function plain(text: string): string {
+export function plainName(text: string): string {
   return text
     .normalize('NFD') // splits "ö" into "o" + its dots...
     .replace(/[̀-ͯ]/g, '') // ...so the dots can be dropped

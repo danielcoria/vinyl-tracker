@@ -28,6 +28,7 @@ import { authRouter } from './routes/auth.js';
 import { discogsRouter } from './routes/discogs.js';
 import { dustRouter, settingsRouter } from './routes/dust.js';
 import { profilesRouter } from './routes/profiles.js';
+import { recommendationsRouter } from './routes/recommendations.js';
 import { recordsRouter } from './routes/records.js';
 import { spinsRouter } from './routes/spins.js';
 import { statsRouter } from './routes/stats.js';
@@ -130,6 +131,8 @@ export function createApp({
   // Streaming vs. shelf (Last.fm), vinyl prices and the wishlist: routes/streaming.ts.
   app.use('/api/streaming', streamingRouter(db, lastfm, discogs));
   app.use('/api/wishlist', wishlistRouter(db));
+  // Albums to consider, based on the shelf: routes/recommendations.ts.
+  app.use('/api/recommendations', recommendationsRouter(db, lastfm));
   // Stylus wear tracker: routes/styluses.ts.
   app.use('/api/styluses', stylusesRouter(db));
   // Searching and importing from Discogs: routes/discogs.ts.
