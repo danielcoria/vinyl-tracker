@@ -70,6 +70,34 @@ export function StreamingPage() {
             now. It reads your public listening history from Last.fm.
           </p>
           <LastfmConnect current={null} />
+          {/* <details> is a built-in "click to open" box: no code needed to show or hide it. */}
+          <details className="help-box">
+            <summary>Don't have a Last.fm username?</summary>
+            <ol>
+              <li>
+                Create a free account at{' '}
+                <a href="https://www.last.fm/join" target="_blank" rel="noreferrer">
+                  last.fm/join
+                </a>
+                .
+              </li>
+              <li>
+                Connect your streaming service (for example Spotify) in{' '}
+                <a
+                  href="https://www.last.fm/settings/applications"
+                  target="_blank"
+                  rel="noreferrer"
+                >
+                  Last.fm's settings
+                </a>
+                , so it starts keeping a history of what you play.
+              </li>
+              <li>
+                Listen for a few days, then come back and enter the username from your profile's
+                address.
+              </li>
+            </ol>
+          </details>
         </div>
       ) : (
         <>

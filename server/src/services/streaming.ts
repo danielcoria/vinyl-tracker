@@ -52,7 +52,7 @@ export async function getStreaming(
   return {
     username,
     period,
-    sample: lastfm.sample,
+    sample: lastfm.isSample(username),
     albums: topAlbums.map((album) => {
       const key = albumKey(album.artist, album.title);
       return {

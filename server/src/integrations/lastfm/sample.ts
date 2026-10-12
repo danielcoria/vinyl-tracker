@@ -4,7 +4,11 @@
 // The public demo has no real Last.fm account behind it, so this stands in
 // for Last.fm with a made-up listener: some albums that are on the demo shelf
 // and some that aren't, so "streaming vs. shelf" has something to show.
-// The website labels it as sample data. Never used when a real API key is set.
+// The website labels it as sample data.
+//
+// The demo account's username (DEMO_LASTFM_USERNAME) always gets the samples.
+// If the demo site also has a real API key, every other username is passed on
+// to the real Last.fm, so visitors who sign up can compare their own account.
 // ============================================================================
 
 import type { StreamingPeriod } from '@vinyl/shared';
@@ -40,10 +44,20 @@ const SCALE: Record<StreamingPeriod, number> = {
   '1month': 0.11,
 };
 
-export function sampleLastfm(): LastfmSource {
+/** The made-up listener the demo account is "connected" to. */
+export const DEMO_LASTFM_USERNAME = 'demo_listener';
+
+/**
+ * `real` is the actual Last.fm client when there's an API key, otherwise null
+ * (then every username gets the samples).
+ */
+export function sampleLastfm(real: LastfmSource | null = null): LastfmSource {
+  const isSample = (username: string) =>
+    real === null || username.toLowerCase() === DEMO_LASTFM_USERNAME;
   return {
-    sample: true,
-    getTopAlbums(_username, period) {
+    isSample,
+    getTopAlbums(username, period) {
+      if (real && !isSample(username)) return real.getTopAlbums(username, period);
       const albums = ALBUMS.map(([title, artist, plays], index): TopAlbum => ({
         rank: index + 1,
         title,

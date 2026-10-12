@@ -104,6 +104,12 @@ describe('StreamingPage', () => {
     const { user } = renderApp('/streaming');
 
     const input = await screen.findByLabelText('Last.fm username');
+    // Help for people who don't have Last.fm yet.
+    expect(screen.getByText("Don't have a Last.fm username?")).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: 'last.fm/join' })).toHaveAttribute(
+      'href',
+      'https://www.last.fm/join',
+    );
     // Nothing is asked of Last.fm before there's a username.
     expect(api.calls.some((c) => c.path === '/api/streaming')).toBe(false);
 

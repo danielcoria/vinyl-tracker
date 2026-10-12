@@ -24,6 +24,7 @@ import {
 } from '@vinyl/shared';
 import { releaseToRecordInput, releaseToTracks } from '../integrations/discogs/mapping.js';
 import { rawReleaseSchema } from '../integrations/discogs/schemas.js';
+import { DEMO_LASTFM_USERNAME } from '../integrations/lastfm/sample.js';
 import { createRecord } from '../services/records.js';
 import { updateSettings } from '../services/settings.js';
 import { createSpin } from '../services/spins.js';
@@ -126,7 +127,7 @@ export function seedDemoData(db: Db, now: number = Date.now()) {
   const userId = demoUserId(db);
   // Its profile page is public, so visitors can see what one looks like (/u/demo).
   // "Streaming vs. shelf" compares with a made-up Last.fm listener (integrations/lastfm/sample.ts).
-  updateSettings(db, userId, { profilePublic: true, lastfmUsername: 'demo_listener' });
+  updateSettings(db, userId, { profilePublic: true, lastfmUsername: DEMO_LASTFM_USERNAME });
   const existing =
     db.select({ n: count() }).from(records).where(eq(records.userId, userId)).get()?.n ?? 0;
   if (existing > 0) return { userId, records: 0, spins: 0 };

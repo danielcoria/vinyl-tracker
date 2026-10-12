@@ -35,8 +35,8 @@ export type TopAlbum = {
 };
 
 export type LastfmSource = {
-  /** True when the albums are built-in samples rather than a real account's. */
-  readonly sample: boolean;
+  /** True when this username's albums are built-in samples rather than a real account's. */
+  isSample(username: string): boolean;
   getTopAlbums(username: string, period: StreamingPeriod): Promise<TopAlbum[]>;
 };
 
@@ -68,7 +68,10 @@ export type LastfmClientOptions = {
 };
 
 export class LastfmClient implements LastfmSource {
-  readonly sample = false;
+  isSample() {
+    return false;
+  }
+
   private readonly fetch: typeof fetch;
   private readonly cache: TtlCache<TopAlbum[]>;
 

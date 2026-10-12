@@ -86,7 +86,7 @@ Then open **http://localhost:5173**.
 
 The Discogs token is only needed for "Add from Discogs". You can get one free at [discogs.com/settings/developers](https://www.discogs.com/settings/developers) ("Generate new token"). Everything else works without it.
 
-"Streaming vs. shelf" needs a free Last.fm API key: create one at [last.fm/api/account/create](https://www.last.fm/api/account/create) (any name will do; leave the callback address empty) and put the "API key" in `.env` as `LASTFM_API_KEY`. Prices on that page use the Discogs token.
+"Streaming vs. shelf" needs a free Last.fm API key as well: see [Connecting Last.fm](#connecting-lastfm) below. Prices on that page use the Discogs token.
 
 | Command                              | What it does                                        |
 | ------------------------------------ | --------------------------------------------------- |
@@ -95,6 +95,51 @@ The Discogs token is only needed for "Add from Discogs". You can get one free at
 | `npm run test:e2e`                   | Run the end-to-end browser tests                    |
 | `npm run lint` / `npm run typecheck` | Check the code                                      |
 | `npm run build` then `npm start`     | Build and run it the way it runs online             |
+
+## Connecting Last.fm
+
+"Streaming vs. shelf" compares what you stream with what you own. There are two separate steps, for two different people:
+
+- **Using the page** (anyone with an account on the site): enter a Last.fm username.
+- **Setting up the server** (whoever runs the site, once): give it a Last.fm API key.
+
+### Using it: connect your Last.fm username
+
+1. **Have a Last.fm account that knows what you listen to.** Last.fm doesn't play music itself; it keeps a history of what you play elsewhere.
+   - Create a free account at [last.fm/join](https://www.last.fm/join).
+   - Connect your streaming service at [last.fm/settings/applications](https://www.last.fm/settings/applications) (for example "Spotify Scrobbling": click Connect and approve it).
+   - From then on, everything you play is added to your Last.fm history. A brand-new account starts empty, so give it a few days of listening before expecting results.
+2. **Find your username.** It's the name in your profile's address: `last.fm/user/your_name`.
+3. **In Vinyl Tracker, open "Streaming"** in the menu, type the username and click **Compare with my shelf**.
+
+No Last.fm password is ever asked for: the list of someone's most-played albums is public on Last.fm, and the username is all that's needed to read it. To switch accounts or stop, click **Change** next to the username, then **Save** or **Disconnect**.
+
+If the page says the username doesn't exist, check the spelling against your profile's address. If it shows no albums, pick a longer period (a new account has little history).
+
+On the public demo, the "Try the demo" account is connected to a made-up listener (labelled "Sample data"), so the page has something to show.
+
+### Setting it up: give the server a Last.fm API key
+
+This is only for whoever runs the site. The key identifies the app to Last.fm; it isn't tied to anyone's listening.
+
+1. Log in to Last.fm and open [last.fm/api/account/create](https://www.last.fm/api/account/create).
+2. Fill in the form:
+   - **Application name:** `Vinyl Tracker`
+   - **Application description:** a sentence, e.g. "Compares my most-streamed albums with the records I own."
+   - **Callback URL:** leave empty
+   - **Application homepage:** the site's address (or leave empty)
+3. Click Submit. Last.fm shows an **API key** and a **Shared secret**. Only the API key is needed. (Both can be found again later at [last.fm/api/accounts](https://www.last.fm/api/accounts).)
+4. **On your computer:** open the `.env` file in the project folder and add a line (no quotes, no spaces):
+
+   ```
+   LASTFM_API_KEY=paste-the-api-key-here
+   ```
+
+   Stop `npm run dev` (Ctrl+C) and start it again. The server prints `Last.fm: configured` when it has found the key.
+
+5. **On the live site (Render):** open the service's dashboard → **Environment** → **Add Environment Variable**, with the key `LASTFM_API_KEY` and the same value, then save. Render restarts the site by itself.
+
+Like the Discogs token, the key stays on the server: it's never sent to the browser, and `.env` is never committed. Without a key, the page says Last.fm isn't set up (and the demo account still shows its sample data).
 
 ## Project layout
 
@@ -113,6 +158,7 @@ New to the code? **[docs/HOW-IT-WORKS.md](docs/HOW-IT-WORKS.md)** walks through 
 The plan is to grow this into a "Letterboxd for physical music":
 
 - **Recommendations** based on what you own
+- **Scrobbling to Last.fm:** sending vinyl plays logged here to your Last.fm history, so records count alongside streams
 
 ## Credits
 

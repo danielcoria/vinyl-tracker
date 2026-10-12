@@ -285,6 +285,23 @@ describe('GET /api/streaming', () => {
     }
   });
 
+  it('keeps the demo listener on samples when the demo also has a real key', async () => {
+    const real = fakeLastfm();
+    ctx = setup({ lastfm: sampleLastfm(real.client) });
+
+    await ctx.alex.put('/api/settings').send({ lastfmUsername: 'demo_listener' });
+    const demo = streamingSchema.parse((await ctx.alex.get('/api/streaming')).body);
+    // Anyone else's username goes to the real Last.fm.
+    await ctx.blair.put('/api/settings').send({ lastfmUsername: 'vinyl_fan' });
+    const visitor = streamingSchema.parse((await ctx.blair.get('/api/streaming')).body);
+
+    expect(demo).toMatchObject({ sample: true });
+    expect(demo.albums).toHaveLength(16);
+    expect(visitor).toMatchObject({ sample: false, username: 'vinyl_fan' });
+    expect(visitor.albums).toHaveLength(3);
+    expect(real.requests).toHaveLength(1);
+  });
+
   it('uses built-in sample albums on the demo, and says so', async () => {
     ctx = setup({ lastfm: sampleLastfm() });
     await connect();

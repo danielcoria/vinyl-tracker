@@ -32,16 +32,16 @@ const discogs = config.discogs.token
     })
   : null;
 // In production the server also delivers the built website (npm run build).
-// Last.fm: the real thing with an API key; built-in sample albums on the demo; else off.
-const lastfm = config.lastfm.apiKey
+// Last.fm: the real thing when there's an API key. On the demo, the demo account
+// always sees built-in sample albums (and so does everyone, without a key).
+const realLastfm = config.lastfm.apiKey
   ? new LastfmClient({
       apiKey: config.lastfm.apiKey,
       apiUrl: config.lastfm.apiUrl,
       userAgent: config.discogs.userAgent,
     })
-  : config.demoMode
-    ? sampleLastfm()
-    : null;
+  : null;
+const lastfm = config.demoMode ? sampleLastfm(realLastfm) : realLastfm;
 const builtWebsite = path.join(REPO_ROOT, 'client', 'dist');
 const clientDist =
   config.nodeEnv === 'production' && existsSync(path.join(builtWebsite, 'index.html'))
@@ -65,9 +65,7 @@ app.listen(config.port, () => {
   console.log(`Database: ${config.databasePath}`);
   // Only say whether the token exists. Never print the token itself.
   console.log(`Discogs token: ${config.discogs.token ? 'configured' : 'missing'}`);
-  console.log(
-    `Last.fm: ${config.lastfm.apiKey ? 'configured' : lastfm ? 'sample data (demo)' : 'missing'}`,
-  );
+  console.log(`Last.fm: ${realLastfm ? 'configured' : lastfm ? 'sample data (demo)' : 'missing'}`);
   console.log(`Password lock: ${config.appPassword ? 'on' : 'off'}`);
   if (demo) console.log(`Demo mode: on (added ${demo.records} albums and ${demo.spins} plays)`);
   console.log(
