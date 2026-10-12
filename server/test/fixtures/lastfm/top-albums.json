@@ -1,0 +1,80 @@
+{
+  "topalbums": {
+    "album": [
+      {
+        "artist": {
+          "url": "https://www.last.fm/music/Radiohead",
+          "name": "Radiohead",
+          "mbid": "a74b1b7f-71a5-4011-9441-d0b5e4122711"
+        },
+        "image": [
+          { "size": "small", "#text": "https://lastfm.freetls.fastly.net/i/u/34s/in-rainbows.png" },
+          {
+            "size": "medium",
+            "#text": "https://lastfm.freetls.fastly.net/i/u/64s/in-rainbows.png"
+          },
+          {
+            "size": "large",
+            "#text": "https://lastfm.freetls.fastly.net/i/u/174s/in-rainbows.png"
+          },
+          {
+            "size": "extralarge",
+            "#text": "https://lastfm.freetls.fastly.net/i/u/300x300/in-rainbows.png"
+          }
+        ],
+        "mbid": "6e335887-60ba-38f0-95af-fae7774336bf",
+        "url": "https://www.last.fm/music/Radiohead/In+Rainbows",
+        "playcount": "412",
+        "@attr": { "rank": "1" },
+        "name": "In Rainbows"
+      },
+      {
+        "artist": {
+          "url": "https://www.last.fm/music/Miles+Davis",
+          "name": "Miles Davis",
+          "mbid": "561d854a-6a28-4aa7-8c99-323e6ce46c2a"
+        },
+        "image": [
+          {
+            "size": "small",
+            "#text": "https://lastfm.freetls.fastly.net/i/u/34s/kind-of-blue.png"
+          },
+          {
+            "size": "extralarge",
+            "#text": "https://lastfm.freetls.fastly.net/i/u/300x300/kind-of-blue.png"
+          }
+        ],
+        "mbid": "",
+        "url": "https://www.last.fm/music/Miles+Davis/Kind+of+Blue",
+        "playcount": "251",
+        "@attr": { "rank": "2" },
+        "name": "Kind of Blue (Legacy Edition)"
+      },
+      {
+        "artist": {
+          "url": "https://www.last.fm/music/Bj%C3%B6rk",
+          "name": "Björk",
+          "mbid": "87c5dedd-371d-4a53-9f7f-80522fb7f3cb"
+        },
+        "image": [
+          { "size": "small", "#text": "" },
+          { "size": "medium", "#text": "" },
+          { "size": "large", "#text": "" },
+          { "size": "extralarge", "#text": "" }
+        ],
+        "mbid": "",
+        "url": "https://www.last.fm/music/Bj%C3%B6rk/Vespertine",
+        "playcount": "90",
+        "@attr": { "rank": "3" },
+        "name": "Vespertine"
+      }
+    ],
+    "@attr": {
+      "user": "vinyl_fan",
+      "totalPages": "9",
+      "page": "1",
+      "perPage": "50",
+      "total": "431"
+    }
+  }
+}

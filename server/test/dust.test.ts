@@ -102,6 +102,7 @@ describe('settings', () => {
     expect(getSettings(ctx.db, ctx.user.id)).toEqual({
       dustThresholdDays: 90,
       profilePublic: false,
+      lastfmUsername: null,
     });
   });
 
@@ -117,10 +118,11 @@ describe('settings', () => {
     const res = await ctx.api.put('/api/settings').send({ dustThresholdDays: 60 });
 
     expect(res.status).toBe(200);
-    expect(res.body).toEqual({ dustThresholdDays: 60, profilePublic: false });
+    expect(res.body).toEqual({ dustThresholdDays: 60, profilePublic: false, lastfmUsername: null });
     expect((await ctx.api.get('/api/settings')).body).toEqual({
       dustThresholdDays: 60,
       profilePublic: false,
+      lastfmUsername: null,
     });
   });
 

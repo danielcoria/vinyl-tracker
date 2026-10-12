@@ -210,6 +210,33 @@ export const styluses = sqliteTable(
   ],
 );
 
+/**
+ * Albums to buy one day (M15), usually added from the "streaming vs. shelf" page.
+ * An album can be on a person's wishlist once (ignoring capital letters).
+ */
+export const wishlistItems = sqliteTable(
+  'wishlist_items',
+  {
+    id: integer('id').primaryKey({ autoIncrement: true }),
+    userId: integer('user_id')
+      .notNull()
+      .references(() => users.id, { onDelete: 'cascade' }),
+    title: text('title').notNull(),
+    artist: text('artist').notNull(),
+    coverImageUrl: text('cover_image_url'),
+    /** How many times it had been streamed when it was added. */
+    playCount: integer('play_count'),
+    addedAt: text('added_at').notNull().$defaultFn(now),
+  },
+  (t) => [
+    uniqueIndex('wishlist_user_album_idx').on(
+      t.userId,
+      sql`lower(${t.artist})`,
+      sql`lower(${t.title})`,
+    ),
+  ],
+);
+
 /** People with accounts (M11). Usernames are unique, ignoring capital letters. */
 export const users = sqliteTable(
   'users',

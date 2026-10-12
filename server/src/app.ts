@@ -19,6 +19,7 @@ import helmet from 'helmet';
 import type { HealthResponse } from '@vinyl/shared';
 import type { Db } from './db/client.js';
 import type { DiscogsClient } from './integrations/discogs/client.js';
+import type { LastfmSource } from './integrations/lastfm/client.js';
 import { errorHandler, notFoundHandler } from './middleware/error-handler.js';
 import { passwordLock } from './middleware/password-lock.js';
 import { serveClient } from './middleware/serve-client.js';
@@ -30,6 +31,7 @@ import { profilesRouter } from './routes/profiles.js';
 import { recordsRouter } from './routes/records.js';
 import { spinsRouter } from './routes/spins.js';
 import { statsRouter } from './routes/stats.js';
+import { streamingRouter, wishlistRouter } from './routes/streaming.js';
 import { stylusesRouter } from './routes/styluses.js';
 import { suggestionsRouter } from './routes/suggestions.js';
 
@@ -41,6 +43,8 @@ export type AppDeps = {
   db: Db;
   /** null when there's no Discogs token in .env. */
   discogs?: DiscogsClient | null;
+  /** null when there's no Last.fm API key in .env (the demo passes sample data). */
+  lastfm?: LastfmSource | null;
   /** The site-wide password; null/undefined = no lock (local development). */
   password?: string | null;
   /** The built website (client/dist) to deliver; null = Vite delivers it (development). */
@@ -56,6 +60,7 @@ export type AppDeps = {
 export function createApp({
   db,
   discogs = null,
+  lastfm = null,
   password = null,
   clientDist = null,
   trustProxy = false,
@@ -122,6 +127,9 @@ export function createApp({
   app.use('/api/settings', settingsRouter(db));
   // "What should I play tonight?": routes/suggestions.ts.
   app.use('/api/suggestions', suggestionsRouter(db));
+  // Streaming vs. shelf (Last.fm), vinyl prices and the wishlist: routes/streaming.ts.
+  app.use('/api/streaming', streamingRouter(db, lastfm, discogs));
+  app.use('/api/wishlist', wishlistRouter(db));
   // Stylus wear tracker: routes/styluses.ts.
   app.use('/api/styluses', stylusesRouter(db));
   // Searching and importing from Discogs: routes/discogs.ts.

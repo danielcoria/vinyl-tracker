@@ -51,7 +51,7 @@ describe('DustPage', () => {
       'GET /api/dust': () => json({ ...REPORT, thresholdDays: threshold }),
       'PUT /api/settings': ({ body }) => {
         threshold = (body as { dustThresholdDays: number }).dustThresholdDays;
-        return json({ dustThresholdDays: threshold, profilePublic: false });
+        return json({ dustThresholdDays: threshold, profilePublic: false, lastfmUsername: null });
       },
     });
     const { user } = renderApp('/dust');

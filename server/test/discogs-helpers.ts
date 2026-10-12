@@ -23,6 +23,8 @@ type Route = (url: URL) => Response;
 const DEFAULT_ROUTES: Record<string, Route> = {
   '/database/search': () => Response.json(fixture('search-kind-of-blue.json')),
   [`/releases/${KIND_OF_BLUE_RELEASE_ID}`]: () => Response.json(fixture('release-2772432.json')),
+  [`/marketplace/stats/${KIND_OF_BLUE_RELEASE_ID}`]: () =>
+    Response.json(fixture('marketplace-stats-2772432.json')),
 };
 
 export function fakeDiscogs(

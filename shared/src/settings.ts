@@ -7,6 +7,7 @@
 // ============================================================================
 
 import { z } from 'zod';
+import { lastfmUsernameSchema } from './streaming.js';
 
 export const settingsSchema = z.object({
   /** A record "gathers dust" when it hasn't been played in this many days. */
@@ -17,6 +18,8 @@ export const settingsSchema = z.object({
     .max(3650, 'Pick at most 10 years'),
   /** Anyone with the link can see the profile page (/u/username). Off until turned on. */
   profilePublic: z.boolean(),
+  /** The Last.fm account to compare the shelf with (null = not connected). */
+  lastfmUsername: lastfmUsernameSchema.nullable(),
 });
 
 export type Settings = z.infer<typeof settingsSchema>;
@@ -27,4 +30,5 @@ export type SettingsUpdate = z.infer<typeof settingsUpdateSchema>;
 export const DEFAULT_SETTINGS: Settings = {
   dustThresholdDays: 90,
   profilePublic: false,
+  lastfmUsername: null,
 };

@@ -34,3 +34,7 @@ services:
       # the real token in this file.
       - key: DISCOGS_TOKEN
         sync: false
+      # Optional secret: a Last.fm API key, set in Render's Environment settings.
+      # Without it, the demo's "streaming vs. shelf" page shows built-in sample data.
+      - key: LASTFM_API_KEY
+        sync: false

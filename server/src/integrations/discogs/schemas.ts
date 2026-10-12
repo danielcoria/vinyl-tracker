@@ -68,5 +68,12 @@ export const rawReleaseSchema = z.object({
   images: z.array(z.object({ type: z.string(), uri: z.string() })).default([]),
 });
 
+/** GET /marketplace/stats/:id: the cheapest copy for sale right now (null if none). */
+export const rawMarketplaceStatsSchema = z.object({
+  lowest_price: z.object({ value: z.number(), currency: z.string() }).nullish(),
+  num_for_sale: z.number().int().nullish(),
+});
+
+export type RawMarketplaceStats = z.infer<typeof rawMarketplaceStatsSchema>;
 export type RawRelease = z.infer<typeof rawReleaseSchema>;
 export type RawTrack = z.infer<typeof rawTrackSchema>;

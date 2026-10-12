@@ -13,13 +13,21 @@
 import { z } from 'zod';
 import { AppError } from '../../errors.js';
 import { RateLimiter } from './rate-limiter.js';
-import { rawReleaseSchema, rawSearchSchema, type RawRelease, type RawSearch } from './schemas.js';
+import {
+  rawMarketplaceStatsSchema,
+  rawReleaseSchema,
+  rawSearchSchema,
+  type RawMarketplaceStats,
+  type RawRelease,
+  type RawSearch,
+} from './schemas.js';
 import { TtlCache } from './ttl-cache.js';
 
 const DEFAULT_API_URL = 'https://api.discogs.com';
 const MINUTE = 60 * 1000;
 const SEARCH_TTL = 10 * MINUTE;
 const RELEASE_TTL = 24 * 60 * MINUTE; // release details rarely change
+const PRICE_TTL = 6 * 60 * MINUTE; // prices move, but not by the minute
 const TIMEOUT_MS = 10_000;
 
 export class DiscogsError extends AppError {}
@@ -56,6 +64,23 @@ export class DiscogsClient {
       page: String(page),
     });
     return this.get(`/database/search?${params}`, rawSearchSchema, SEARCH_TTL);
+  }
+
+  /** Vinyl pressings of one album, looked up by artist and title (best matches first). */
+  searchAlbum(artist: string, title: string): Promise<RawSearch> {
+    const params = new URLSearchParams({
+      artist,
+      release_title: title,
+      type: 'release',
+      format: 'Vinyl',
+      per_page: '5',
+    });
+    return this.get(`/database/search?${params}`, rawSearchSchema, RELEASE_TTL);
+  }
+
+  /** What a release costs on the Discogs marketplace right now. */
+  getMarketplaceStats(releaseId: number): Promise<RawMarketplaceStats> {
+    return this.get(`/marketplace/stats/${releaseId}`, rawMarketplaceStatsSchema, PRICE_TTL);
   }
 
   /** Everything about one release: artists, label, tracklist, images... */

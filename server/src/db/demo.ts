@@ -125,7 +125,8 @@ function seededRandom(seed: number) {
 export function seedDemoData(db: Db, now: number = Date.now()) {
   const userId = demoUserId(db);
   // Its profile page is public, so visitors can see what one looks like (/u/demo).
-  updateSettings(db, userId, { profilePublic: true });
+  // "Streaming vs. shelf" compares with a made-up Last.fm listener (integrations/lastfm/sample.ts).
+  updateSettings(db, userId, { profilePublic: true, lastfmUsername: 'demo_listener' });
   const existing =
     db.select({ n: count() }).from(records).where(eq(records.userId, userId)).get()?.n ?? 0;
   if (existing > 0) return { userId, records: 0, spins: 0 };

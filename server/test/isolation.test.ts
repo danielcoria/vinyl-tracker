@@ -181,10 +181,12 @@ describe('styluses and settings', () => {
     expect((await ctx.alex.get('/api/settings')).body).toEqual({
       dustThresholdDays: 30,
       profilePublic: true,
+      lastfmUsername: null,
     });
     expect((await ctx.blair.get('/api/settings')).body).toEqual({
       dustThresholdDays: 90,
       profilePublic: false,
+      lastfmUsername: null,
     });
   });
 });

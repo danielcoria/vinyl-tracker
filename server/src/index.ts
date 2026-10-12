@@ -15,6 +15,8 @@ import { loadConfig } from './config.js';
 import { createDb } from './db/client.js';
 import { seedDemoData } from './db/demo.js';
 import { DiscogsClient } from './integrations/discogs/client.js';
+import { LastfmClient } from './integrations/lastfm/client.js';
+import { sampleLastfm } from './integrations/lastfm/sample.js';
 import { REPO_ROOT } from './paths.js';
 
 const config = loadConfig(); // 1. settings from .env
@@ -30,6 +32,16 @@ const discogs = config.discogs.token
     })
   : null;
 // In production the server also delivers the built website (npm run build).
+// Last.fm: the real thing with an API key; built-in sample albums on the demo; else off.
+const lastfm = config.lastfm.apiKey
+  ? new LastfmClient({
+      apiKey: config.lastfm.apiKey,
+      apiUrl: config.lastfm.apiUrl,
+      userAgent: config.discogs.userAgent,
+    })
+  : config.demoMode
+    ? sampleLastfm()
+    : null;
 const builtWebsite = path.join(REPO_ROOT, 'client', 'dist');
 const clientDist =
   config.nodeEnv === 'production' && existsSync(path.join(builtWebsite, 'index.html'))
@@ -38,6 +50,7 @@ const clientDist =
 const app = createApp({
   db,
   discogs,
+  lastfm,
   password: config.appPassword,
   clientDist,
   trustProxy: config.trustProxy,
@@ -52,6 +65,9 @@ app.listen(config.port, () => {
   console.log(`Database: ${config.databasePath}`);
   // Only say whether the token exists. Never print the token itself.
   console.log(`Discogs token: ${config.discogs.token ? 'configured' : 'missing'}`);
+  console.log(
+    `Last.fm: ${config.lastfm.apiKey ? 'configured' : lastfm ? 'sample data (demo)' : 'missing'}`,
+  );
   console.log(`Password lock: ${config.appPassword ? 'on' : 'off'}`);
   if (demo) console.log(`Demo mode: on (added ${demo.records} albums and ${demo.spins} plays)`);
   console.log(

@@ -145,7 +145,7 @@ describe('ProfilePage', () => {
         ),
       'PUT /api/settings': ({ body }) => {
         isPublic = (body as { profilePublic: boolean }).profilePublic;
-        return json({ dustThresholdDays: 90, profilePublic: isPublic });
+        return json({ dustThresholdDays: 90, profilePublic: isPublic, lastfmUsername: null });
       },
     });
     const { user } = renderApp('/u/tester');
