@@ -128,21 +128,22 @@ Every code file also starts with a comment explaining what it does, so you can o
 
 ### `shared/`: the contracts
 
-| File              | What it does                                                                                                                               |
-| ----------------- | ------------------------------------------------------------------------------------------------------------------------------------------ |
-| `src/records.ts`  | **What a record looks like**: the rules for adding or editing one (title required, valid year, condition grades…) and the shape sent back. |
-| `src/health.ts`   | The shape of the "are you alive?" answer.                                                                                                  |
-| `src/errors.ts`   | The one format every error uses: `{ "error": { "code", "message" } }`.                                                                     |
-| `src/discogs.ts`  | What Discogs search results and imports look like, as our server sends them to the website.                                                |
-| `src/spins.ts`    | What a track and a logged play ("spin") look like, and the rules for logging one (e.g. no plays in the future).                            |
-| `src/stats.ts`    | What the Stats page gets: totals, top artists and records, and genres by month.                                                            |
-| `src/dust.ts`     | What the dust report looks like: records gathering dust and never played.                                                                  |
-| `src/settings.ts` | The app's settings (like how many days counts as "dusty") and their defaults.                                                              |
-| `src/profiles.ts` | What a public profile page and a "year in records" look like. Only shareable things: no notes, conditions or stylus.                       |
-| `src/ratings.ts`  | Star ratings (half a star to 5, in half steps) and what's sent to rate and review a record.                                                |
-| `src/styluses.ts` | What a stylus (turntable needle) looks like, with its wear and status.                                                                     |
-| `src/auth.ts`     | What signing up and logging in look like, and the rules for usernames and passwords.                                                       |
-| `src/index.ts`    | Re-exports everything so other code can `import { … } from '@vinyl/shared'`.                                                               |
+| File                 | What it does                                                                                                                               |
+| -------------------- | ------------------------------------------------------------------------------------------------------------------------------------------ |
+| `src/records.ts`     | **What a record looks like**: the rules for adding or editing one (title required, valid year, condition grades…) and the shape sent back. |
+| `src/health.ts`      | The shape of the "are you alive?" answer.                                                                                                  |
+| `src/errors.ts`      | The one format every error uses: `{ "error": { "code", "message" } }`.                                                                     |
+| `src/discogs.ts`     | What Discogs search results and imports look like, as our server sends them to the website.                                                |
+| `src/spins.ts`       | What a track and a logged play ("spin") look like, and the rules for logging one (e.g. no plays in the future).                            |
+| `src/stats.ts`       | What the Stats page gets: totals, top artists and records, and genres by month.                                                            |
+| `src/dust.ts`        | What the dust report looks like: records gathering dust and never played.                                                                  |
+| `src/settings.ts`    | The app's settings (like how many days counts as "dusty") and their defaults.                                                              |
+| `src/profiles.ts`    | What a public profile page and a "year in records" look like. Only shareable things: no notes, conditions or stylus.                       |
+| `src/ratings.ts`     | Star ratings (half a star to 5, in half steps) and what's sent to rate and review a record.                                                |
+| `src/suggestions.ts` | "What should I play tonight?": what can be asked (time, genre, mood) and what a suggestion looks like.                                     |
+| `src/styluses.ts`    | What a stylus (turntable needle) looks like, with its wear and status.                                                                     |
+| `src/auth.ts`        | What signing up and logging in look like, and the rules for usernames and passwords.                                                       |
+| `src/index.ts`       | Re-exports everything so other code can `import { … } from '@vinyl/shared'`.                                                               |
 
 ### `server/`: the kitchen
 
@@ -154,51 +155,53 @@ request ─▶ app.ts ─▶ routes/ ─▶ services/ ─▶ db/ ─▶ database
             address?)   input)       work)          connection)
 ```
 
-| File                                                                       | What it does                                                                                                                                |
-| -------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------- |
-| `src/index.ts`                                                             | **Start here.** Reads settings, opens the database, starts listening on port 3001.                                                          |
-| `src/app.ts`                                                               | Builds the server and lists every address it answers (`/api/health`, `/api/records`…).                                                      |
-| `src/config.ts`                                                            | Reads and checks settings from `.env`. The only file allowed to.                                                                            |
-| `src/paths.ts`                                                             | Works out where folders are on disk.                                                                                                        |
-| `src/errors.ts`                                                            | Our error types, e.g. `NotFoundError` becomes a 404.                                                                                        |
-| `src/middleware/error-handler.ts`                                          | Turns any error into the standard error response.                                                                                           |
-| `src/routes/records.ts`                                                    | The record addresses: list, get, add, edit, delete. Short on purpose: check input, call the service, reply.                                 |
-| `src/services/records.ts`                                                  | **The real work**: searching, sorting, saving and deleting records in the database.                                                         |
-| `src/routes/spins.ts`                                                      | The diary addresses: list plays, log a play, delete a play.                                                                                 |
-| `src/services/spins.ts`                                                    | **The listening diary**: logs a play (which sides, when, how long, which songs) and lists plays newest first.                               |
-| `src/services/tracks.ts`                                                   | A record's tracklist: reads it, and saves it from Discogs (keeping one that logged plays depend on).                                        |
-| `src/routes/stats.ts`                                                      | The Stats address: numbers for a chosen period.                                                                                             |
-| `src/services/stats.ts`                                                    | **Adds up the diary**: totals, most-listened artists and records, listening time per genre per month.                                       |
-| `src/routes/dust.ts`                                                       | The dust report and settings addresses.                                                                                                     |
-| `src/services/dust.ts`                                                     | **The dust report**: finds records not played in N days, and records never played.                                                          |
-| `src/services/settings.ts`                                                 | Reads and saves settings, using defaults for anything not saved yet.                                                                        |
-| `src/routes/profiles.ts`                                                   | The public profile addresses. The only data addresses that work without logging in.                                                         |
-| `src/services/profiles.ts`                                                 | **Public profiles**: builds someone's profile and year recap from their stats, shelf and diary, if they made it public (or it's their own). |
-| `src/routes/styluses.ts`                                                   | The stylus addresses: list, install a new one, edit, delete.                                                                                |
-| `src/services/styluses.ts`                                                 | **The stylus wear tracker**: adds up the plays logged while each stylus was installed.                                                      |
-| `src/middleware/password-lock.ts`                                          | **The site password** (online only): the browser asks for it, and wrong guesses are slowed down.                                            |
-| `src/middleware/serve-client.ts`                                           | Online, the server also delivers the built website, so only one program runs.                                                               |
-| `src/middleware/session.ts`                                                | **Who is logged in**: reads the login cookie, blocks changes sent from other websites.                                                      |
-| `src/middleware/failure-limiter.ts`                                        | Slows down password guessing (used by logging in and the site password).                                                                    |
-| `src/routes/auth.ts`                                                       | The account addresses: sign up, log in, log out, "who am I?".                                                                               |
-| `src/services/auth.ts`                                                     | **Accounts and login sessions**: creating accounts, checking passwords, starting and ending sessions.                                       |
-| `src/services/passwords.ts`                                                | Stores passwords safely as scrypt hashes (never the password itself).                                                                       |
-| `src/routes/discogs.ts`                                                    | The Discogs addresses: search, import a release, link a record to a release.                                                                |
-| `src/services/discogs.ts`                                                  | Searches Discogs, imports a release as a new record, or fills in an existing record (cover and empty details only).                         |
-| `src/integrations/discogs/client.ts`                                       | **Talks to Discogs.** Sends the token, remembers recent answers, stays under 60 requests a minute.                                          |
-| `src/integrations/discogs/mapping.ts`                                      | Converts Discogs data to our format: cleans names, picks the format, adds up track lengths.                                                 |
-| `src/integrations/discogs/schemas.ts`                                      | The fields we read from Discogs, checked so surprises are caught early.                                                                     |
-| `src/integrations/discogs/rate-limiter.ts`, `ttl-cache.ts`                 | The 60-a-minute limit and the memory of recent answers.                                                                                     |
-| `src/db/schema.ts`                                                         | **The database tables** and their columns.                                                                                                  |
-| `src/db/client.ts`                                                         | Opens the database file and makes sure its tables are up to date.                                                                           |
-| `src/db/seed.ts`                                                           | Adds 11 sample albums for development.                                                                                                      |
-| `src/db/demo.ts`                                                           | Fills an empty database with demo data (14 albums, months of plays, a stylus) for the public demo.                                          |
-| `src/db/demo-releases.json`                                                | The demo albums' real Discogs details and covers, saved once so the demo never needs Discogs to start.                                      |
-| `src/db/migrate.ts`                                                        | Applies database updates by hand (the server also does it on start).                                                                        |
-| `drizzle/`                                                                 | **Migrations**: generated files of instructions that create and update the tables. Committed; never edited by hand.                         |
-| `test/`                                                                    | Automatic tests. `helpers.ts` gives each test its own temporary database.                                                                   |
-| `test/fixtures/discogs/`                                                   | Real Discogs answers saved as files, so tests never contact Discogs or need a token.                                                        |
-| `drizzle.config.ts`, `tsup.config.ts`, `vitest.config.ts`, `tsconfig.json` | Settings for the database tools, the build, the tests and TypeScript.                                                                       |
+| File                                                                       | What it does                                                                                                                                                  |
+| -------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `src/index.ts`                                                             | **Start here.** Reads settings, opens the database, starts listening on port 3001.                                                                            |
+| `src/app.ts`                                                               | Builds the server and lists every address it answers (`/api/health`, `/api/records`…).                                                                        |
+| `src/config.ts`                                                            | Reads and checks settings from `.env`. The only file allowed to.                                                                                              |
+| `src/paths.ts`                                                             | Works out where folders are on disk.                                                                                                                          |
+| `src/errors.ts`                                                            | Our error types, e.g. `NotFoundError` becomes a 404.                                                                                                          |
+| `src/middleware/error-handler.ts`                                          | Turns any error into the standard error response.                                                                                                             |
+| `src/routes/records.ts`                                                    | The record addresses: list, get, add, edit, delete. Short on purpose: check input, call the service, reply.                                                   |
+| `src/services/records.ts`                                                  | **The real work**: searching, sorting, saving and deleting records in the database.                                                                           |
+| `src/routes/spins.ts`                                                      | The diary addresses: list plays, log a play, delete a play.                                                                                                   |
+| `src/services/spins.ts`                                                    | **The listening diary**: logs a play (which sides, when, how long, which songs) and lists plays newest first.                                                 |
+| `src/services/tracks.ts`                                                   | A record's tracklist: reads it, and saves it from Discogs (keeping one that logged plays depend on).                                                          |
+| `src/routes/stats.ts`                                                      | The Stats address: numbers for a chosen period.                                                                                                               |
+| `src/services/stats.ts`                                                    | **Adds up the diary**: totals, most-listened artists and records, listening time per genre per month.                                                         |
+| `src/routes/dust.ts`                                                       | The dust report and settings addresses.                                                                                                                       |
+| `src/services/dust.ts`                                                     | **The dust report**: finds records not played in N days, and records never played.                                                                            |
+| `src/services/settings.ts`                                                 | Reads and saves settings, using defaults for anything not saved yet.                                                                                          |
+| `src/routes/profiles.ts`                                                   | The public profile addresses. The only data addresses that work without logging in.                                                                           |
+| `src/services/profiles.ts`                                                 | **Public profiles**: builds someone's profile and year recap from their stats, shelf and diary, if they made it public (or it's their own).                   |
+| `src/routes/suggestions.ts`                                                | The "What should I play tonight?" address.                                                                                                                    |
+| `src/services/suggestions.ts`                                              | **Picks tonight's records**: works out what fits the time (the whole record, or some sides), scores each record by dust and rating, and takes the best three. |
+| `src/routes/styluses.ts`                                                   | The stylus addresses: list, install a new one, edit, delete.                                                                                                  |
+| `src/services/styluses.ts`                                                 | **The stylus wear tracker**: adds up the plays logged while each stylus was installed.                                                                        |
+| `src/middleware/password-lock.ts`                                          | **The site password** (online only): the browser asks for it, and wrong guesses are slowed down.                                                              |
+| `src/middleware/serve-client.ts`                                           | Online, the server also delivers the built website, so only one program runs.                                                                                 |
+| `src/middleware/session.ts`                                                | **Who is logged in**: reads the login cookie, blocks changes sent from other websites.                                                                        |
+| `src/middleware/failure-limiter.ts`                                        | Slows down password guessing (used by logging in and the site password).                                                                                      |
+| `src/routes/auth.ts`                                                       | The account addresses: sign up, log in, log out, "who am I?".                                                                                                 |
+| `src/services/auth.ts`                                                     | **Accounts and login sessions**: creating accounts, checking passwords, starting and ending sessions.                                                         |
+| `src/services/passwords.ts`                                                | Stores passwords safely as scrypt hashes (never the password itself).                                                                                         |
+| `src/routes/discogs.ts`                                                    | The Discogs addresses: search, import a release, link a record to a release.                                                                                  |
+| `src/services/discogs.ts`                                                  | Searches Discogs, imports a release as a new record, or fills in an existing record (cover and empty details only).                                           |
+| `src/integrations/discogs/client.ts`                                       | **Talks to Discogs.** Sends the token, remembers recent answers, stays under 60 requests a minute.                                                            |
+| `src/integrations/discogs/mapping.ts`                                      | Converts Discogs data to our format: cleans names, picks the format, adds up track lengths.                                                                   |
+| `src/integrations/discogs/schemas.ts`                                      | The fields we read from Discogs, checked so surprises are caught early.                                                                                       |
+| `src/integrations/discogs/rate-limiter.ts`, `ttl-cache.ts`                 | The 60-a-minute limit and the memory of recent answers.                                                                                                       |
+| `src/db/schema.ts`                                                         | **The database tables** and their columns.                                                                                                                    |
+| `src/db/client.ts`                                                         | Opens the database file and makes sure its tables are up to date.                                                                                             |
+| `src/db/seed.ts`                                                           | Adds 11 sample albums for development.                                                                                                                        |
+| `src/db/demo.ts`                                                           | Fills an empty database with demo data (14 albums, months of plays, a stylus) for the public demo.                                                            |
+| `src/db/demo-releases.json`                                                | The demo albums' real Discogs details and covers, saved once so the demo never needs Discogs to start.                                                        |
+| `src/db/migrate.ts`                                                        | Applies database updates by hand (the server also does it on start).                                                                                          |
+| `drizzle/`                                                                 | **Migrations**: generated files of instructions that create and update the tables. Committed; never edited by hand.                                           |
+| `test/`                                                                    | Automatic tests. `helpers.ts` gives each test its own temporary database.                                                                                     |
+| `test/fixtures/discogs/`                                                   | Real Discogs answers saved as files, so tests never contact Discogs or need a token.                                                                          |
+| `drizzle.config.ts`, `tsup.config.ts`, `vitest.config.ts`, `tsconfig.json` | Settings for the database tools, the build, the tests and TypeScript.                                                                                         |
 
 ### `client/`: the dining room
 
@@ -335,6 +338,13 @@ Records added by hand have no tracklist, so they log the whole record using the 
 2. A **play** in the diary can have its own stars ("how was this listen?"), picked when logging it.
 3. **Reviews can be shared, notes can't**: ratings and reviews appear on the public profile when it's turned on; notes on records and plays never do.
 4. Nothing is worked out ahead of time: "highest rated", the average and the spread on the Stats page are all computed from the saved ratings when asked.
+
+### How "What should I play tonight?" picks
+
+1. You say how much time you have, a genre and a mood (all optional).
+2. The server goes through **your own** records. One is dropped if it has the wrong genre, or if nothing on it fits the time. For time it tries the whole record first, then the longest run of sides in a row that fits ("sides A and B").
+3. Every record left gets a score from two things only this app knows: **dust** (how long since its last play) and **your rating**. The mood decides which counts more. Something played in the last two days goes to the bottom.
+4. The best three are shown, avoiding two by the same artist. Nothing is random, so the same question gives the same answer; "Shuffle" asks again, leaving out the ones already shown.
 
 ### How public profiles stay private until shared
 

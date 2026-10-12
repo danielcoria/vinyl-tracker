@@ -67,6 +67,7 @@ describe('without logging in', () => {
       '/api/dust',
       '/api/styluses',
       '/api/settings',
+      '/api/suggestions',
     ]) {
       const res = await visitor.get(address);
       expect(res.status, address).toBe(401);
@@ -134,12 +135,17 @@ describe("someone else's plays", () => {
     expect(alexsDiary.spins.map((s) => s.id)).toEqual([alexSpinId]);
   });
 
-  it("don't count in your stats or dust report", async () => {
+  it("don't count in your stats, dust report or suggestions", async () => {
     const stats = statsSchema.parse((await ctx.blair.get('/api/stats')).body);
     expect(stats.totals.spinCount).toBe(0);
 
     const dust = await ctx.blair.get('/api/dust');
     expect(dust.body.collectionCount).toBe(0);
+
+    // "What should I play tonight?" only ever suggests your own records.
+    const suggestions = await ctx.blair.get('/api/suggestions');
+    expect(suggestions.body).toEqual({ suggestions: [], matchCount: 0, genres: [] });
+    expect((await ctx.alex.get('/api/suggestions')).body.matchCount).toBe(1);
   });
 });
 

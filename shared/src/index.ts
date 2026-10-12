@@ -19,3 +19,4 @@ export * from './dust.js';
 export * from './styluses.js';
 export * from './auth.js';
 export * from './profiles.js';
+export * from './suggestions.js';
