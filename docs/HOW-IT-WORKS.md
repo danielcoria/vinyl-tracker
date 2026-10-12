@@ -64,6 +64,8 @@ The terminal goes quiet after startup because both programs are just waiting. Th
 | `/tonight`            | "What should I play tonight?": three picks from your shelf for the time, mood and genre you choose | `pages/TonightPage.tsx`                       |
 | `/dust`               | Records gathering dust and never played, plus "Pick one for me"                                    | `pages/DustPage.tsx`                          |
 | `/stylus`             | Stylus wear meter, "install a new stylus", past styluses                                           | `pages/StylusPage.tsx`                        |
+| `/streaming`          | Streaming vs. shelf: albums streamed a lot (Last.fm) but not owned, with vinyl prices              | `pages/StreamingPage.tsx`                     |
+| `/wishlist`           | Albums to buy one day, with current prices                                                         | `pages/WishlistPage.tsx`                      |
 | `/u/daniel`           | A public profile: shelf, most-played, recent plays (no login needed once it's made public)         | `pages/ProfilePage.tsx`                       |
 | `/u/daniel/year/2026` | "Year in records": one year's recap with a chart                                                   | `pages/YearInRecordsPage.tsx`                 |
 | `/login`, `/signup`   | Logging in and creating an account (every other page needs a login)                                | `pages/LoginPage.tsx`, `pages/SignupPage.tsx` |
@@ -221,86 +223,92 @@ pages/ ─▶ features/collection/ ─▶ api/ ─▶ server
  screen)     cards, form, covers)    the server)
 ```
 
-| File                                           | What it does                                                                                                                                                  |
-| ---------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `index.html`                                   | The single, nearly empty HTML page. React fills it in.                                                                                                        |
-| `src/main.tsx`                                 | **Start here.** Plugs React into the page and sets up data fetching and the router.                                                                           |
-| `src/App.tsx`                                  | **The list of screens**: which page to show for each address.                                                                                                 |
-| `src/components/Layout.tsx`                    | The frame around every screen: header with the app name, footer with the server status.                                                                       |
-| `src/pages/CollectionPage.tsx`                 | The home screen: a grid of your records with search and sort.                                                                                                 |
-| `src/pages/RecordDetailPage.tsx`               | One record's page, with Edit and Delete.                                                                                                                      |
-| `src/pages/NewRecordPage.tsx`                  | The "Add a record" screen.                                                                                                                                    |
-| `src/pages/EditRecordPage.tsx`                 | The "Edit record" screen.                                                                                                                                     |
-| `src/pages/DiscogsPage.tsx`                    | Search Discogs. "Add to collection" imports a release; in link mode, "Use this release" fills in an existing record.                                          |
-| `src/pages/DiaryPage.tsx`                      | The listening diary: every logged play, grouped by day.                                                                                                       |
-| `src/pages/StatsPage.tsx`                      | The Stats page: pick a period, see totals, top 10 lists and the genre chart. Loaded lazily (see below).                                                       |
-| `src/pages/TonightPage.tsx`                    | **What should I play tonight?**: the time, mood and genre buttons, the three picks, and Shuffle.                                                              |
-| `src/pages/ProfilePage.tsx`                    | **A public profile**: totals, links to each year, most-played records and artists, recent plays and the shelf. "No profile here" for private or missing ones. |
-| `src/pages/YearInRecordsPage.tsx`              | **Year in records**: record and artist of the year, busiest month, a chart by month, top records, artists and genres. Loaded lazily, like Stats.              |
-| `src/pages/DustPage.tsx`                       | The dust report: forgotten records, the days setting, and "Pick one for me".                                                                                  |
-| `src/pages/StylusPage.tsx`                     | The stylus wear tracker: the stylus in use, its meter and estimate, and past styluses.                                                                        |
-| `src/pages/LoginPage.tsx`                      | Logging in (and "Try the demo" on the demo site).                                                                                                             |
-| `src/pages/SignupPage.tsx`                     | Creating an account.                                                                                                                                          |
-| `src/pages/NotFoundPage.tsx`                   | Shown for addresses (or records) that don't exist.                                                                                                            |
-| `src/features/discogs/DiscogsResult.tsx`       | One release in the Discogs results: thumbnail, details, and a button.                                                                                         |
-| `src/features/spins/RecordPlays.tsx`           | The listening part of a record's page: play count, "Log a play", its plays and its tracklist.                                                                 |
-| `src/features/spins/LogSpinPanel.tsx`          | **The "Log a play" panel**: tick sides, choose when, and the length fills itself in.                                                                          |
-| `src/features/spins/SpinList.tsx`              | A list of plays (used on the Diary page and on record pages), with delete buttons.                                                                            |
-| `src/features/spins/Tracklist.tsx`             | A record's songs, grouped by side, with lengths.                                                                                                              |
-| `src/features/spins/sides.ts`                  | Groups tracks by side, adds up side lengths, and writes "Sides A & C".                                                                                        |
-| `src/features/spins/dates.ts`                  | Shows times in your local time zone ("7:30 PM", "Monday, October 6").                                                                                         |
-| `src/features/stats/GenresByMonth.tsx`         | **The genre chart** (stacked columns per month, a hover box, and "Show as table"). Drawn with Recharts.                                                       |
-| `src/features/stats/chart-colors.ts`           | The chart's colors, checked to be colorblind-safe in light and dark mode. A genre keeps its color when you switch periods.                                    |
-| `src/features/stats/RankedBars.tsx`            | A top-10 list with a bar for each entry and the numbers at the end of the bar.                                                                                |
-| `src/features/stats/StatTiles.tsx`             | The row of big numbers (plays, hours, records, artists).                                                                                                      |
-| `src/features/tonight/SuggestionCard.tsx`      | One suggested record: what to put on, why, and a button that logs the play in one click.                                                                      |
-| `src/features/tonight/reasons.ts`              | Turns the facts about a pick into lines like "Last played 4 months ago".                                                                                      |
-| `src/features/profiles/ProfileHeader.tsx`      | The top of a profile: name, "collecting since", the Share button (copies the link) and, for the owner, the Public profile switch.                             |
-| `src/features/profiles/Shelf.tsx`              | Someone's records as a grid of covers (read-only).                                                                                                            |
-| `src/features/profiles/RecentPlays.tsx`        | The latest plays on a profile, without notes or delete buttons.                                                                                               |
-| `src/features/profiles/MonthChart.tsx`         | The "listening by month" chart on the year page, with a hover box and "Show as table".                                                                        |
-| `src/features/profiles/year.ts`                | Finds the busiest month.                                                                                                                                      |
-| `src/features/profiles/Reviews.tsx`            | The "Highest rated" and "Reviews" sections of a profile.                                                                                                      |
-| `src/features/ratings/Stars.tsx`               | Shows a star rating (read-only): grey stars with colored ones on top, cut off at the rating.                                                                  |
-| `src/features/ratings/StarRating.tsx`          | The clickable stars: each star has two halves, and underneath they're ten ordinary radio buttons so the keyboard works too.                                   |
-| `src/features/ratings/RecordReview.tsx`        | The "Your rating" box on a record's page: stars save on click, the review has its own Save button.                                                            |
-| `src/features/ratings/RatingSpread.tsx`        | The "Your ratings" card on the Stats page: how many records got each rating.                                                                                  |
-| `src/features/ratings/format.ts`               | Words for ratings ("4.5 stars").                                                                                                                              |
-| `src/features/stats/format.ts`                 | Writes times like "12.5 h" and "1 h 05 min", and months like "Oct".                                                                                           |
-| `src/features/dust/DustGrid.tsx`               | A grid of forgotten records, each saying "Last played 4 months ago" or "Added 2 years ago".                                                                   |
-| `src/features/dust/time-ago.ts`                | Turns a number of days into words like "4 months ago".                                                                                                        |
-| `src/features/stylus/StylusMeter.tsx`          | The wear meter: a bar that turns amber then red, with the status in words and an icon.                                                                        |
-| `src/features/stylus/StylusForm.tsx`           | The form for adding or editing a stylus.                                                                                                                      |
-| `src/features/stylus/StylusBanner.tsx`         | The warning across the top of every page when the stylus is getting worn. The × hides it until the site is opened again (or the stylus gets worse).           |
-| `src/features/stylus/status.ts`                | The icon and words for each status ("⚠ Replace soon"), and hours formatting.                                                                                  |
-| `src/features/auth/guards.tsx`                 | Which pages need a login, and sending people to log in first.                                                                                                 |
-| `src/features/auth/next.ts`                    | Makes sure "go back to where you were" after logging in only goes to pages on this site.                                                                      |
-| `src/features/collection/RecordForm.tsx`       | **The add/edit form**: every field, the problem messages, and the Save button.                                                                                |
-| `src/features/collection/form-values.ts`       | Converts between what you type ("42:49") and what the server wants (2569 seconds), and checks it.                                                             |
-| `src/features/collection/TagInput.tsx`         | The box for genres and styles: type, press Enter, get a chip with an ×.                                                                                       |
-| `src/features/collection/RecordCard.tsx`       | One record in the grid.                                                                                                                                       |
-| `src/features/collection/RecordCover.tsx`      | The cover picture, or a drawn vinyl disc when there isn't one.                                                                                                |
-| `src/features/collection/format.ts`            | Turns data into text: artist lists, lengths ("42:49"), condition names ("Very Good Plus").                                                                    |
-| `src/features/collection/useRecordId.ts`       | Reads the record number from the address (`/records/5` gives 5).                                                                                              |
-| `src/features/collection/useDebouncedValue.ts` | Waits until you stop typing before searching.                                                                                                                 |
-| `src/api/client.ts`                            | The one place the website sends requests to the server, plus friendly error messages.                                                                         |
-| `src/api/records.ts`                           | Hooks for records: `useRecords`, `useRecord`, `useCreateRecord`, `useUpdateRecord`, `useDeleteRecord`.                                                        |
-| `src/api/discogs.ts`                           | Hooks for Discogs: `useDiscogsSearch`, `useImportRelease`, `useLinkRecord`. They only talk to our server.                                                     |
-| `src/api/spins.ts`                             | Hooks for the diary: `useTracks`, `useSpins`, `useLogSpin`, `useDeleteSpin`.                                                                                  |
-| `src/api/stats.ts`                             | `useStats(period)`: turns "this year" into an exact start time in your time zone and fetches the numbers.                                                     |
-| `src/api/suggestions.ts`                       | `useSuggestions(ask)`: fetches the picks for a time, genre and mood.                                                                                          |
-| `src/api/profiles.ts`                          | `useProfile` and `useYearInRecords`: fetch a public profile or a year recap, in your time zone.                                                               |
-| `src/api/dust.ts`                              | Hooks for the dust report and settings: `useDustReport`, `useSettings`, `useUpdateSettings`.                                                                  |
-| `src/api/styluses.ts`                          | Hooks for styluses: `useStyluses`, `useActiveStylus`, `useAddStylus`, `useUpdateStylus`, `useDeleteStylus`.                                                   |
-| `src/api/auth.ts`                              | Hooks for accounts: `useMe`, `useLogin`, `useSignup`, `useDemoLogin`, `useLogout`.                                                                            |
-| `src/api/query-client.ts`                      | Sets up TanStack Query, and sends you to the login page if your login expires.                                                                                |
-| `src/api/health.ts`                            | A hook (`useHealth`) for the server status shown in the footer.                                                                                               |
-| `src/index.css`                                | How everything looks, including light and dark mode.                                                                                                          |
-| `src/test/fake-api.ts`                         | A pretend server for tests, plus `makeRecord()` for sample data.                                                                                              |
-| `src/test/render.tsx`                          | Draws the whole app in a test, starting at any address.                                                                                                       |
-| `src/test/setup.ts`                            | Runs before website tests.                                                                                                                                    |
-| `*.test.ts`, `*.test.tsx`                      | Tests, next to the file they test.                                                                                                                            |
-| `vite.config.ts`                               | Settings for Vite, including forwarding `/api` requests to the server.                                                                                        |
+| File                                           | What it does                                                                                                                                                    |
+| ---------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `index.html`                                   | The single, nearly empty HTML page. React fills it in.                                                                                                          |
+| `src/main.tsx`                                 | **Start here.** Plugs React into the page and sets up data fetching and the router.                                                                             |
+| `src/App.tsx`                                  | **The list of screens**: which page to show for each address.                                                                                                   |
+| `src/components/Layout.tsx`                    | The frame around every screen: header with the app name, footer with the server status.                                                                         |
+| `src/pages/CollectionPage.tsx`                 | The home screen: a grid of your records with search and sort.                                                                                                   |
+| `src/pages/RecordDetailPage.tsx`               | One record's page, with Edit and Delete.                                                                                                                        |
+| `src/pages/NewRecordPage.tsx`                  | The "Add a record" screen.                                                                                                                                      |
+| `src/pages/EditRecordPage.tsx`                 | The "Edit record" screen.                                                                                                                                       |
+| `src/pages/DiscogsPage.tsx`                    | Search Discogs. "Add to collection" imports a release; in link mode, "Use this release" fills in an existing record.                                            |
+| `src/pages/DiaryPage.tsx`                      | The listening diary: every logged play, grouped by day.                                                                                                         |
+| `src/pages/StatsPage.tsx`                      | The Stats page: pick a period, see totals, top 10 lists and the genre chart. Loaded lazily (see below).                                                         |
+| `src/pages/TonightPage.tsx`                    | **What should I play tonight?**: the time, mood and genre buttons, the three picks, and Shuffle.                                                                |
+| `src/pages/StreamingPage.tsx`                  | **Streaming vs. shelf**: asks for a Last.fm username, then lists streamed albums that aren't on the shelf (with prices and "+ Wishlist") and the ones that are. |
+| `src/pages/WishlistPage.tsx`                   | **The wishlist**: each album with why it's there, its price, a Discogs link and Remove.                                                                         |
+| `src/pages/ProfilePage.tsx`                    | **A public profile**: totals, links to each year, most-played records and artists, recent plays and the shelf. "No profile here" for private or missing ones.   |
+| `src/pages/YearInRecordsPage.tsx`              | **Year in records**: record and artist of the year, busiest month, a chart by month, top records, artists and genres. Loaded lazily, like Stats.                |
+| `src/pages/DustPage.tsx`                       | The dust report: forgotten records, the days setting, and "Pick one for me".                                                                                    |
+| `src/pages/StylusPage.tsx`                     | The stylus wear tracker: the stylus in use, its meter and estimate, and past styluses.                                                                          |
+| `src/pages/LoginPage.tsx`                      | Logging in (and "Try the demo" on the demo site).                                                                                                               |
+| `src/pages/SignupPage.tsx`                     | Creating an account.                                                                                                                                            |
+| `src/pages/NotFoundPage.tsx`                   | Shown for addresses (or records) that don't exist.                                                                                                              |
+| `src/features/discogs/DiscogsResult.tsx`       | One release in the Discogs results: thumbnail, details, and a button.                                                                                           |
+| `src/features/spins/RecordPlays.tsx`           | The listening part of a record's page: play count, "Log a play", its plays and its tracklist.                                                                   |
+| `src/features/spins/LogSpinPanel.tsx`          | **The "Log a play" panel**: tick sides, choose when, and the length fills itself in.                                                                            |
+| `src/features/spins/SpinList.tsx`              | A list of plays (used on the Diary page and on record pages), with delete buttons.                                                                              |
+| `src/features/spins/Tracklist.tsx`             | A record's songs, grouped by side, with lengths.                                                                                                                |
+| `src/features/spins/sides.ts`                  | Groups tracks by side, adds up side lengths, and writes "Sides A & C".                                                                                          |
+| `src/features/spins/dates.ts`                  | Shows times in your local time zone ("7:30 PM", "Monday, October 6").                                                                                           |
+| `src/features/stats/GenresByMonth.tsx`         | **The genre chart** (stacked columns per month, a hover box, and "Show as table"). Drawn with Recharts.                                                         |
+| `src/features/stats/chart-colors.ts`           | The chart's colors, checked to be colorblind-safe in light and dark mode. A genre keeps its color when you switch periods.                                      |
+| `src/features/stats/RankedBars.tsx`            | A top-10 list with a bar for each entry and the numbers at the end of the bar.                                                                                  |
+| `src/features/stats/StatTiles.tsx`             | The row of big numbers (plays, hours, records, artists).                                                                                                        |
+| `src/features/tonight/SuggestionCard.tsx`      | One suggested record: what to put on, why, and a button that logs the play in one click.                                                                        |
+| `src/features/tonight/reasons.ts`              | Turns the facts about a pick into lines like "Last played 4 months ago".                                                                                        |
+| `src/features/streaming/PriceTag.tsx`          | Shows an album's cheapest vinyl price. The first few on a page look it up by themselves; the rest wait for "Check price".                                       |
+| `src/features/streaming/LastfmConnect.tsx`     | The box for entering, changing or disconnecting the Last.fm username.                                                                                           |
+| `src/features/streaming/format.ts`             | Words and numbers: "Streamed 412 times", prices, the Discogs search link.                                                                                       |
+| `src/features/profiles/ProfileHeader.tsx`      | The top of a profile: name, "collecting since", the Share button (copies the link) and, for the owner, the Public profile switch.                               |
+| `src/features/profiles/Shelf.tsx`              | Someone's records as a grid of covers (read-only).                                                                                                              |
+| `src/features/profiles/RecentPlays.tsx`        | The latest plays on a profile, without notes or delete buttons.                                                                                                 |
+| `src/features/profiles/MonthChart.tsx`         | The "listening by month" chart on the year page, with a hover box and "Show as table".                                                                          |
+| `src/features/profiles/year.ts`                | Finds the busiest month.                                                                                                                                        |
+| `src/features/profiles/Reviews.tsx`            | The "Highest rated" and "Reviews" sections of a profile.                                                                                                        |
+| `src/features/ratings/Stars.tsx`               | Shows a star rating (read-only): grey stars with colored ones on top, cut off at the rating.                                                                    |
+| `src/features/ratings/StarRating.tsx`          | The clickable stars: each star has two halves, and underneath they're ten ordinary radio buttons so the keyboard works too.                                     |
+| `src/features/ratings/RecordReview.tsx`        | The "Your rating" box on a record's page: stars save on click, the review has its own Save button.                                                              |
+| `src/features/ratings/RatingSpread.tsx`        | The "Your ratings" card on the Stats page: how many records got each rating.                                                                                    |
+| `src/features/ratings/format.ts`               | Words for ratings ("4.5 stars").                                                                                                                                |
+| `src/features/stats/format.ts`                 | Writes times like "12.5 h" and "1 h 05 min", and months like "Oct".                                                                                             |
+| `src/features/dust/DustGrid.tsx`               | A grid of forgotten records, each saying "Last played 4 months ago" or "Added 2 years ago".                                                                     |
+| `src/features/dust/time-ago.ts`                | Turns a number of days into words like "4 months ago".                                                                                                          |
+| `src/features/stylus/StylusMeter.tsx`          | The wear meter: a bar that turns amber then red, with the status in words and an icon.                                                                          |
+| `src/features/stylus/StylusForm.tsx`           | The form for adding or editing a stylus.                                                                                                                        |
+| `src/features/stylus/StylusBanner.tsx`         | The warning across the top of every page when the stylus is getting worn. The × hides it until the site is opened again (or the stylus gets worse).             |
+| `src/features/stylus/status.ts`                | The icon and words for each status ("⚠ Replace soon"), and hours formatting.                                                                                    |
+| `src/features/auth/guards.tsx`                 | Which pages need a login, and sending people to log in first.                                                                                                   |
+| `src/features/auth/next.ts`                    | Makes sure "go back to where you were" after logging in only goes to pages on this site.                                                                        |
+| `src/features/collection/RecordForm.tsx`       | **The add/edit form**: every field, the problem messages, and the Save button.                                                                                  |
+| `src/features/collection/form-values.ts`       | Converts between what you type ("42:49") and what the server wants (2569 seconds), and checks it.                                                               |
+| `src/features/collection/TagInput.tsx`         | The box for genres and styles: type, press Enter, get a chip with an ×.                                                                                         |
+| `src/features/collection/RecordCard.tsx`       | One record in the grid.                                                                                                                                         |
+| `src/features/collection/RecordCover.tsx`      | The cover picture, or a drawn vinyl disc when there isn't one.                                                                                                  |
+| `src/features/collection/format.ts`            | Turns data into text: artist lists, lengths ("42:49"), condition names ("Very Good Plus").                                                                      |
+| `src/features/collection/useRecordId.ts`       | Reads the record number from the address (`/records/5` gives 5).                                                                                                |
+| `src/features/collection/useDebouncedValue.ts` | Waits until you stop typing before searching.                                                                                                                   |
+| `src/api/client.ts`                            | The one place the website sends requests to the server, plus friendly error messages.                                                                           |
+| `src/api/records.ts`                           | Hooks for records: `useRecords`, `useRecord`, `useCreateRecord`, `useUpdateRecord`, `useDeleteRecord`.                                                          |
+| `src/api/discogs.ts`                           | Hooks for Discogs: `useDiscogsSearch`, `useImportRelease`, `useLinkRecord`. They only talk to our server.                                                       |
+| `src/api/spins.ts`                             | Hooks for the diary: `useTracks`, `useSpins`, `useLogSpin`, `useDeleteSpin`.                                                                                    |
+| `src/api/stats.ts`                             | `useStats(period)`: turns "this year" into an exact start time in your time zone and fetches the numbers.                                                       |
+| `src/api/suggestions.ts`                       | `useSuggestions(ask)`: fetches the picks for a time, genre and mood.                                                                                            |
+| `src/api/streaming.ts`                         | Hooks for streaming vs. shelf, prices, and the wishlist (list, add, remove).                                                                                    |
+| `src/api/profiles.ts`                          | `useProfile` and `useYearInRecords`: fetch a public profile or a year recap, in your time zone.                                                                 |
+| `src/api/dust.ts`                              | Hooks for the dust report and settings: `useDustReport`, `useSettings`, `useUpdateSettings`.                                                                    |
+| `src/api/styluses.ts`                          | Hooks for styluses: `useStyluses`, `useActiveStylus`, `useAddStylus`, `useUpdateStylus`, `useDeleteStylus`.                                                     |
+| `src/api/auth.ts`                              | Hooks for accounts: `useMe`, `useLogin`, `useSignup`, `useDemoLogin`, `useLogout`.                                                                              |
+| `src/api/query-client.ts`                      | Sets up TanStack Query, and sends you to the login page if your login expires.                                                                                  |
+| `src/api/health.ts`                            | A hook (`useHealth`) for the server status shown in the footer.                                                                                                 |
+| `src/index.css`                                | How everything looks, including light and dark mode.                                                                                                            |
+| `src/test/fake-api.ts`                         | A pretend server for tests, plus `makeRecord()` for sample data.                                                                                                |
+| `src/test/render.tsx`                          | Draws the whole app in a test, starting at any address.                                                                                                         |
+| `src/test/setup.ts`                            | Runs before website tests.                                                                                                                                      |
+| `*.test.ts`, `*.test.tsx`                      | Tests, next to the file they test.                                                                                                                              |
+| `vite.config.ts`                               | Settings for Vite, including forwarding `/api` requests to the server.                                                                                          |
 
 ### How importing from Discogs works
 
@@ -337,6 +345,7 @@ Records added by hand have no tracklist, so they log the whole record using the 
 | `tests/profile.spec.ts`     | Make a profile public, then see it (and its year) as a visitor in another browser; make it private again. |
 | `tests/ratings.spec.ts`     | Rate and review a record, then see the stars in the collection and the review on the profile.             |
 | `tests/tonight.spec.ts`     | Ask what to play with different amounts of time, then log a pick in one click.                            |
+| `tests/streaming.spec.ts`   | Connect a Last.fm username, see what's missing with a price, add it to the wishlist and remove it.        |
 
 ### How accounts keep everyone's data separate
 
@@ -358,6 +367,14 @@ Records added by hand have no tracklist, so they log the whole record using the 
 2. The server goes through **your own** records. One is dropped if it has the wrong genre, or if nothing on it fits the time. For time it tries the whole record first, then the longest run of sides in a row that fits ("sides A and B").
 3. Every record left gets a score from two things only this app knows: **dust** (how long since its last play) and **your rating**. The mood decides which counts more. Something played in the last two days goes to the bottom.
 4. The best three are shown, avoiding two by the same artist. Nothing is random, so the same question gives the same answer; "Shuffle" asks again, leaving out the ones already shown.
+
+### How streaming vs. shelf works
+
+1. You give your **Last.fm username** (no password: Last.fm's "top albums" are public). The server asks Last.fm for your most-streamed albums, using an API key that never leaves the server.
+2. Each album is compared with your shelf. Names are boiled down first (no capitals, punctuation or "Deluxe Edition" extras), so "Rumours (Super Deluxe)" counts as the "Rumours" you own.
+3. For albums you don't own, the server asks **Discogs** for the top three vinyl pressings and shows the cheapest one that has copies for sale. Only the first few albums look this up by themselves; the rest wait for "Check price", to stay under Discogs' limit.
+4. "+ Wishlist" saves the album to your wishlist. Adding the same album twice never makes a duplicate.
+5. The public demo has no real Last.fm account, so it uses a made-up listener and says so. The prices are still real.
 
 ### How public profiles stay private until shared
 

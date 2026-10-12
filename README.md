@@ -18,6 +18,7 @@ Click **Try the demo** on the login page to open a shared demo account filled wi
 - **Public profiles.** Each account has a page at `/u/username` with its shelf, most-played records and artists, recent plays, and a "year in records" recap for every year. Private until its owner turns it on; notes and record conditions are never shown.
 - **Ratings and reviews.** Rate records from half a star to five and write a review; rate individual listens in the diary. Sort the collection by rating, see how the ratings are spread, and share reviews on the public profile (private notes are never shared).
 - **"What should I play tonight?"** Say how much time there is, a genre and a mood, and get three picks from the shelf with the reasons: "Never played", "Side A fits your 30 minutes". One click logs the play.
+- **Streaming vs. shelf.** Connect a Last.fm username to see the albums streamed most but not owned on vinyl ("streamed 412 times, from $20.98 on vinyl"), with live Discogs prices, and keep a wishlist. The demo uses sample streaming data.
 
 - **Collection.** Search Discogs and add the exact pressing you own in one click (cover, label, catalog number, tracklist, genres), or add records by hand. Search and sort your shelf.
 - **Listening diary.** Log each play by side: tick the sides you played (A, B, C…), and the length fills itself in from the tracklist. Every play lands in a diary, grouped by day.
@@ -85,6 +86,8 @@ Then open **http://localhost:5173**.
 
 The Discogs token is only needed for "Add from Discogs". You can get one free at [discogs.com/settings/developers](https://www.discogs.com/settings/developers) ("Generate new token"). Everything else works without it.
 
+"Streaming vs. shelf" needs a free Last.fm API key: create one at [last.fm/api/account/create](https://www.last.fm/api/account/create) (any name will do; leave the callback address empty) and put the "API key" in `.env` as `LASTFM_API_KEY`. Prices on that page use the Discogs token.
+
 | Command                              | What it does                                        |
 | ------------------------------------ | --------------------------------------------------- |
 | `npm run dev`                        | Start the website and server, reloading as you edit |
@@ -109,7 +112,6 @@ New to the code? **[docs/HOW-IT-WORKS.md](docs/HOW-IT-WORKS.md)** walks through 
 
 The plan is to grow this into a "Letterboxd for physical music":
 
-- **Streaming vs. shelf:** albums you stream a lot on Last.fm but don't own, with current Discogs prices
 - **Recommendations** based on what you own
 
 ## Credits

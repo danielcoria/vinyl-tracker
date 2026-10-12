@@ -1,0 +1,256 @@
+// ============================================================================
+// StreamingPage.tsx: STREAMING VS. SHELF (/streaming)
+//
+// Compares the albums someone streams most (from Last.fm) with the records on
+// their shelf: "streamed 412 times, not on your shelf, from $28 on vinyl".
+// Albums can be added to the wishlist from here.
+//
+// First visit: asks for a Last.fm username. After that: a list of streamed
+// albums that aren't on the shelf, then the ones that are.
+// ============================================================================
+
+import { useState } from 'react';
+import { Link, useSearchParams } from 'react-router';
+import { STREAMING_PERIODS, type StreamedAlbum, type StreamingPeriod } from '@vinyl/shared';
+import { ApiRequestError, describeError } from '../api/client';
+import { useSettings } from '../api/dust';
+import { useAddToWishlist, useStreaming } from '../api/streaming';
+import { RecordCover } from '../features/collection/RecordCover';
+import { findOnDiscogsUrl, formatStreams } from '../features/streaming/format';
+import { LastfmConnect } from '../features/streaming/LastfmConnect';
+import { PriceTag } from '../features/streaming/PriceTag';
+
+const PERIOD_LABELS: Record<StreamingPeriod, string> = {
+  overall: 'All time',
+  '12month': 'Last 12 months',
+  '6month': 'Last 6 months',
+  '3month': 'Last 3 months',
+  '1month': 'Last month',
+};
+
+/** How many albums look their price up by themselves (the rest have a button). */
+const AUTO_PRICES = 5;
+
+function isPeriod(value: string | null): value is StreamingPeriod {
+  return STREAMING_PERIODS.some((p) => p === value);
+}
+
+export function StreamingPage() {
+  const settings = useSettings();
+  const [searchParams, setSearchParams] = useSearchParams();
+  const param = searchParams.get('period');
+  const period: StreamingPeriod = isPeriod(param) ? param : '12month';
+  const [changing, setChanging] = useState(false);
+
+  const username = settings.data?.lastfmUsername ?? null;
+  const streaming = useStreaming(period, username !== null);
+
+  if (settings.isPending) return <p className="muted">Loading…</p>;
+  if (settings.isError) {
+    return (
+      <div className="error-box" role="alert">
+        <p>Couldn't load your settings: {describeError(settings.error)}</p>
+      </div>
+    );
+  }
+
+  return (
+    <section className="streaming">
+      <div className="page-header">
+        <h1>Streaming vs. shelf</h1>
+        <Link to="/wishlist" className="button">
+          Wishlist
+        </Link>
+      </div>
+
+      {username === null ? (
+        <div className="streaming-intro">
+          <p>
+            See which albums you stream the most but don't own on vinyl, and what they cost right
+            now. It reads your public listening history from Last.fm.
+          </p>
+          <LastfmConnect current={null} />
+        </div>
+      ) : (
+        <>
+          <div className="toolbar">
+            <span>
+              Last.fm: <strong>{username}</strong>
+            </span>
+            <button
+              type="button"
+              className="button button-small"
+              onClick={() => setChanging((v) => !v)}
+            >
+              {changing ? 'Cancel' : 'Change'}
+            </button>
+            <label className="sort">
+              Period
+              <select
+                value={period}
+                onChange={(event) =>
+                  setSearchParams(
+                    event.target.value === '12month' ? {} : { period: event.target.value },
+                    { replace: true },
+                  )
+                }
+              >
+                {STREAMING_PERIODS.map((p) => (
+                  <option key={p} value={p}>
+                    {PERIOD_LABELS[p]}
+                  </option>
+                ))}
+              </select>
+            </label>
+          </div>
+          {changing && <LastfmConnect current={username} onDone={() => setChanging(false)} />}
+
+          {streaming.isPending ? (
+            <p className="muted">Asking Last.fm what you've been streaming…</p>
+          ) : streaming.isError ? (
+            <StreamingError error={streaming.error} />
+          ) : (
+            <Comparison
+              albums={streaming.data.albums}
+              sample={streaming.data.sample}
+              refreshing={streaming.isPlaceholderData}
+            />
+          )}
+        </>
+      )}
+    </section>
+  );
+}
+
+function StreamingError({ error }: { error: Error }) {
+  if (error instanceof ApiRequestError && error.code === 'LASTFM_NOT_CONFIGURED') {
+    return (
+      <div className="empty-state">
+        <h2>Last.fm isn't set up on this server</h2>
+        <p>
+          It needs a free Last.fm API key in the server's <code>.env</code> file (
+          <code>LASTFM_API_KEY</code>). The README explains how to get one.
+        </p>
+      </div>
+    );
+  }
+  return (
+    <div className="error-box" role="alert">
+      <p>Couldn't compare with Last.fm: {describeError(error)}</p>
+    </div>
+  );
+}
+
+type ComparisonProps = { albums: StreamedAlbum[]; sample: boolean; refreshing: boolean };
+
+function Comparison({ albums, sample, refreshing }: ComparisonProps) {
+  const missing = albums.filter((album) => album.ownedRecordId === null);
+  const owned = albums.filter((album) => album.ownedRecordId !== null);
+
+  if (albums.length === 0) {
+    return (
+      <div className="empty-state">
+        <h2>Nothing streamed in this period</h2>
+        <p>Last.fm has no albums for this account and period. Try a longer one.</p>
+      </div>
+    );
+  }
+
+  return (
+    <div className={refreshing ? 'stats-body is-refreshing' : 'stats-body'}>
+      {sample && (
+        <p className="demo-inline" role="note">
+          <strong>Sample data:</strong> the demo isn't connected to a real Last.fm account, so this
+          is a made-up listener. Prices are real, from Discogs.
+        </p>
+      )}
+      <p className="streaming-summary">
+        You own <strong>{owned.length}</strong> of your <strong>{albums.length}</strong>{' '}
+        most-streamed albums on vinyl.
+      </p>
+
+      <section aria-label="Not on your shelf">
+        <h2>
+          Not on your shelf <span className="count">{missing.length}</span>
+        </h2>
+        {missing.length === 0 ? (
+          <p className="muted">You own everything you stream. Impressive.</p>
+        ) : (
+          <ul className="album-list">
+            {missing.map((album, index) => (
+              <MissingAlbum key={album.rank} album={album} autoPrice={index < AUTO_PRICES} />
+            ))}
+          </ul>
+        )}
+      </section>
+
+      {owned.length > 0 && (
+        <section aria-label="Already on your shelf">
+          <h2>
+            Already on your shelf <span className="count">{owned.length}</span>
+          </h2>
+          <ul className="owned-list">
+            {owned.map((album) => (
+              <li key={album.rank}>
+                <Link to={`/records/${album.ownedRecordId}`}>{album.title}</Link>
+                <span className="muted">
+                  {' '}
+                  · {album.artist} · {formatStreams(album.playCount)}
+                </span>
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
+    </div>
+  );
+}
+
+function MissingAlbum({ album, autoPrice }: { album: StreamedAlbum; autoPrice: boolean }) {
+  // Each album has its own "add" state, so one button doesn't affect the others.
+  const addToWishlist = useAddToWishlist();
+  const onWishlist = album.wishlistItemId !== null || addToWishlist.isSuccess;
+
+  return (
+    <li className="album-row">
+      <span className="album-cover">
+        <RecordCover record={album} />
+      </span>
+      <div className="album-info">
+        <span className="album-title">{album.title}</span>
+        <span className="muted">{album.artist}</span>
+        <span>{formatStreams(album.playCount)}</span>
+        <PriceTag artist={album.artist} title={album.title} auto={autoPrice} />
+        {addToWishlist.isError && (
+          <span className="field-error" role="alert">
+            Couldn't add it: {describeError(addToWishlist.error)}
+          </span>
+        )}
+      </div>
+      <div className="album-actions">
+        {onWishlist ? (
+          <span className="on-wishlist">✓ On your wishlist</span>
+        ) : (
+          <button
+            type="button"
+            className="button button-primary"
+            disabled={addToWishlist.isPending}
+            onClick={() =>
+              addToWishlist.mutate({
+                title: album.title,
+                artist: album.artist,
+                coverImageUrl: album.coverImageUrl,
+                playCount: album.playCount,
+              })
+            }
+          >
+            {addToWishlist.isPending ? 'Adding…' : '+ Wishlist'}
+          </button>
+        )}
+        <Link to={findOnDiscogsUrl(album)} className="button">
+          Find on Discogs
+        </Link>
+      </div>
+    </li>
+  );
+}

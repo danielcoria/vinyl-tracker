@@ -45,15 +45,16 @@ It runs as an ordinary user (not the all-powerful "root"), and reports its healt
 
 ## Settings (environment variables)
 
-| Setting              | Needed?              | What it does                                                                                                                                                                                                |
-| -------------------- | -------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `APP_PASSWORD`       | **Yes, online**      | The site-wide password (at least 8 characters). Until accounts exist (M11), this is what keeps strangers out. Leave it unset only on your own computer.                                                     |
-| `DISCOGS_TOKEN`      | For Discogs features | Your Discogs personal access token. Without it, Discogs search and import say "not set up".                                                                                                                 |
-| `DISCOGS_USER_AGENT` | Recommended          | Identifies the app to Discogs, e.g. `VinylTracker/0.1 +https://github.com/<you>/vinyl-tracker`.                                                                                                             |
-| `DEMO_MODE`          | Demo only            | `true` fills an empty database with sample data on start and shows a "Demo" note. See below.                                                                                                                |
-| `TRUST_PROXY`        | On most hosts        | Set to `true` when the host puts a proxy in front of the app (almost all do, to provide HTTPS). It lets the password lock see each visitor's real address. Leave it `false` if the app is reached directly. |
-| `PORT`               | Set by the image     | `3000` by default. Some hosts set their own.                                                                                                                                                                |
-| `DATABASE_PATH`      | Set by the image     | `/data/vinyl.db`, on the permanent disk.                                                                                                                                                                    |
+| Setting              | Needed?                 | What it does                                                                                                                                                                                                |
+| -------------------- | ----------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `APP_PASSWORD`       | **Yes, online**         | The site-wide password (at least 8 characters). Until accounts exist (M11), this is what keeps strangers out. Leave it unset only on your own computer.                                                     |
+| `DISCOGS_TOKEN`      | For Discogs features    | Your Discogs personal access token. Without it, Discogs search and import say "not set up".                                                                                                                 |
+| `DISCOGS_USER_AGENT` | Recommended             | Identifies the app to Discogs, e.g. `VinylTracker/0.1 +https://github.com/<you>/vinyl-tracker`.                                                                                                             |
+| `LASTFM_API_KEY`     | For streaming vs. shelf | A free Last.fm API key ([create one](https://www.last.fm/api/account/create)). Without it the page says "not set up" (the demo shows built-in sample data instead).                                         |
+| `DEMO_MODE`          | Demo only               | `true` fills an empty database with sample data on start and shows a "Demo" note. See below.                                                                                                                |
+| `TRUST_PROXY`        | On most hosts           | Set to `true` when the host puts a proxy in front of the app (almost all do, to provide HTTPS). It lets the password lock see each visitor's real address. Leave it `false` if the app is reached directly. |
+| `PORT`               | Set by the image        | `3000` by default. Some hosts set their own.                                                                                                                                                                |
+| `DATABASE_PATH`      | Set by the image        | `/data/vinyl.db`, on the permanent disk.                                                                                                                                                                    |
 
 Keep `APP_PASSWORD` and `DISCOGS_TOKEN` in the host's **secrets** settings, never in the code.
 

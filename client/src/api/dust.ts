@@ -44,6 +44,8 @@ export function useUpdateSettings() {
       return Promise.all([
         queryClient.invalidateQueries({ queryKey: dustKeys.report }),
         queryClient.invalidateQueries({ queryKey: profileKeys.all }),
+        // A different Last.fm username means a different comparison.
+        queryClient.invalidateQueries({ queryKey: ['records', 'streaming'] }),
       ]);
     },
   });

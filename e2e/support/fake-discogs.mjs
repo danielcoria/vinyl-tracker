@@ -7,6 +7,8 @@
 // fixtures:
 //   GET /database/search         -> a search for "Kind of Blue"
 //   GET /releases/2772432        -> the full Kind of Blue release
+//   GET /marketplace/stats/2772432 -> its cheapest copy for sale
+//   GET /2.0/                    -> (as Last.fm) a listener's most-streamed albums
 //   anything else                -> 404, like Discogs for an unknown release
 // ============================================================================
 
@@ -14,13 +16,16 @@ import { readFileSync } from 'node:fs';
 import { createServer } from 'node:http';
 
 const PORT = Number(process.env.FAKE_DISCOGS_PORT ?? 3199);
-const fixture = (name) =>
-  readFileSync(new URL(`../../server/test/fixtures/discogs/${name}`, import.meta.url), 'utf8');
+const fixture = (name, folder = 'discogs') =>
+  readFileSync(new URL(`../../server/test/fixtures/${folder}/${name}`, import.meta.url), 'utf8');
 
 const routes = {
   '/health': () => '{"status":"ok"}',
   '/database/search': () => fixture('search-kind-of-blue.json'),
   '/releases/2772432': () => fixture('release-2772432.json'),
+  '/marketplace/stats/2772432': () => fixture('marketplace-stats-2772432.json'),
+  // It also plays Last.fm ("most-streamed albums"), so one fake server covers both.
+  '/2.0/': () => fixture('top-albums.json', 'lastfm'),
 };
 
 createServer((req, res) => {

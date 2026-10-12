@@ -326,6 +326,54 @@ describe('GET /api/streaming/price', () => {
     expect(search?.get('format')).toBe('Vinyl');
   });
 
+  it('compares the top three pressings and picks the cheapest with copies for sale', async () => {
+    const db = createDb(':memory:');
+    const discogs = fakeDiscogs({
+      // The first pressing found costs 24.99 (the default); the second is cheaper;
+      // the third has nothing for sale.
+      '/marketplace/stats/2825456': () =>
+        Response.json({ lowest_price: { currency: 'USD', value: 19.5 }, num_for_sale: 12 }),
+      '/marketplace/stats/7606066': () => Response.json({ lowest_price: null, num_for_sale: 0 }),
+    });
+    const alex = loggedIn(createApp({ db, discogs: discogs.client }), addUser(db, 'alex').cookie);
+
+    const res = await alex
+      .get('/api/streaming/price')
+      .query({ artist: 'Miles Davis', title: 'Kind of Blue' });
+
+    expect(vinylPriceSchema.parse(res.body)).toMatchObject({
+      found: true,
+      releaseId: 2825456,
+      lowestPrice: 19.5,
+      numForSale: 12,
+    });
+    // One search plus three price checks, and no more.
+    expect(discogs.requests.map((r) => r.url.pathname)).toEqual([
+      '/database/search',
+      '/marketplace/stats/2772432',
+      '/marketplace/stats/2825456',
+      '/marketplace/stats/7606066',
+    ]);
+  });
+
+  it('reports the problem when Discogs cannot give any price at all', async () => {
+    const db = createDb(':memory:');
+    const busy = () => Response.json({ message: 'Too many requests' }, { status: 429 });
+    const discogs = fakeDiscogs({
+      '/marketplace/stats/2772432': busy,
+      '/marketplace/stats/2825456': busy,
+      '/marketplace/stats/7606066': busy,
+    });
+    const alex = loggedIn(createApp({ db, discogs: discogs.client }), addUser(db, 'alex').cookie);
+
+    const res = await alex
+      .get('/api/streaming/price')
+      .query({ artist: 'Miles Davis', title: 'Kind of Blue' });
+
+    expect(res.status).toBe(503);
+    expect(code(res.body)).toBe('DISCOGS_BUSY');
+  });
+
   it('says so when Discogs has no vinyl pressing, or none for sale', async () => {
     const none = { pagination: { page: 1, pages: 1 }, results: [] };
     const db = createDb(':memory:');

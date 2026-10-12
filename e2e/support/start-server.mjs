@@ -28,6 +28,9 @@ const server = spawn(process.execPath, ['--import', 'tsx', serverEntry], {
     DATABASE_PATH: database,
     DISCOGS_TOKEN: 'e2e-test-token',
     DISCOGS_API_URL: `http://localhost:${process.env.FAKE_DISCOGS_PORT ?? 3199}`,
+    // The same fake server also answers as Last.fm.
+    LASTFM_API_KEY: 'e2e-test-key',
+    LASTFM_API_URL: `http://localhost:${process.env.FAKE_DISCOGS_PORT ?? 3199}/2.0/`,
   },
 });
 

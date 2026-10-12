@@ -1,0 +1,24 @@
+// ============================================================================
+// format.ts (streaming): WORDS AND NUMBERS FOR STREAMING VS. SHELF
+// ============================================================================
+
+/** "$24.99", "€18.50"... written the way the visitor's own country writes money. */
+export function formatPrice(value: number, currency: string): string {
+  try {
+    return new Intl.NumberFormat(undefined, { style: 'currency', currency }).format(value);
+  } catch {
+    // An unknown currency code: show it as plain text instead of failing.
+    return `${value.toFixed(2)} ${currency}`;
+  }
+}
+
+/** "Streamed 412 times", "Streamed once". */
+export function formatStreams(count: number): string {
+  if (count === 1) return 'Streamed once';
+  return `Streamed ${count.toLocaleString()} times`;
+}
+
+/** The Discogs search page of this app, already filled in with the album. */
+export function findOnDiscogsUrl(album: { artist: string; title: string }): string {
+  return `/discogs?${new URLSearchParams({ q: `${album.artist} ${album.title}` })}`;
+}

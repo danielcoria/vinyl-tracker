@@ -18,6 +18,8 @@
 //   /stats            -> StatsPage (totals, top artists/records, genres by month)
 //   /dust             -> DustPage (records you haven't played in a while)
 //   /stylus           -> StylusPage (stylus wear tracker)
+//   /streaming        -> StreamingPage (most-streamed albums vs. the shelf, with prices)
+//   /wishlist         -> WishlistPage (albums to buy one day)
 //   /u/daniel         -> ProfilePage (a public profile; no login needed)
 //   /u/daniel/year/2026 -> YearInRecordsPage (one year's recap)
 //   anything else     -> NotFoundPage
@@ -38,8 +40,10 @@ import { NotFoundPage } from './pages/NotFoundPage';
 import { ProfilePage } from './pages/ProfilePage';
 import { RecordDetailPage } from './pages/RecordDetailPage';
 import { SignupPage } from './pages/SignupPage';
+import { StreamingPage } from './pages/StreamingPage';
 import { StylusPage } from './pages/StylusPage';
 import { TonightPage } from './pages/TonightPage';
+import { WishlistPage } from './pages/WishlistPage';
 
 // "Lazy" = only downloaded when someone opens the Stats page. It brings in the
 // chart library (Recharts), which is big, so other pages load faster without it.
@@ -83,6 +87,8 @@ export function App() {
           <Route path="diary" element={<DiaryPage />} />
           <Route path="dust" element={<DustPage />} />
           <Route path="stylus" element={<StylusPage />} />
+          <Route path="streaming" element={<StreamingPage />} />
+          <Route path="wishlist" element={<WishlistPage />} />
           <Route
             path="stats"
             element={
