@@ -51,22 +51,23 @@ The terminal goes quiet after startup because both programs are just waiting. Th
 
 ### The screens
 
-| Address               | Screen                                                                                     | File                                          |
-| --------------------- | ------------------------------------------------------------------------------------------ | --------------------------------------------- |
-| `/`                   | Your collection: a grid with search and sort                                               | `pages/CollectionPage.tsx`                    |
-| `/records/new`        | Add a record (a form)                                                                      | `pages/NewRecordPage.tsx`                     |
-| `/records/5`          | Everything about record 5, with Edit and Delete                                            | `pages/RecordDetailPage.tsx`                  |
-| `/records/5/edit`     | The same form as "add", filled in with record 5                                            | `pages/EditRecordPage.tsx`                    |
-| `/discogs`            | Search Discogs and add a release with one click                                            | `pages/DiscogsPage.tsx`                       |
-| `/discogs?link=5`     | "Find on Discogs" for record 5: fills in its cover                                         | `pages/DiscogsPage.tsx`                       |
-| `/diary`              | Your listening diary: every play, newest first, by day                                     | `pages/DiaryPage.tsx`                         |
-| `/stats`              | Totals, most-listened artists and records, genres by month                                 | `pages/StatsPage.tsx`                         |
-| `/dust`               | Records gathering dust and never played, plus "Pick one for me"                            | `pages/DustPage.tsx`                          |
-| `/stylus`             | Stylus wear meter, "install a new stylus", past styluses                                   | `pages/StylusPage.tsx`                        |
-| `/u/daniel`           | A public profile: shelf, most-played, recent plays (no login needed once it's made public) | `pages/ProfilePage.tsx`                       |
-| `/u/daniel/year/2026` | "Year in records": one year's recap with a chart                                           | `pages/YearInRecordsPage.tsx`                 |
-| `/login`, `/signup`   | Logging in and creating an account (every other page needs a login)                        | `pages/LoginPage.tsx`, `pages/SignupPage.tsx` |
-| anything else         | "Not found"                                                                                | `pages/NotFoundPage.tsx`                      |
+| Address               | Screen                                                                                             | File                                          |
+| --------------------- | -------------------------------------------------------------------------------------------------- | --------------------------------------------- |
+| `/`                   | Your collection: a grid with search and sort                                                       | `pages/CollectionPage.tsx`                    |
+| `/records/new`        | Add a record (a form)                                                                              | `pages/NewRecordPage.tsx`                     |
+| `/records/5`          | Everything about record 5, with Edit and Delete                                                    | `pages/RecordDetailPage.tsx`                  |
+| `/records/5/edit`     | The same form as "add", filled in with record 5                                                    | `pages/EditRecordPage.tsx`                    |
+| `/discogs`            | Search Discogs and add a release with one click                                                    | `pages/DiscogsPage.tsx`                       |
+| `/discogs?link=5`     | "Find on Discogs" for record 5: fills in its cover                                                 | `pages/DiscogsPage.tsx`                       |
+| `/diary`              | Your listening diary: every play, newest first, by day                                             | `pages/DiaryPage.tsx`                         |
+| `/stats`              | Totals, most-listened artists and records, genres by month                                         | `pages/StatsPage.tsx`                         |
+| `/tonight`            | "What should I play tonight?": three picks from your shelf for the time, mood and genre you choose | `pages/TonightPage.tsx`                       |
+| `/dust`               | Records gathering dust and never played, plus "Pick one for me"                                    | `pages/DustPage.tsx`                          |
+| `/stylus`             | Stylus wear meter, "install a new stylus", past styluses                                           | `pages/StylusPage.tsx`                        |
+| `/u/daniel`           | A public profile: shelf, most-played, recent plays (no login needed once it's made public)         | `pages/ProfilePage.tsx`                       |
+| `/u/daniel/year/2026` | "Year in records": one year's recap with a chart                                                   | `pages/YearInRecordsPage.tsx`                 |
+| `/login`, `/signup`   | Logging in and creating an account (every other page needs a login)                                | `pages/LoginPage.tsx`, `pages/SignupPage.tsx` |
+| anything else         | "Not found"                                                                                        | `pages/NotFoundPage.tsx`                      |
 
 ### What happens when you save the form
 
@@ -226,6 +227,7 @@ pages/ ─▶ features/collection/ ─▶ api/ ─▶ server
 | `src/pages/DiscogsPage.tsx`                    | Search Discogs. "Add to collection" imports a release; in link mode, "Use this release" fills in an existing record.                                          |
 | `src/pages/DiaryPage.tsx`                      | The listening diary: every logged play, grouped by day.                                                                                                       |
 | `src/pages/StatsPage.tsx`                      | The Stats page: pick a period, see totals, top 10 lists and the genre chart. Loaded lazily (see below).                                                       |
+| `src/pages/TonightPage.tsx`                    | **What should I play tonight?**: the time, mood and genre buttons, the three picks, and Shuffle.                                                              |
 | `src/pages/ProfilePage.tsx`                    | **A public profile**: totals, links to each year, most-played records and artists, recent plays and the shelf. "No profile here" for private or missing ones. |
 | `src/pages/YearInRecordsPage.tsx`              | **Year in records**: record and artist of the year, busiest month, a chart by month, top records, artists and genres. Loaded lazily, like Stats.              |
 | `src/pages/DustPage.tsx`                       | The dust report: forgotten records, the days setting, and "Pick one for me".                                                                                  |
@@ -244,6 +246,8 @@ pages/ ─▶ features/collection/ ─▶ api/ ─▶ server
 | `src/features/stats/chart-colors.ts`           | The chart's colors, checked to be colorblind-safe in light and dark mode. A genre keeps its color when you switch periods.                                    |
 | `src/features/stats/RankedBars.tsx`            | A top-10 list with a bar for each entry and the numbers at the end of the bar.                                                                                |
 | `src/features/stats/StatTiles.tsx`             | The row of big numbers (plays, hours, records, artists).                                                                                                      |
+| `src/features/tonight/SuggestionCard.tsx`      | One suggested record: what to put on, why, and a button that logs the play in one click.                                                                      |
+| `src/features/tonight/reasons.ts`              | Turns the facts about a pick into lines like "Last played 4 months ago".                                                                                      |
 | `src/features/profiles/ProfileHeader.tsx`      | The top of a profile: name, "collecting since", the Share button (copies the link) and, for the owner, the Public profile switch.                             |
 | `src/features/profiles/Shelf.tsx`              | Someone's records as a grid of covers (read-only).                                                                                                            |
 | `src/features/profiles/RecentPlays.tsx`        | The latest plays on a profile, without notes or delete buttons.                                                                                               |
@@ -277,6 +281,7 @@ pages/ ─▶ features/collection/ ─▶ api/ ─▶ server
 | `src/api/discogs.ts`                           | Hooks for Discogs: `useDiscogsSearch`, `useImportRelease`, `useLinkRecord`. They only talk to our server.                                                     |
 | `src/api/spins.ts`                             | Hooks for the diary: `useTracks`, `useSpins`, `useLogSpin`, `useDeleteSpin`.                                                                                  |
 | `src/api/stats.ts`                             | `useStats(period)`: turns "this year" into an exact start time in your time zone and fetches the numbers.                                                     |
+| `src/api/suggestions.ts`                       | `useSuggestions(ask)`: fetches the picks for a time, genre and mood.                                                                                          |
 | `src/api/profiles.ts`                          | `useProfile` and `useYearInRecords`: fetch a public profile or a year recap, in your time zone.                                                               |
 | `src/api/dust.ts`                              | Hooks for the dust report and settings: `useDustReport`, `useSettings`, `useUpdateSettings`.                                                                  |
 | `src/api/styluses.ts`                          | Hooks for styluses: `useStyluses`, `useActiveStylus`, `useAddStylus`, `useUpdateStylus`, `useDeleteStylus`.                                                   |
@@ -324,6 +329,7 @@ Records added by hand have no tracklist, so they log the whole record using the 
 | `tests/vinyl-tools.spec.ts` | The dust report and the stylus warning (including hiding it with ×).                                      |
 | `tests/profile.spec.ts`     | Make a profile public, then see it (and its year) as a visitor in another browser; make it private again. |
 | `tests/ratings.spec.ts`     | Rate and review a record, then see the stars in the collection and the review on the profile.             |
+| `tests/tonight.spec.ts`     | Ask what to play with different amounts of time, then log a pick in one click.                            |
 
 ### How accounts keep everyone's data separate
 

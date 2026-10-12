@@ -1582,3 +1582,91 @@ a.account-name:hover {
 .review-body .review-text {
   margin-top: 0.35rem;
 }
+
+/* ---------- "What should I play tonight?" ---------- */
+.tonight-ask {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem 1.5rem;
+  align-items: flex-end;
+  margin-bottom: 1.5rem;
+}
+
+.tonight-ask .segmented {
+  margin-bottom: 0;
+  flex-wrap: wrap;
+}
+
+.suggestions {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(17rem, 1fr));
+  gap: 1.25rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  transition: opacity 0.15s ease;
+}
+
+.suggestions.is-refreshing {
+  opacity: 0.55;
+}
+
+.suggestion {
+  display: grid;
+  grid-template-columns: 7rem 1fr;
+  gap: 1rem;
+  padding: 1rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--surface);
+}
+
+.suggestion-body {
+  display: grid;
+  gap: 0.3rem;
+  justify-items: start;
+  align-content: start;
+  min-width: 0;
+}
+
+.suggestion-body h2 {
+  margin: 0;
+  font-size: 1.1rem;
+}
+
+.suggestion-body h2 a {
+  color: var(--text);
+  text-decoration: none;
+}
+
+.suggestion-body h2 a:hover {
+  text-decoration: underline;
+}
+
+.suggestion-body p {
+  margin: 0;
+}
+
+.suggestion-what {
+  font-weight: 600;
+}
+
+.suggestion-reasons {
+  margin: 0 0 0.5rem;
+  padding-left: 1.1rem;
+  color: var(--muted);
+  font-size: 0.9rem;
+}
+
+.suggestion-logged {
+  color: var(--success);
+  font-weight: 600;
+}
+
+.tonight-more {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.75rem;
+  margin-top: 1.25rem;
+}

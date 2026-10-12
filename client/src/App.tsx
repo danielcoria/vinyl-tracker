@@ -13,6 +13,7 @@
 //   /records/5        -> RecordDetailPage (record number 5)
 //   /records/5/edit   -> EditRecordPage (edit record number 5)
 //   /discogs          -> DiscogsPage (search Discogs and import)
+//   /tonight          -> TonightPage ("What should I play tonight?")
 //   /diary            -> DiaryPage (every logged play, newest first)
 //   /stats            -> StatsPage (totals, top artists/records, genres by month)
 //   /dust             -> DustPage (records you haven't played in a while)
@@ -38,6 +39,7 @@ import { ProfilePage } from './pages/ProfilePage';
 import { RecordDetailPage } from './pages/RecordDetailPage';
 import { SignupPage } from './pages/SignupPage';
 import { StylusPage } from './pages/StylusPage';
+import { TonightPage } from './pages/TonightPage';
 
 // "Lazy" = only downloaded when someone opens the Stats page. It brings in the
 // chart library (Recharts), which is big, so other pages load faster without it.
@@ -77,6 +79,7 @@ export function App() {
           <Route path="records/:id" element={<RecordDetailPage />} />
           <Route path="records/:id/edit" element={<EditRecordPage />} />
           <Route path="discogs" element={<DiscogsPage />} />
+          <Route path="tonight" element={<TonightPage />} />
           <Route path="diary" element={<DiaryPage />} />
           <Route path="dust" element={<DustPage />} />
           <Route path="stylus" element={<StylusPage />} />

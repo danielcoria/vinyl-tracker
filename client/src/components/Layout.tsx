@@ -40,6 +40,7 @@ export function Layout() {
             <NavLink to="/" end>
               Collection
             </NavLink>
+            <NavLink to="/tonight">Tonight</NavLink>
             <NavLink to="/diary">Diary</NavLink>
             <NavLink to="/stats">Stats</NavLink>
             <NavLink to="/dust">Dust</NavLink>
