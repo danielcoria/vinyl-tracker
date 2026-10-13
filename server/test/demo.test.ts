@@ -17,6 +17,7 @@ import { listSpins } from '../src/services/spins.js';
 import { getStats } from '../src/services/stats.js';
 import { listStyluses } from '../src/services/styluses.js';
 import { getTracks } from '../src/services/tracks.js';
+import { listWishlist } from '../src/services/wishlist.js';
 
 const NOW = Date.parse('2026-10-09T12:00:00.000Z');
 
@@ -102,6 +103,14 @@ describe('seedDemoData', () => {
 
     expect(seedDemoData(db, NOW)).toEqual({ userId, records: 0, spins: 0 });
     expect(listRecords(db, userId, { sort: 'added' })).toHaveLength(14);
+  });
+});
+
+describe('the demo wishlist', () => {
+  it('starts with two albums, so the page has something to show', () => {
+    const { db, userId } = seeded();
+
+    expect(listWishlist(db, userId).map((item) => item.title)).toEqual(['In Rainbows', 'Blonde']);
   });
 });
 

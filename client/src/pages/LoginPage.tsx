@@ -12,6 +12,7 @@ import { loginInputSchema } from '@vinyl/shared';
 import { useDemoLogin, useLogin } from '../api/auth';
 import { describeError } from '../api/client';
 import { useHealth } from '../api/health';
+import { AppIntro } from '../features/auth/AppIntro';
 import { safeNext } from '../features/auth/next';
 
 export function LoginPage() {
@@ -40,69 +41,73 @@ export function LoginPage() {
   const error = problem ?? (login.error ? describeError(login.error) : null);
 
   return (
-    <section className="auth-page">
-      <h1>Log in</h1>
+    // Wide screens: the introduction on the left, the login form on the right.
+    <div className="welcome">
+      <AppIntro />
+      <section className="auth-page">
+        <h1>Log in</h1>
 
-      {health.data?.demo && (
-        <div className="auth-demo">
-          <p>Just looking around? Use the demo collection, no account needed.</p>
-          <button
-            type="button"
-            className="button button-primary"
-            disabled={demoLogin.isPending}
-            onClick={() =>
-              demoLogin.mutate(undefined, { onSuccess: () => navigate(next, { replace: true }) })
-            }
-          >
-            {demoLogin.isPending ? 'Opening the demo…' : 'Try the demo'}
-          </button>
-          {demoLogin.error && (
-            <p className="field-error" role="alert">
-              {describeError(demoLogin.error)}
-            </p>
-          )}
-        </div>
-      )}
-
-      <form className="auth-form" onSubmit={handleSubmit} noValidate>
-        <div className="field">
-          <label htmlFor={`${id}-username`}>Username</label>
-          <input
-            id={`${id}-username`}
-            autoComplete="username"
-            autoCapitalize="none"
-            value={username}
-            onChange={(event) => setUsername(event.target.value)}
-          />
-        </div>
-        <div className="field">
-          <label htmlFor={`${id}-password`}>Password</label>
-          <input
-            id={`${id}-password`}
-            type="password"
-            autoComplete="current-password"
-            value={password}
-            onChange={(event) => setPassword(event.target.value)}
-          />
-        </div>
-
-        {error && (
-          <div className="error-box" role="alert">
-            <p>{error}</p>
+        {health.data?.demo && (
+          <div className="auth-demo">
+            <p>Just looking around? Use the demo collection, no account needed.</p>
+            <button
+              type="button"
+              className="button button-primary"
+              disabled={demoLogin.isPending}
+              onClick={() =>
+                demoLogin.mutate(undefined, { onSuccess: () => navigate(next, { replace: true }) })
+              }
+            >
+              {demoLogin.isPending ? 'Opening the demo…' : 'Try the demo'}
+            </button>
+            {demoLogin.error && (
+              <p className="field-error" role="alert">
+                {describeError(demoLogin.error)}
+              </p>
+            )}
           </div>
         )}
 
-        <button type="submit" className="button button-primary" disabled={login.isPending}>
-          {login.isPending ? 'Logging in…' : 'Log in'}
-        </button>
-      </form>
+        <form className="auth-form" onSubmit={handleSubmit} noValidate>
+          <div className="field">
+            <label htmlFor={`${id}-username`}>Username</label>
+            <input
+              id={`${id}-username`}
+              autoComplete="username"
+              autoCapitalize="none"
+              value={username}
+              onChange={(event) => setUsername(event.target.value)}
+            />
+          </div>
+          <div className="field">
+            <label htmlFor={`${id}-password`}>Password</label>
+            <input
+              id={`${id}-password`}
+              type="password"
+              autoComplete="current-password"
+              value={password}
+              onChange={(event) => setPassword(event.target.value)}
+            />
+          </div>
 
-      <p className="muted">
-        New here?{' '}
-        <Link to={`/signup${searchParams.size > 0 ? `?${searchParams}` : ''}`}>
-          Create an account
-        </Link>
-      </p>
-    </section>
+          {error && (
+            <div className="error-box" role="alert">
+              <p>{error}</p>
+            </div>
+          )}
+
+          <button type="submit" className="button button-primary" disabled={login.isPending}>
+            {login.isPending ? 'Logging in…' : 'Log in'}
+          </button>
+        </form>
+
+        <p className="muted">
+          New here?{' '}
+          <Link to={`/signup${searchParams.size > 0 ? `?${searchParams}` : ''}`}>
+            Create an account
+          </Link>
+        </p>
+      </section>
+    </div>
   );
 }

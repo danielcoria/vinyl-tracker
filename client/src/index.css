@@ -106,15 +106,44 @@ a {
   flex-direction: column;
 }
 
+/* Shown only when reached with the Tab key: jumps past the menu to the page. */
+.skip-link {
+  position: absolute;
+  left: 0.5rem;
+  top: -4rem;
+  z-index: 10;
+  padding: 0.5rem 0.9rem;
+  border-radius: 6px;
+  background: var(--accent);
+  color: var(--accent-text);
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.skip-link:focus {
+  top: 0.5rem;
+}
+
+/* The page area can receive focus from the skip link; no outline needed there. */
+.page:focus {
+  outline: none;
+}
+
+/* Two rows: the name and account on top, the menu underneath. */
 .site-header {
+  display: grid;
+  gap: 0.5rem;
+  padding: 0.75rem max(1rem, calc((100% - 72rem) / 2)) 0.5rem;
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+}
+
+.header-top {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
   justify-content: space-between;
-  gap: 1rem;
-  padding: 0.75rem max(1rem, calc((100% - 72rem) / 2));
-  background: var(--surface);
-  border-bottom: 1px solid var(--border);
+  gap: 0.5rem 1rem;
 }
 
 .brand {
@@ -135,14 +164,28 @@ a {
   background: radial-gradient(circle, var(--accent) 0 22%, #111 23% 100%);
 }
 
-/* On narrow screens the links drop below the name and wrap as whole links. */
-.site-header nav {
+/* The menu: three groups of links with a thin line between them, then "Add". */
+.main-menu {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.25rem 0;
+  margin-left: -0.6rem; /* lines the first link's text up with the app name */
+}
+
+.menu-group {
   display: flex;
   flex-wrap: wrap;
   gap: 0.15rem;
 }
 
-.site-header nav a {
+.menu-group + .menu-group {
+  margin-left: 0.6rem;
+  padding-left: 0.6rem;
+  border-left: 1px solid var(--border);
+}
+
+.main-menu a {
   white-space: nowrap;
   color: var(--muted);
   text-decoration: none;
@@ -151,9 +194,57 @@ a {
   border-radius: 6px;
 }
 
-.site-header nav a.active {
+.main-menu a:hover {
+  color: var(--text);
+}
+
+.main-menu a.active {
   color: var(--text);
   background: var(--surface-2);
+}
+
+/* "Add from Discogs" sits at the far end, looking like a small button. */
+.main-menu a.menu-add {
+  margin-left: auto;
+  border: 1px solid var(--border);
+  color: var(--text);
+}
+
+/* The "Menu" button is only for phones. (.site-header in front so it beats .button.) */
+.site-header .menu-toggle {
+  display: none;
+}
+
+@media (max-width: 46rem) {
+  .site-header .menu-toggle {
+    display: inline-flex;
+  }
+
+  /* Closed until "Menu" is pressed. */
+  .main-menu {
+    display: none;
+    margin-left: 0;
+  }
+
+  /* Open: each group gets its own row. */
+  .main-menu.is-open {
+    display: grid;
+    gap: 0.4rem;
+    padding: 0.5rem 0;
+  }
+
+  .menu-group + .menu-group {
+    margin-left: 0;
+    padding-left: 0;
+    border-left: none;
+    padding-top: 0.4rem;
+    border-top: 1px solid var(--border);
+  }
+
+  .main-menu a.menu-add {
+    margin-left: 0;
+    justify-self: start;
+  }
 }
 
 .page {
@@ -1832,4 +1923,61 @@ a.account-name:hover {
 .value-footnote {
   margin: 0;
   font-size: 0.9rem;
+}
+
+/* ---------- The login page's introduction ---------- */
+.welcome {
+  display: grid;
+  gap: 2rem;
+  align-items: start;
+  max-width: 58rem;
+  margin: 1rem auto;
+}
+
+.welcome .auth-page {
+  margin: 0;
+  width: 100%;
+  max-width: 24rem;
+  justify-self: center;
+}
+
+.app-intro {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.app-intro p {
+  margin: 0;
+}
+
+.app-intro-tagline {
+  font-size: 1.6rem;
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+.app-intro ul {
+  display: grid;
+  gap: 0.5rem;
+  margin: 0.25rem 0 0;
+  padding-left: 1.2rem;
+  color: var(--muted);
+}
+
+.app-intro li strong {
+  color: var(--text);
+}
+
+/* Side by side when there's room; on a phone the form comes first. */
+@media (min-width: 52rem) {
+  .welcome {
+    grid-template-columns: 1fr 24rem;
+    gap: 3rem;
+  }
+}
+
+@media (max-width: 52rem) {
+  .welcome .auth-page {
+    order: -1;
+  }
 }

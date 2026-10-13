@@ -1,6 +1,6 @@
 # How Vinyl Tracker Works
 
-A plain-language tour of the project for anyone new to it, including people who have never used React, Express or TypeScript.
+A plain-language tour of the project for anyone new to it, including people who have never used React, Express or TypeScript. For the reasoning behind the design, with diagrams, see [ARCHITECTURE.md](ARCHITECTURE.md).
 
 ## The big picture
 
@@ -234,9 +234,11 @@ pages/ ─▶ features/collection/ ─▶ api/ ─▶ server
 | File                                           | What it does                                                                                                                                                                                                 |
 | ---------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
 | `index.html`                                   | The single, nearly empty HTML page. React fills it in.                                                                                                                                                       |
+| `public/favicon.svg`                           | The little record icon in the browser tab.                                                                                                                                                                   |
 | `src/main.tsx`                                 | **Start here.** Plugs React into the page and sets up data fetching and the router.                                                                                                                          |
 | `src/App.tsx`                                  | **The list of screens**: which page to show for each address.                                                                                                                                                |
-| `src/components/Layout.tsx`                    | The frame around every screen: header with the app name, footer with the server status.                                                                                                                      |
+| `src/components/Layout.tsx`                    | The frame around every screen: the header (app name, who's logged in, and the menu in three groups, behind a "Menu" button on phones) and the footer with the server status.                                 |
+| `src/components/page-title.ts`                 | The browser tab's title for each page ("Diary · Vinyl Tracker").                                                                                                                                             |
 | `src/pages/CollectionPage.tsx`                 | The home screen: a grid of your records with search and sort.                                                                                                                                                |
 | `src/pages/RecordDetailPage.tsx`               | One record's page, with Edit and Delete.                                                                                                                                                                     |
 | `src/pages/NewRecordPage.tsx`                  | The "Add a record" screen.                                                                                                                                                                                   |
@@ -268,6 +270,7 @@ pages/ ─▶ features/collection/ ─▶ api/ ─▶ server
 | `src/features/stats/RankedBars.tsx`            | A top-10 list with a bar for each entry and the numbers at the end of the bar.                                                                                                                               |
 | `src/features/stats/StatTiles.tsx`             | The row of big numbers (plays, hours, records, artists).                                                                                                                                                     |
 | `src/features/tonight/SuggestionCard.tsx`      | One suggested record: what to put on, why, and a button that logs the play in one click.                                                                                                                     |
+| `src/features/auth/AppIntro.tsx`               | The short "what is this app?" introduction beside the login form.                                                                                                                                            |
 | `src/features/tonight/reasons.ts`              | Turns the facts about a pick into lines like "Last played 4 months ago".                                                                                                                                     |
 | `src/features/streaming/PriceTag.tsx`          | Shows an album's cheapest vinyl price. The first few on a page look it up by themselves; the rest wait for "Check price".                                                                                    |
 | `src/features/streaming/LastfmConnect.tsx`     | The box for entering, changing or disconnecting the Last.fm username.                                                                                                                                        |

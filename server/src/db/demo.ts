@@ -30,6 +30,7 @@ import { updateSettings } from '../services/settings.js';
 import { createSpin } from '../services/spins.js';
 import { addStylus } from '../services/styluses.js';
 import { getTracks, replaceTracks } from '../services/tracks.js';
+import { addToWishlist } from '../services/wishlist.js';
 import type { Db } from './client.js';
 import demoReleases from './demo-releases.json';
 import { priceSnapshots, records, users } from './schema.js';
@@ -225,6 +226,14 @@ export function seedDemoData(db: Db, now: number = Date.now()) {
   );
 
   seedDemoPrices(db, userId, now);
+
+  // Two albums the made-up listener streams a lot but doesn't own (see lastfm/sample.ts).
+  for (const [title, artist, playCount] of [
+    ['Blonde', 'Frank Ocean', 341],
+    ['In Rainbows', 'Radiohead', 412],
+  ] as const) {
+    addToWishlist(db, userId, { title, artist, playCount, coverImageUrl: null });
+  }
 
   return { userId, records: demoReleases.length, spins: spinCount };
 }
