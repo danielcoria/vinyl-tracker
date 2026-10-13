@@ -21,7 +21,7 @@ import {
   text,
   uniqueIndex,
 } from 'drizzle-orm/sqlite-core';
-import { CONDITION_GRADES } from '@vinyl/shared';
+import { CONDITION_GRADES, SCROBBLE_STATES } from '@vinyl/shared';
 
 const now = () => new Date().toISOString();
 
@@ -143,6 +143,12 @@ export const spins = sqliteTable(
     notes: text('notes'),
     /** How this listen went, in stars (0.5 to 5, or null). */
     rating: real('rating'),
+    /**
+     * Sending this play to Last.fm ("scrobbling", M19): null = not asked for,
+     * 'pending' = will be sent once the play is over, 'sent', 'skipped' (nothing
+     * Last.fm would accept, e.g. no tracklist or too long ago) or 'failed'.
+     */
+    scrobbleState: text('scrobble_state', { enum: SCROBBLE_STATES }),
     createdAt: text('created_at').notNull().$defaultFn(now),
   },
   (t) => [
@@ -259,6 +265,21 @@ export const priceSnapshots = sqliteTable(
   },
   (t) => [index('price_snapshots_record_idx').on(t.recordId, t.capturedAt)],
 );
+
+/**
+ * A person's connection to their Last.fm account (M19), made when they approve
+ * the app on Last.fm. The session key lets the server add plays to their Last.fm
+ * history; it is never sent to the browser, and disconnecting deletes it.
+ */
+export const lastfmAccounts = sqliteTable('lastfm_accounts', {
+  userId: integer('user_id')
+    .primaryKey()
+    .references(() => users.id, { onDelete: 'cascade' }),
+  /** Their Last.fm username, as Last.fm reported it. */
+  username: text('username').notNull(),
+  sessionKey: text('session_key').notNull(),
+  connectedAt: text('connected_at').notNull().$defaultFn(now),
+});
 
 /** People with accounts (M11). Usernames are unique, ignoring capital letters. */
 export const users = sqliteTable(

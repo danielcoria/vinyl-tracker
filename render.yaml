@@ -38,3 +38,6 @@ services:
       # Without it, the demo's "streaming vs. shelf" page shows built-in sample data.
       - key: LASTFM_API_KEY
         sync: false
+      # Optional secret: the Last.fm "shared secret", needed only for scrobbling.
+      - key: LASTFM_SHARED_SECRET
+        sync: false

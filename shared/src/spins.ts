@@ -13,6 +13,7 @@
 
 import { z } from 'zod';
 import { optionalRatingSchema, ratingSchema } from './ratings.js';
+import { SCROBBLE_STATES } from './scrobbling.js';
 import { artistCreditSchema } from './records.js';
 
 export const trackSchema = z.object({
@@ -69,6 +70,11 @@ export const spinInputSchema = z.object({
     .transform((value) => value || null),
   /** How this listen went, in stars (optional). */
   rating: optionalRatingSchema,
+  /**
+   * Send this play to Last.fm? Left out = yes, if the account is connected.
+   * false = keep this one off Last.fm.
+   */
+  scrobble: z.boolean().optional(),
 });
 
 export type SpinInput = z.input<typeof spinInputSchema>;
@@ -89,6 +95,8 @@ export const spinSchema = z.object({
   sides: z.array(z.string()).nullable(),
   notes: z.string().nullable(),
   rating: ratingSchema.nullable(),
+  /** Whether this play went to Last.fm (null = it wasn't asked to). */
+  scrobble: z.enum(SCROBBLE_STATES).nullable(),
   record: spinRecordSchema,
 });
 

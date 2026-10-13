@@ -151,6 +151,20 @@ export function sampleLastfm(real: LastfmSource | null = null): LastfmSource {
   return {
     isSample,
     sampleArtists: real === null,
+    // Scrobbling is never faked: it's the real Last.fm, or not available.
+    canScrobble: real?.canScrobble ?? false,
+    authorizeUrl: (callbackUrl) => {
+      if (!real) throw new Error('Scrobbling needs a real Last.fm connection');
+      return real.authorizeUrl(callbackUrl);
+    },
+    getSession: (token) => {
+      if (!real) throw new Error('Scrobbling needs a real Last.fm connection');
+      return real.getSession(token);
+    },
+    scrobble: (sessionKey, tracks) => {
+      if (!real) throw new Error('Scrobbling needs a real Last.fm connection');
+      return real.scrobble(sessionKey, tracks);
+    },
     getSimilarArtists(artist) {
       if (real) return real.getSimilarArtists(artist);
       const similar = SIMILAR[artist.toLowerCase()] ?? [];

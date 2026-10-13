@@ -13,6 +13,7 @@ import type { Db } from '../db/client.js';
 import { records, spins, spinTracks } from '../db/schema.js';
 import { AppError, NotFoundError } from '../errors.js';
 import { getRecord, getRecordsByIds } from './records.js';
+import { isConnected } from './scrobbling.js';
 import { getTracks } from './tracks.js';
 
 type SpinRow = typeof spins.$inferSelect;
@@ -53,6 +54,9 @@ export function createSpin(db: Db, userId: number, input: ParsedSpinInput): Spin
         sides: sides ? sides.join(',') : null,
         notes: input.notes,
         rating: input.rating,
+        // Marked to go to Last.fm if the account is connected (unless told not to).
+        // The sending itself happens in services/scrobbling.ts.
+        scrobbleState: input.scrobble !== false && isConnected(db, userId) ? 'pending' : null,
       })
       .returning({ id: spins.id })
       .get();
@@ -117,6 +121,7 @@ function withRecords(db: Db, userId: number, rows: SpinRow[]): Spin[] {
         sides: row.sides ? row.sides.split(',') : null,
         notes: row.notes,
         rating: row.rating,
+        scrobble: row.scrobbleState,
         record: {
           id: record.id,
           title: record.title,

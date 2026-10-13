@@ -28,8 +28,11 @@ const envSchema = z.object({
   DISCOGS_API_URL: z.url().default('https://api.discogs.com'),
   // Without a key, "streaming vs. shelf" says "not set up" (the demo uses sample data).
   LASTFM_API_KEY: z.preprocess(emptyToUndefined, z.string().optional()),
-  // Only changed by the end-to-end tests, which point it at a fake Last.fm.
+  // Only for scrobbling (sending plays to Last.fm). Without it, the rest still works.
+  LASTFM_SHARED_SECRET: z.preprocess(emptyToUndefined, z.string().optional()),
+  // Only changed by the end-to-end tests, which point them at a fake Last.fm.
   LASTFM_API_URL: z.url().default('https://ws.audioscrobbler.com/2.0/'),
+  LASTFM_AUTH_URL: z.url().default('https://www.last.fm/api/auth/'),
   // When set, the whole site asks for this password (until accounts arrive in M11).
   APP_PASSWORD: z.preprocess(
     emptyToUndefined,
@@ -49,7 +52,12 @@ export type Config = {
   /** Absolute path, or ':memory:'. A relative DATABASE_PATH resolves from the repo root. */
   databasePath: string;
   discogs: { token: string | undefined; userAgent: string; apiUrl: string };
-  lastfm: { apiKey: string | undefined; apiUrl: string };
+  lastfm: {
+    apiKey: string | undefined;
+    sharedSecret: string | undefined;
+    apiUrl: string;
+    authUrl: string;
+  };
   /** The site-wide password, or undefined for no lock (local development). */
   appPassword: string | undefined;
   trustProxy: boolean;
@@ -76,7 +84,12 @@ export function loadConfig(env: NodeJS.ProcessEnv = process.env): Config {
     databasePath:
       e.DATABASE_PATH === ':memory:' ? e.DATABASE_PATH : path.resolve(REPO_ROOT, e.DATABASE_PATH),
     discogs: { token: e.DISCOGS_TOKEN, userAgent: e.DISCOGS_USER_AGENT, apiUrl: e.DISCOGS_API_URL },
-    lastfm: { apiKey: e.LASTFM_API_KEY, apiUrl: e.LASTFM_API_URL },
+    lastfm: {
+      apiKey: e.LASTFM_API_KEY,
+      sharedSecret: e.LASTFM_SHARED_SECRET,
+      apiUrl: e.LASTFM_API_URL,
+      authUrl: e.LASTFM_AUTH_URL,
+    },
     appPassword: e.APP_PASSWORD,
     trustProxy: e.TRUST_PROXY === 'true',
     demoMode: e.DEMO_MODE === 'true',

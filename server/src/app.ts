@@ -26,6 +26,7 @@ import { serveClient } from './middleware/serve-client.js';
 import { loadUser, requireUser, sameOrigin } from './middleware/session.js';
 import { authRouter } from './routes/auth.js';
 import { discogsRouter } from './routes/discogs.js';
+import { lastfmRouter } from './routes/lastfm.js';
 import { dustRouter, settingsRouter } from './routes/dust.js';
 import { profilesRouter } from './routes/profiles.js';
 import { recommendationsRouter } from './routes/recommendations.js';
@@ -115,13 +116,17 @@ export function createApp({
   app.use('/api/auth', authRouter(db, { secureCookies, demo }));
   // Public profile pages, which anyone can see once turned on: routes/profiles.ts.
   app.use('/api/profiles', profilesRouter(db));
+  // Connecting a Last.fm account for scrobbling: routes/lastfm.ts. (Before the login
+  // check below because two of its addresses are opened by the browser itself and
+  // answer with a redirect to the login page rather than an error.)
+  app.use('/api/lastfm', lastfmRouter(db, { lastfm, demo, secureCookies }));
   // Everything else under /api is someone's own data: log in first.
   app.use('/api', requireUser);
 
   // Every address starting with /api/records is handled in routes/records.ts.
   app.use('/api/records', recordsRouter(db));
   // The listening diary: routes/spins.ts.
-  app.use('/api/spins', spinsRouter(db));
+  app.use('/api/spins', spinsRouter(db, lastfm));
   // Totals and rankings for the Stats page: routes/stats.ts.
   app.use('/api/stats', statsRouter(db));
   // The dust report and app settings: routes/dust.ts.

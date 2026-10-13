@@ -18,6 +18,7 @@ import { DiscogsClient } from './integrations/discogs/client.js';
 import { LastfmClient } from './integrations/lastfm/client.js';
 import { sampleLastfm } from './integrations/lastfm/sample.js';
 import { REPO_ROOT } from './paths.js';
+import { scrobbleDue } from './services/scrobbling.js';
 import { snapshotPrices } from './services/value.js';
 
 const config = loadConfig(); // 1. settings from .env
@@ -38,7 +39,9 @@ const discogs = config.discogs.token
 const realLastfm = config.lastfm.apiKey
   ? new LastfmClient({
       apiKey: config.lastfm.apiKey,
+      sharedSecret: config.lastfm.sharedSecret,
       apiUrl: config.lastfm.apiUrl,
+      authUrl: config.lastfm.authUrl,
       userAgent: config.discogs.userAgent,
     })
   : null;
@@ -78,12 +81,24 @@ if (discogs && config.nodeEnv !== 'test') {
   setTimeout(checkPrices, 30 * 1000).unref();
 }
 
+// Scrobbling: every 2 minutes, send plays that were waiting to finish ("I'm starting
+// now") and have now ended. Off during tests.
+const SCROBBLE_CHECK_MINUTES = 2;
+if (lastfm?.canScrobble && config.nodeEnv !== 'test') {
+  const sendDue = () =>
+    scrobbleDue(db, lastfm).catch((error: unknown) => console.error('Scrobbling failed:', error));
+  setInterval(sendDue, SCROBBLE_CHECK_MINUTES * 60 * 1000).unref();
+}
+
 app.listen(config.port, () => {
   console.log(`API listening on http://localhost:${config.port}`);
   console.log(`Database: ${config.databasePath}`);
   // Only say whether the token exists. Never print the token itself.
   console.log(`Discogs token: ${config.discogs.token ? 'configured' : 'missing'}`);
   console.log(`Last.fm: ${realLastfm ? 'configured' : lastfm ? 'sample data (demo)' : 'missing'}`);
+  console.log(
+    `Last.fm scrobbling: ${lastfm?.canScrobble ? 'configured' : 'off (no shared secret)'}`,
+  );
   console.log(`Password lock: ${config.appPassword ? 'on' : 'off'}`);
   if (demo) console.log(`Demo mode: on (added ${demo.records} albums and ${demo.spins} plays)`);
   console.log(

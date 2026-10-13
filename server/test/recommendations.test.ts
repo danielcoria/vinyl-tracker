@@ -38,6 +38,11 @@ function pretendLastfm(similar: Similar, albums: Albums, failing: string[] = [])
     sampleArtists: false,
     isSample: () => false,
     getTopAlbums: () => Promise.resolve([]),
+    // Scrobbling isn't used by recommendations.
+    canScrobble: false,
+    authorizeUrl: () => '',
+    getSession: () => Promise.reject(new Error('not used')),
+    scrobble: () => Promise.reject(new Error('not used')),
     getSimilarArtists: async (artist) => {
       asked.push(`similar:${artist}`);
       check(artist);
