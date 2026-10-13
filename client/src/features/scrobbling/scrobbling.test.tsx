@@ -12,8 +12,18 @@ import { json, KIND_OF_BLUE_TRACKS, makeRecord, makeSpin, mockApi } from '../../
 import { renderApp } from '../../test/render';
 
 const SETTINGS = { dustThresholdDays: 90, profilePublic: false, lastfmUsername: null };
-const CONNECTED: ScrobblingStatus = { available: true, connected: true, username: 'vinyl_fan' };
-const NOT_CONNECTED: ScrobblingStatus = { available: true, connected: false, username: null };
+const CONNECTED: ScrobblingStatus = {
+  available: true,
+  unavailableReason: null,
+  connected: true,
+  username: 'vinyl_fan',
+};
+const NOT_CONNECTED: ScrobblingStatus = {
+  available: true,
+  unavailableReason: null,
+  connected: false,
+  username: null,
+};
 
 /** The Streaming page with the given scrobbling status (and no Last.fm username saved). */
 function streamingPage(status: ScrobblingStatus) {
@@ -60,13 +70,32 @@ describe('the scrobbling card', () => {
     ).toBe(true);
   });
 
-  it('says so when scrobbling is not available for the account', async () => {
-    streamingPage({ available: false, connected: false, username: null });
+  it('says what is missing when the server has no shared secret', async () => {
+    streamingPage({
+      available: false,
+      unavailableReason: 'not-set-up',
+      connected: false,
+      username: null,
+    });
 
     renderApp('/streaming');
 
-    expect(await card()).toHaveTextContent("isn't available for this account");
+    expect(await card()).toHaveTextContent("Scrobbling isn't set up on this server yet");
+    expect(await card()).toHaveTextContent('LASTFM_SHARED_SECRET');
     expect(screen.queryByRole('link', { name: 'Connect to Last.fm' })).not.toBeInTheDocument();
+  });
+
+  it('says so on the shared demo account', async () => {
+    streamingPage({
+      available: false,
+      unavailableReason: 'demo-account',
+      connected: false,
+      username: null,
+    });
+
+    renderApp('/streaming');
+
+    expect(await card()).toHaveTextContent("isn't offered on the shared demo account");
   });
 
   it('confirms the connection after coming back from Last.fm', async () => {

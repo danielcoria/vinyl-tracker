@@ -63,7 +63,12 @@ export function mockApi(routes: Record<string, Handler>) {
     if (method === 'GET' && url.pathname === '/api/styluses') return json({ styluses: [] });
     // Last.fm scrobbling: off unless a test turns it on.
     if (method === 'GET' && url.pathname === '/api/lastfm/status') {
-      return json({ available: false, connected: false, username: null });
+      return json({
+        available: false,
+        unavailableReason: 'not-set-up',
+        connected: false,
+        username: null,
+      });
     }
     return apiError(404, 'NOT_FOUND', `No fake route for ${method} ${url.pathname}`);
   });

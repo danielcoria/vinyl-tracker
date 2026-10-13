@@ -24,6 +24,11 @@ export type ScrobbleState = (typeof SCROBBLE_STATES)[number];
 export const scrobblingStatusSchema = z.object({
   /** False when the server has no Last.fm shared secret, or for the demo account. */
   available: z.boolean(),
+  /**
+   * Why it isn't available (null when it is): the server is missing its Last.fm
+   * shared secret, or this is the shared demo account.
+   */
+  unavailableReason: z.enum(['not-set-up', 'demo-account']).nullable(),
   connected: z.boolean(),
   /** The connected Last.fm username (null when not connected). */
   username: z.string().nullable(),

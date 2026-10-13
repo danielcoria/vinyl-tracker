@@ -49,9 +49,16 @@ export function getScrobblingStatus(
   { demoAccount = false }: { demoAccount?: boolean } = {},
 ): ScrobblingStatus {
   const account = db.select().from(lastfmAccounts).where(eq(lastfmAccounts.userId, userId)).get();
+  // The shared demo account can't be tied to one person's Last.fm; otherwise the
+  // only thing that can be missing is the server's shared secret.
+  const unavailableReason = demoAccount
+    ? ('demo-account' as const)
+    : lastfm?.canScrobble
+      ? null
+      : ('not-set-up' as const);
   return {
-    // The shared demo account can't be tied to one person's Last.fm.
-    available: Boolean(lastfm?.canScrobble) && !demoAccount,
+    available: unavailableReason === null,
+    unavailableReason,
     connected: Boolean(account),
     username: account?.username ?? null,
   };

@@ -20,7 +20,7 @@ const RESULTS: Record<string, { text: string; ok: boolean }> = {
     text: "Last.fm didn't confirm the connection. Nothing was changed; you can try again.",
     ok: false,
   },
-  unavailable: { text: "Scrobbling isn't available for this account.", ok: false },
+  unavailable: { text: "Scrobbling isn't available here yet (see below).", ok: false },
 };
 
 export function ScrobblingCard() {
@@ -31,7 +31,7 @@ export function ScrobblingCard() {
 
   // Nothing to offer while loading, or if the status can't be read.
   if (!status.data) return null;
-  const { available, connected, username } = status.data;
+  const { available, unavailableReason, connected, username } = status.data;
 
   return (
     <section className="scrobbling-card" aria-label="Scrobbling">
@@ -80,7 +80,17 @@ export function ScrobblingCard() {
           </a>
         </>
       ) : (
-        <p className="muted">Sending plays to Last.fm isn't available for this account.</p>
+        <p className="muted">
+          {unavailableReason === 'demo-account' ? (
+            "Scrobbling isn't offered on the shared demo account. Create your own account to try it."
+          ) : (
+            <>
+              Scrobbling isn't set up on this server yet. It needs Last.fm's “shared secret” in the
+              server's <code>.env</code> file (<code>LASTFM_SHARED_SECRET</code>), then a restart.
+              The README explains where to find it.
+            </>
+          )}
+        </p>
       )}
     </section>
   );

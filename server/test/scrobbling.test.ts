@@ -310,7 +310,12 @@ const status = async (who: ReturnType<typeof setup>['alex']) =>
 
 describe('connecting a Last.fm account', () => {
   it('starts disconnected, with scrobbling available', async () => {
-    expect(await status(ctx.alex)).toEqual({ available: true, connected: false, username: null });
+    expect(await status(ctx.alex)).toEqual({
+      available: true,
+      unavailableReason: null,
+      connected: false,
+      username: null,
+    });
   });
 
   it('sends the browser to Last.fm, then saves the connection when it comes back', async () => {
@@ -330,6 +335,7 @@ describe('connecting a Last.fm account', () => {
     expect(back.headers.location).toBe('/streaming?scrobbling=connected');
     expect(await status(ctx.alex)).toEqual({
       available: true,
+      unavailableReason: null,
       connected: true,
       username: 'vinyl_fan',
     });
@@ -385,7 +391,12 @@ describe('connecting a Last.fm account', () => {
 
     expect((await ctx.alex.delete('/api/lastfm/connection')).status).toBe(204);
 
-    expect(await status(ctx.alex)).toEqual({ available: true, connected: false, username: null });
+    expect(await status(ctx.alex)).toEqual({
+      available: true,
+      unavailableReason: null,
+      connected: false,
+      username: null,
+    });
     expect(ctx.db.select().from(lastfmAccounts).all()).toEqual([]);
   });
 
@@ -401,7 +412,10 @@ describe('connecting a Last.fm account', () => {
   it('is unavailable without the shared secret', async () => {
     ctx = setup({ canScrobble: false });
 
-    expect((await status(ctx.alex)).available).toBe(false);
+    expect(await status(ctx.alex)).toMatchObject({
+      available: false,
+      unavailableReason: 'not-set-up',
+    });
     const res = await ctx.alex.get('/api/lastfm/connect');
     expect(res.headers.location).toBe('/streaming?scrobbling=unavailable');
   });
@@ -414,9 +428,12 @@ describe('connecting a Last.fm account', () => {
     await demo.post('/api/auth/demo').expect(200);
     const visitor = loggedIn(app, addUser(db, 'visitor').cookie);
 
-    expect(
-      scrobblingStatusSchema.parse((await demo.get('/api/lastfm/status')).body).available,
-    ).toBe(false);
+    expect(scrobblingStatusSchema.parse((await demo.get('/api/lastfm/status')).body)).toMatchObject(
+      {
+        available: false,
+        unavailableReason: 'demo-account',
+      },
+    );
     expect((await demo.get('/api/lastfm/connect')).headers.location).toBe(
       '/streaming?scrobbling=unavailable',
     );
