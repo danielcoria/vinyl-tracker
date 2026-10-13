@@ -31,6 +31,9 @@ const server = spawn(process.execPath, ['--import', 'tsx', serverEntry], {
     // The same fake server also answers as Last.fm.
     LASTFM_API_KEY: 'e2e-test-key',
     LASTFM_API_URL: `http://localhost:${process.env.FAKE_DISCOGS_PORT ?? 3199}/2.0/`,
+    // Scrobbling: a made-up secret, and the fake "approve this app" page.
+    LASTFM_SHARED_SECRET: 'e2e-test-secret',
+    LASTFM_AUTH_URL: `http://localhost:${process.env.FAKE_DISCOGS_PORT ?? 3199}/api/auth/`,
   },
 });
 

@@ -55,12 +55,16 @@ export function mockApi(routes: Record<string, Handler>) {
     const handler = allRoutes[`${method} ${url.pathname}`];
     if (handler) return handler(call);
     // Sensible defaults so tests only list the routes they care about:
-    // no tracklist, and no plays in the diary.
+    // no tracklist, no plays in the diary, and Last.fm scrobbling not connected.
     if (method === 'GET' && /^\/api\/records\/\d+\/tracks$/.test(url.pathname)) {
       return json({ tracks: [] });
     }
     if (method === 'GET' && url.pathname === '/api/spins') return json({ spins: [] });
     if (method === 'GET' && url.pathname === '/api/styluses') return json({ styluses: [] });
+    // Last.fm scrobbling: off unless a test turns it on.
+    if (method === 'GET' && url.pathname === '/api/lastfm/status') {
+      return json({ available: false, connected: false, username: null });
+    }
     return apiError(404, 'NOT_FOUND', `No fake route for ${method} ${url.pathname}`);
   });
 
@@ -114,6 +118,7 @@ export function makeSpin(overrides: Partial<Spin> = {}): Spin {
     sides: ['A'],
     notes: null,
     rating: null,
+    scrobble: null,
     record: {
       id: 1,
       title: 'Kind of Blue',

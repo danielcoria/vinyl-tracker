@@ -5,6 +5,9 @@
 // their shelf: "streamed 412 times, not on your shelf, from $28 on vinyl".
 // Albums can be added to the wishlist from here.
 //
+// It also holds the card for connecting Last.fm the other way round: sending
+// the records you play TO your Last.fm history ("scrobbling").
+//
 // First visit: asks for a Last.fm username. After that, three groups: streamed
 // albums that aren't on the shelf, ones owned in a different edition (a
 // collector may want both, so they keep their price and wishlist button), and
@@ -21,6 +24,7 @@ import { RecordCover } from '../features/collection/RecordCover';
 import { findOnDiscogsUrl, formatStreams } from '../features/streaming/format';
 import { LastfmConnect } from '../features/streaming/LastfmConnect';
 import { PriceTag } from '../features/streaming/PriceTag';
+import { ScrobblingCard } from '../features/scrobbling/ScrobblingCard';
 
 const PERIOD_LABELS: Record<StreamingPeriod, string> = {
   overall: 'All time',
@@ -43,6 +47,9 @@ export function StreamingPage() {
   const param = searchParams.get('period');
   const period: StreamingPeriod = isPeriod(param) ? param : '12month';
   const [changing, setChanging] = useState(false);
+  // Just back from approving the app on Last.fm? Then the scrobbling card (with its
+  // "Connected" message) goes at the top instead of the bottom.
+  const backFromLastfm = searchParams.has('scrobbling');
 
   const username = settings.data?.lastfmUsername ?? null;
   const streaming = useStreaming(period, username !== null);
@@ -64,6 +71,8 @@ export function StreamingPage() {
           Wishlist
         </Link>
       </div>
+
+      {backFromLastfm && <ScrobblingCard />}
 
       {username === null ? (
         <div className="streaming-intro">
@@ -148,6 +157,8 @@ export function StreamingPage() {
           )}
         </>
       )}
+
+      {!backFromLastfm && <ScrobblingCard />}
     </section>
   );
 }

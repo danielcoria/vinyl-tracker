@@ -149,6 +149,7 @@ Every code file also starts with a comment explaining what it does, so you can o
 | `src/streaming.ts`       | Streaming vs. shelf: the most-streamed albums (each marked as owned, wished for, or neither), vinyl prices, and the wishlist.              |
 | `src/recommendations.ts` | What a recommendation looks like: the album, and which of your artists it's similar to.                                                    |
 | `src/value.ts`           | The collection's value: the total, how prices moved, a point per day for the chart, and each record's price.                               |
+| `src/scrobbling.ts`      | Scrobbling: what can happen to a play meant for Last.fm (sent, waiting, skipped, failed), and whether an account is connected.             |
 | `src/styluses.ts`        | What a stylus (turntable needle) looks like, with its wear and status.                                                                     |
 | `src/auth.ts`            | What signing up and logging in look like, and the rules for usernames and passwords.                                                       |
 | `src/index.ts`           | Re-exports everything so other code can `import { … } from '@vinyl/shared'`.                                                               |
@@ -192,6 +193,8 @@ request ─▶ app.ts ─▶ routes/ ─▶ services/ ─▶ db/ ─▶ database
 | `src/services/recommendations.ts`                                          | **Recommendations**: picks the shelf's key artists, asks Last.fm who is similar, and suggests the best-known album of the best matches.                                             |
 | `src/routes/value.ts`                                                      | The collection value addresses: read it, and "update prices now".                                                                                                                   |
 | `src/services/value.ts`                                                    | **Collection value**: looks up each linked record's price on Discogs about once a day (a few at a time) and adds the saved prices up into a history.                                |
+| `src/routes/lastfm.ts`                                                     | The addresses for connecting a Last.fm account: start, come back from Last.fm, status, disconnect.                                                                                  |
+| `src/services/scrobbling.ts`                                               | **Scrobbling**: works out which songs a play covered and when each started, and sends them to Last.fm when the play is over.                                                        |
 | `src/routes/styluses.ts`                                                   | The stylus addresses: list, install a new one, edit, delete.                                                                                                                        |
 | `src/services/styluses.ts`                                                 | **The stylus wear tracker**: adds up the plays logged while each stylus was installed.                                                                                              |
 | `src/middleware/password-lock.ts`                                          | **The site password** (online only): the browser asks for it, and wrong guesses are slowed down.                                                                                    |
@@ -277,6 +280,8 @@ pages/ ─▶ features/collection/ ─▶ api/ ─▶ server
 | `src/features/streaming/format.ts`             | Words and numbers: "Streamed 412 times", prices, the Discogs search link.                                                                                                                                    |
 | `src/features/value/ValueChart.tsx`            | The "value over time" line chart, with a hover box and "Show as table".                                                                                                                                      |
 | `src/features/value/format.ts`                 | Words for days and price changes ("up $6.00", "15%").                                                                                                                                                        |
+| `src/features/scrobbling/ScrobblingCard.tsx`   | The box on the Streaming page for connecting Last.fm (or stopping).                                                                                                                                          |
+| `src/features/spins/scrobble-label.ts`         | The words shown in the diary for each play's scrobble: "Scrobbled", "Scrobbles when it ends"...                                                                                                              |
 | `src/features/profiles/ProfileHeader.tsx`      | The top of a profile: name, "collecting since", the Share button (copies the link) and, for the owner, the Public profile switch.                                                                            |
 | `src/features/profiles/Shelf.tsx`              | Someone's records as a grid of covers (read-only).                                                                                                                                                           |
 | `src/features/profiles/RecentPlays.tsx`        | The latest plays on a profile, without notes or delete buttons.                                                                                                                                              |
@@ -314,6 +319,7 @@ pages/ ─▶ features/collection/ ─▶ api/ ─▶ server
 | `src/api/streaming.ts`                         | Hooks for streaming vs. shelf, prices, and the wishlist (list, add, remove).                                                                                                                                 |
 | `src/api/recommendations.ts`                   | `useRecommendations()`: fetches the suggestions.                                                                                                                                                             |
 | `src/api/value.ts`                             | `useCollectionValue()` and `useRefreshPrices()` ("Update prices now").                                                                                                                                       |
+| `src/api/scrobbling.ts`                        | `useScrobblingStatus()` and `useDisconnectLastfm()`, plus the address the browser visits to connect.                                                                                                         |
 | `src/api/profiles.ts`                          | `useProfile` and `useYearInRecords`: fetch a public profile or a year recap, in your time zone.                                                                                                              |
 | `src/api/dust.ts`                              | Hooks for the dust report and settings: `useDustReport`, `useSettings`, `useUpdateSettings`.                                                                                                                 |
 | `src/api/styluses.ts`                          | Hooks for styluses: `useStyluses`, `useActiveStylus`, `useAddStylus`, `useUpdateStylus`, `useDeleteStylus`.                                                                                                  |
@@ -365,6 +371,7 @@ Records added by hand have no tracklist, so they log the whole record using the 
 | `tests/streaming.spec.ts`   | Connect a Last.fm username, see what's missing with a price, add it to the wishlist and remove it.        |
 | `tests/discover.spec.ts`    | Get recommendations from the shelf and add one to the wishlist.                                           |
 | `tests/value.spec.ts`       | Look prices up and see the collection's value, with a hand-added record left out.                         |
+| `tests/scrobbling.spec.ts`  | Connect Last.fm, log a play and check its songs arrived, then stop scrobbling.                            |
 
 ### How accounts keep everyone's data separate
 
@@ -394,6 +401,16 @@ Records added by hand have no tracklist, so they log the whole record using the 
 3. For albums you don't own, the server asks **Discogs** for the top three vinyl pressings and shows the cheapest one that has copies for sale. Only the first few albums look this up by themselves; the rest wait for "Check price", to stay under Discogs' limit.
 4. "+ Wishlist" saves the album to your wishlist. Adding the same album twice never makes a duplicate.
 5. The public demo has no real Last.fm account, so it uses a made-up listener and says so. The prices are still real.
+
+### How scrobbling works
+
+"Scrobbling" is Last.fm's word for adding a played song to your listening history.
+
+1. **Connecting.** "Connect to Last.fm" sends your browser to Last.fm, where you approve the app. Last.fm sends the browser back with a one-time token, which the server swaps for a lasting **session key** and saves (`lastfm_accounts`). The key never reaches the browser. A random "state" value in a short-lived cookie makes sure the browser that comes back is the one that left, so nobody can trick you into connecting their Last.fm to your account.
+2. **Signing.** Requests that act on your Last.fm account carry a fingerprint made from the request plus the app's shared secret. That proves to Last.fm they come from this app (`integrations/lastfm/client.ts`).
+3. **Logging a play.** If you're connected (and didn't untick the box), the play is marked `pending`. Its songs are the tracks on the sides you played; each one's start time is the play's start plus the lengths of the songs before it.
+4. **Sending.** A play that's already over is sent straight away. One that's "starting now" waits: a timer checks every two minutes and sends plays once they've ended, because Last.fm only accepts plays that have happened.
+5. **Afterwards** the play is `sent`, `skipped` (no tracklist, or older than two weeks, which Last.fm refuses) or `failed` (you removed the app on Last.fm; the connection is then forgotten here too). A play is never sent twice, and a problem with Last.fm never stops the play itself from being saved.
 
 ### How the collection's value is tracked
 

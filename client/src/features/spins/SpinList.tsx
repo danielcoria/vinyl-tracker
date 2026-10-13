@@ -15,6 +15,7 @@ import { formatArtists, formatDuration } from '../collection/format';
 import { RecordCover } from '../collection/RecordCover';
 import { Stars } from '../ratings/Stars';
 import { formatShortDate, formatTime } from './dates';
+import { scrobbleLabel } from './scrobble-label';
 import { formatSides } from './sides';
 
 type Props = {
@@ -64,6 +65,9 @@ export function SpinList({ spins, showRecord = false }: Props) {
                     {' · '}
                     <Stars rating={spin.rating} />
                   </>
+                )}
+                {spin.scrobble !== null && (
+                  <span className="muted"> · {scrobbleLabel(spin.scrobble)}</span>
                 )}
               </span>
               {spin.notes && <span className="spin-notes">{spin.notes}</span>}

@@ -1981,3 +1981,34 @@ a.account-name:hover {
     order: -1;
   }
 }
+
+/* ---------- Scrobbling to Last.fm ---------- */
+.scrobbling-card {
+  display: grid;
+  gap: 0.6rem;
+  justify-items: start;
+  margin-top: 1.5rem;
+  padding: 1rem 1.1rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--surface);
+}
+
+/* At the top of the page (just back from Last.fm) it needs space below instead. */
+.page-header + .scrobbling-card {
+  margin: 0 0 1.5rem;
+}
+
+.scrobbling-card h2 {
+  margin: 0;
+  font-size: 1.05rem;
+}
+
+.scrobbling-card p {
+  margin: 0;
+}
+
+.scrobbling-card .save-note,
+.scrobbling-card .error-box {
+  width: 100%;
+}

@@ -14,6 +14,7 @@
 import { useId, useState, type FormEvent } from 'react';
 import { spinInputSchema, type Track, type VinylRecord } from '@vinyl/shared';
 import { describeError } from '../../api/client';
+import { useScrobblingStatus } from '../../api/scrobbling';
 import { useLogSpin } from '../../api/spins';
 import { formatDuration, parseDuration } from '../collection/format';
 import { StarRating } from '../ratings/StarRating';
@@ -40,6 +41,10 @@ export function LogSpinPanel({ record, tracks, onClose }: Props) {
   const [customTime, setCustomTime] = useState(() => toLocalInputValue(new Date()));
   const [notes, setNotes] = useState('');
   const [rating, setRating] = useState<number | null>(null);
+  // Offered only when Last.fm is connected; ticked unless the person unticks it.
+  const scrobbling = useScrobblingStatus();
+  const canScrobble = scrobbling.data?.connected === true;
+  const [scrobble, setScrobble] = useState(true);
   // The length box follows the ticked sides until the person types their own.
   const [typedLength, setTypedLength] = useState<string | null>(null);
   const [problem, setProblem] = useState<string | null>(null);
@@ -83,6 +88,8 @@ export function LogSpinPanel({ record, tracks, onClose }: Props) {
       durationSeconds,
       notes,
       rating,
+      // Only said out loud when the answer is "no"; otherwise the server decides.
+      ...(canScrobble && !scrobble ? { scrobble: false } : {}),
     };
     // Check with the same rules the server uses (e.g. not in the future).
     const parsed = spinInputSchema.safeParse(input);
@@ -179,6 +186,21 @@ export function LogSpinPanel({ record, tracks, onClose }: Props) {
         <legend>How was it? (optional)</legend>
         <StarRating label="Rate this listen" value={rating} onChange={setRating} />
       </fieldset>
+
+      {canScrobble && (
+        <label className="check">
+          <input
+            type="checkbox"
+            checked={scrobble && tracks.length > 0}
+            disabled={tracks.length === 0}
+            onChange={(event) => setScrobble(event.target.checked)}
+          />
+          Scrobble to Last.fm
+          {tracks.length === 0 && (
+            <span className="muted"> (this record has no tracklist to send)</span>
+          )}
+        </label>
+      )}
 
       {(problem || logSpin.error) && (
         <div className="error-box" role="alert">

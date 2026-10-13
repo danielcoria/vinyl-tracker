@@ -33,6 +33,7 @@ Click **Try the demo** on the login page to open a shared demo account filled wi
 - **Streaming vs. shelf.** Connect a Last.fm username to see the albums you stream most but don't own on vinyl ("streamed 412 times, from $20.98 on vinyl"), with live Discogs prices. Owning a different edition is shown separately, because collectors may want both.
 - **Recommendations.** A Discover page suggests albums by artists similar to the ones on your shelf, weighted by what you own, play and rate most, and explains each one: "Because you own Miles Davis and John Coltrane".
 - **Wishlist.** Save albums from either page, with today's vinyl price beside each.
+- **Scrobbling to Last.fm.** Connect your Last.fm account and the records you play are added to your Last.fm history song by song, so vinyl counts alongside what you stream.
 
 **Sharing**
 
@@ -86,8 +87,8 @@ A few decisions worth mentioning (more, with diagrams, in **[docs/ARCHITECTURE.m
 
 ## Testing and CI
 
-- **440+ unit and integration tests** cover the server (every API route, against a temporary in-memory database) and the website (screens tested the way a person uses them).
-- **14 end-to-end tests** drive a real Chrome browser through the whole app: signing up, importing from Discogs, logging a play, rating and reviewing, tonight's picks, the wishlist, recommendations, the collection's value, and making a profile public and viewing it as a visitor. They run against a fake Discogs and Last.fm and a fresh database every time.
+- **480+ unit and integration tests** cover the server (every API route, against a temporary in-memory database) and the website (screens tested the way a person uses them).
+- **15 end-to-end tests** drive a real Chrome browser through the whole app: signing up, importing from Discogs, logging a play, rating and reviewing, tonight's picks, the wishlist, recommendations, the collection's value, connecting Last.fm and scrobbling a play, and making a profile public and viewing it as a visitor. They run against a fake Discogs and Last.fm and a fresh database every time.
 - **Outside services are never called in tests.** Discogs and Last.fm answers are saved as files (recorded from the real services), so tests are fast, repeatable and need no keys.
 - **On every push, GitHub Actions** runs formatting, lint, type checks, all tests and the build on Node 22 and 24, the end-to-end tests, and builds and smoke-tests the Docker image (including that data survives a restart).
 - **The live demo only updates after all of those pass.**
@@ -121,10 +122,11 @@ The Discogs token is only needed for "Add from Discogs". You can get one free at
 
 ## Connecting Last.fm
 
-"Streaming vs. shelf" compares what you stream with what you own, and "Discover" recommends albums; both get their information from Last.fm. There are two separate steps, for two different people:
+Last.fm is used in two directions. **Reading:** "Streaming vs. shelf" compares what you stream with what you own, and "Discover" recommends albums. **Writing:** scrobbling sends the records you play here to your Last.fm history. There are separate steps for two different people:
 
 - **Using the Streaming page** (anyone with an account on the site): enter a Last.fm username. (Discover needs no username: it works from the shelf.)
-- **Setting up the server** (whoever runs the site, once): give it a Last.fm API key.
+- **Scrobbling** (anyone with an account on the site): approve the app once on Last.fm.
+- **Setting up the server** (whoever runs the site, once): give it a Last.fm API key, and the shared secret if scrobbling should work.
 
 ### Using it: connect your Last.fm username
 
@@ -141,6 +143,26 @@ If the page says the username doesn't exist, check the spelling against your pro
 
 On the public demo, the "Try the demo" account is connected to a made-up listener (labelled "Sample data"), so the page has something to show.
 
+### Using it: scrobble the records you play
+
+"Scrobbling" is Last.fm's word for adding a played song to your listening history. Streaming apps do it automatically; this makes your turntable count too.
+
+1. Open **Streaming** in the menu and find the **Scrobbling** box at the bottom of the page.
+2. Click **Connect to Last.fm**. You're taken to Last.fm's own site; log in there if asked and click **Yes, allow access**. Your Last.fm password is never typed into Vinyl Tracker.
+3. Last.fm sends you back, and the box says "Connected".
+
+From then on, when you log a play, each song on the sides you played is added to your Last.fm history with the time it would have played. The "Log a play" panel has a **Scrobble to Last.fm** tick box if you want to keep one play to yourself, and the diary shows what happened to each play.
+
+Good to know:
+
+- **Only records with a tracklist** can be scrobbled (Last.fm works song by song). Records imported from Discogs have one.
+- **A play logged as "I'm starting now"** is sent once it's over, because Last.fm only accepts plays that have happened. That takes a couple of minutes after the record ends.
+- **Plays from more than two weeks ago** aren't sent: Last.fm refuses them.
+- **Deleting a play here doesn't remove it from Last.fm.** Last.fm offers no way for apps to do that; delete it on your Last.fm profile.
+- To stop, click **Stop scrobbling** in the same box. You can also remove the app at [last.fm/settings/applications](https://www.last.fm/settings/applications).
+
+Scrobbling isn't offered on the shared "Try the demo" account, since it belongs to everyone.
+
 ### Setting it up: give the server a Last.fm API key
 
 This is only for whoever runs the site. The key identifies the app to Last.fm; it isn't tied to anyone's listening.
@@ -151,18 +173,19 @@ This is only for whoever runs the site. The key identifies the app to Last.fm; i
    - **Application description:** a sentence, e.g. "Compares my most-streamed albums with the records I own."
    - **Callback URL:** leave empty
    - **Application homepage:** the site's address (or leave empty)
-3. Click Submit. Last.fm shows an **API key** and a **Shared secret**. Only the API key is needed. (Both can be found again later at [last.fm/api/accounts](https://www.last.fm/api/accounts).)
+3. Click Submit. Last.fm shows an **API key** and a **Shared secret**. The API key is needed for everything; the shared secret only for scrobbling. (Both can be found again later at [last.fm/api/accounts](https://www.last.fm/api/accounts).)
 4. **On your computer:** open the `.env` file in the project folder and add a line (no quotes, no spaces):
 
    ```
    LASTFM_API_KEY=paste-the-api-key-here
+   LASTFM_SHARED_SECRET=paste-the-shared-secret-here
    ```
 
-   Stop `npm run dev` (Ctrl+C) and start it again. The server prints `Last.fm: configured` when it has found the key.
+   The second line is only needed for scrobbling. Stop `npm run dev` (Ctrl+C) and start it again. The server prints `Last.fm: configured` when it has found the key, and `Last.fm scrobbling: configured` when it has the secret too.
 
-5. **On the live site (Render):** open the service's dashboard → **Environment** → **Add Environment Variable**, with the key `LASTFM_API_KEY` and the same value, then save. Render restarts the site by itself.
+5. **On the live site (Render):** open the service's dashboard → **Environment** → **Add Environment Variable**, with the key `LASTFM_API_KEY` and the same value (and another, `LASTFM_SHARED_SECRET`, for scrobbling), then save. Render restarts the site by itself.
 
-Like the Discogs token, the key stays on the server: it's never sent to the browser, and `.env` is never committed. Without a key, the page says Last.fm isn't set up (and the demo account still shows its sample data).
+Like the Discogs token, the key and the secret stay on the server: they're never sent to the browser, and `.env` is never committed. Without a key, the page says Last.fm isn't set up (and the demo account still shows its sample data).
 
 ## Project layout
 
@@ -175,10 +198,6 @@ docs/     guides: how it works, the architecture, and how it's deployed
 ```
 
 New to the code? **[docs/HOW-IT-WORKS.md](docs/HOW-IT-WORKS.md)** walks through every part in plain language, **[docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)** explains the design with diagrams, and deployment details are in **[docs/DEPLOY.md](docs/DEPLOY.md)**.
-
-## What's next
-
-- **Scrobbling to Last.fm:** sending vinyl plays logged here to your Last.fm history, so records count alongside streams
 
 ## Credits
 

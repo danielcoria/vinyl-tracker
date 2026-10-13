@@ -69,6 +69,7 @@ erDiagram
   users ||--o{ styluses : owns
   users ||--o{ user_settings : has
   users ||--o{ wishlist_items : "wishes for"
+  users ||--o| lastfm_accounts : "scrobbles as"
   records ||--o{ record_artists : "credited to"
   artists ||--o{ record_artists : ""
   records ||--o{ record_tags : "genres / styles"
@@ -97,6 +98,8 @@ erDiagram
 - The Discogs client enforces their 60-requests-a-minute limit itself and caches answers (searches for minutes, releases for a day, prices for hours); the Last.fm client caches for an hour to a day.
 - Work that fans out is bounded: a price lookup compares at most three pressings; the pages auto-load only the first few prices and offer "Check price" for the rest; collection prices are refreshed in the background at 15 records per 10 minutes.
 - Their failures become specific error codes, partial failures are tolerated where the result is still useful (recommendations), and nothing is ever written as "no result" when the truth is "couldn't ask".
+
+**Scrobbling is a state machine on the play, not a side effect of saving it.** A play meant for Last.fm is saved as `pending` and moves exactly once to `sent`, `skipped` or `failed`. Saving the play never depends on Last.fm being up; a timer sends plays once they have actually ended (Last.fm rejects plays in the future), and the single transition makes double-sending impossible. Connecting uses Last.fm's web flow with a random state value bound to a short-lived cookie, so the browser that returns must be the one that left. The session key is stored as given (it has to be replayed to Last.fm, so it can't be hashed like a password) and is never sent to the client.
 
 **Explainable picks.** "What should I play tonight?" and the recommendations are deterministic scoring over data the app already has (dust, ratings, fit, similarity), and every result carries the facts behind it so the page can say why. There is no randomness to debug and nothing to tune in the dark; "Shuffle" just asks again, excluding what was shown.
 
@@ -138,3 +141,5 @@ The Docker smoke test starts the real image, signs up, saves a record, restarts 
 - **Price history starts when tracking starts**; Discogs offers no past prices.
 - **The free demo host has no persistent disk**, so the demo resets when it sleeps. The Docker image supports a real volume.
 - **Single turntable** assumed for stylus wear.
+- **Scrobbles can't be taken back** from here: Last.fm has no API for removing them, so deleting a play only deletes it locally. Songs are credited to the record's main artist, which is wrong for compilations.
+- **The Last.fm session key is stored unencrypted** in the database. It only allows scrobbling and can be revoked on Last.fm, but encrypting it at rest would be the next step.
