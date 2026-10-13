@@ -2,41 +2,59 @@
 
 [![CI](https://github.com/danielcoria/vinyl-tracker/actions/workflows/ci.yml/badge.svg)](https://github.com/danielcoria/vinyl-tracker/actions/workflows/ci.yml)
 
-**A diary for your record collection.** Track the vinyl you own, log what you play side by side, and see your listening stats, the records gathering dust on your shelf, and how worn your turntable's stylus is.
+**A diary for your record collection: a Letterboxd for physical music.** Streaming services remember everything you play; nothing remembers what goes on the turntable. Vinyl Tracker does. Track the records you own, log what you play one side at a time, rate and review it, and get things only this data can give you: what's gathering dust, how worn your stylus is, what to play tonight, what you stream but don't own, and what the shelf is worth.
 
 ### 🔗 Live demo: [vinyl-tracker-qu7q.onrender.com](https://vinyl-tracker-qu7q.onrender.com)
 
-Click **Try the demo** on the login page to open a shared demo account filled with 14 sample albums and about six months of listening, so every page has something to show. Try anything; it resets to the sample data whenever the server restarts. You can also create your own account. To see a public profile without logging in, open [/u/demo](https://vinyl-tracker-qu7q.onrender.com/u/demo).
+Click **Try the demo** on the login page to open a shared demo account filled with 14 sample albums, about six months of listening, ratings, reviews and a price history, so every page has something to show. Try anything; it resets to the sample data whenever the server restarts. You can also create your own account. To see a public profile without logging in, open [/u/demo](https://vinyl-tracker-qu7q.onrender.com/u/demo).
 
 > **Heads-up:** the demo runs on a free server. After 15 minutes without visitors it sleeps, and the next visit takes about a minute. After that it's fast.
 
-![The collection page: a grid of album covers](docs/screenshots/collection.jpg)
+![A tour of the app: the collection, logging a play, tonight's picks, stats, value, streaming vs. shelf, recommendations and a public profile](docs/screenshots/tour.gif)
 
 ## What it does
 
-- **Accounts.** Sign up with a username and password; everyone gets their own private collection, diary, stats and stylus.
-- **Public profiles.** Each account has a page at `/u/username` with its shelf, most-played records and artists, recent plays, and a "year in records" recap for every year. Private until its owner turns it on; notes and record conditions are never shown.
-- **Ratings and reviews.** Rate records from half a star to five and write a review; rate individual listens in the diary. Sort the collection by rating, see how the ratings are spread, and share reviews on the public profile (private notes are never shared).
-- **"What should I play tonight?"** Say how much time there is, a genre and a mood, and get three picks from the shelf with the reasons: "Never played", "Side A fits your 30 minutes". One click logs the play.
-- **Streaming vs. shelf.** Connect a Last.fm username to see the albums streamed most but not owned on vinyl ("streamed 412 times, from $20.98 on vinyl"), with live Discogs prices, and keep a wishlist. The demo uses sample streaming data.
-- **Recommendations.** A Discover page suggests albums by artists similar to the ones on the shelf, weighted by what is owned, played and rated most, and explains each one: "Because you own Miles Davis and John Coltrane". With vinyl prices and one-click wishlisting.
-- **Collection value over time.** The server looks up what each record sells for on Discogs about once a day and keeps every price, so a chart shows the collection's value over time, how prices have moved, and the records from most to least valuable.
+**Your records**
 
 - **Collection.** Search Discogs and add the exact pressing you own in one click (cover, label, catalog number, tracklist, genres), or add records by hand. Search and sort your shelf.
 - **Listening diary.** Log each play by side: tick the sides you played (A, B, C…), and the length fills itself in from the tracklist. Every play lands in a diary, grouped by day.
+- **Ratings and reviews.** Rate records from half a star to five and write a review; rate individual listens in the diary. Private notes stay private.
+- **"What should I play tonight?"** Say how much time there is, a genre and a mood, and get three picks from the shelf with the reasons: "Never played", "Side A fits your 30 minutes". One click logs the play.
+
+**Insights**
+
 - **Stats.** Most-listened artists and records, plus a chart of how your listening moves between genres month by month. Ranked by listening time, so one side counts for less than a whole double album.
+- **Collection value over time.** The server looks up what each record sells for on Discogs about once a day and keeps every price, so a chart shows the collection's value over time, how prices have moved, and the records from most to least valuable.
 - **Dust report.** Records you haven't played in a while (you choose how long), and ones you've never played. "Pick one for me" opens a random forgotten record.
 - **Stylus wear tracker.** Turntable styluses wear out after a few hundred to a thousand-plus hours. Your logged plays add up against the stylus's rated lifespan, and a warning appears when it's time to replace it.
 
+**Finding more**
+
+- **Streaming vs. shelf.** Connect a Last.fm username to see the albums you stream most but don't own on vinyl ("streamed 412 times, from $20.98 on vinyl"), with live Discogs prices. Owning a different edition is shown separately, because collectors may want both.
+- **Recommendations.** A Discover page suggests albums by artists similar to the ones on your shelf, weighted by what you own, play and rate most, and explains each one: "Because you own Miles Davis and John Coltrane".
+- **Wishlist.** Save albums from either page, with today's vinyl price beside each.
+
+**Sharing**
+
+- **Accounts.** Sign up with a username and password; everyone gets their own private collection, diary, stats and stylus.
+- **Public profiles.** Each account has a page at `/u/username` with its shelf, most-played records and artists, reviews, recent plays, and a "year in records" recap for every year. Private until its owner turns it on; notes and record conditions are never shown.
+
 ## Screenshots
 
-| Logging a play, side by side                                                                | Listening stats                                                              |
-| ------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------- |
-| ![Logging side A of Kind of Blue](docs/screenshots/log-a-play.jpg)                          | ![Most-listened artists and records](docs/screenshots/stats.jpg)             |
-| **Genres by month**                                                                         | **Dust report**                                                              |
-| ![A stacked chart of listening time per genre per month](docs/screenshots/genres-chart.jpg) | ![Records gathering dust and never played](docs/screenshots/dust-report.jpg) |
-| **Stylus wear**                                                                             | **On a phone, in dark mode**                                                 |
-| ![The stylus wear meter](docs/screenshots/stylus.jpg)                                       | ![The collection on a phone in dark mode](docs/screenshots/phone-dark.jpg)   |
+|                                                                                                     |                                                                                                |
+| --------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------- |
+| **The collection**                                                                                  | **A record: rating, review, and logging a play by side**                                       |
+| ![A grid of album covers with star ratings](docs/screenshots/collection.jpg)                        | ![Kind of Blue with its rating, review and the log-a-play panel](docs/screenshots/record.jpg)  |
+| **What should I play tonight?**                                                                     | **Listening stats**                                                                            |
+| ![Three picks for 30 minutes, each with reasons](docs/screenshots/tonight.jpg)                      | ![Most-listened artists and records, genres by month, ratings](docs/screenshots/stats.jpg)     |
+| **Collection value over time**                                                                      | **Streaming vs. shelf**                                                                        |
+| ![The collection's value, a chart over time and records by value](docs/screenshots/value.jpg)       | ![Most-streamed albums not on the shelf, with vinyl prices](docs/screenshots/streaming.jpg)    |
+| **Recommendations**                                                                                 | **A public profile**                                                                           |
+| ![Recommended albums with the reason for each](docs/screenshots/discover.jpg)                       | ![A public profile: most-played, recent plays, reviews](docs/screenshots/profile.jpg)          |
+| **A year in records**                                                                               | **Dust report**                                                                                |
+| ![2026 in records: record of the year and listening by month](docs/screenshots/year-in-records.jpg) | ![Records gathering dust and never played](docs/screenshots/dust-report.jpg)                   |
+| **Stylus wear**                                                                                     | **On a phone, in dark mode**                                                                   |
+| ![The stylus wear meter](docs/screenshots/stylus.jpg)                                               | ![The collection on a phone in dark mode, with the menu open](docs/screenshots/phone-dark.jpg) |
 
 ## How it's built
 
@@ -46,28 +64,31 @@ Click **Try the demo** on the login page to open a shared demo account filled wi
 | Server       | Node.js, Express, TypeScript                                                                            |
 | Database     | SQLite (better-sqlite3) with Drizzle ORM and versioned migrations                                       |
 | Shared rules | Zod schemas used by both the website and the server, so they always agree on what valid data looks like |
-| Outside data | Discogs API (records, covers, tracklists)                                                               |
+| Outside data | Discogs API (records, covers, tracklists, prices) and Last.fm API (streaming history, similar artists)  |
 | Testing      | Vitest, Supertest, React Testing Library, Playwright                                                    |
 | Delivery     | Docker, GitHub Actions, Render                                                                          |
 
 ```
  Browser ──▶ Website (React) ──/api──▶ Server (Express) ──▶ SQLite database
                                             │
-                                            └──▶ Discogs API (token stays on the server)
+                                            ├──▶ Discogs API   (token stays on the server)
+                                            └──▶ Last.fm API   (key stays on the server)
 ```
 
-A few decisions worth mentioning:
+A few decisions worth mentioning (more, with diagrams, in **[docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)**):
 
 - **Accounts are built in, not bolted on.** Passwords are stored as scrypt hashes; logins use an httpOnly, SameSite cookie; every query is scoped to the logged-in account, and tests check that one account can never read or change another's data.
-- **The Discogs token never reaches the browser.** The website only talks to its own server, which talks to Discogs. It stays under Discogs' limit of 60 requests a minute and remembers recent answers.
-- **Derived numbers are never stored.** Play counts, "last played", dust status, stylus wear and stats are all worked out from the diary when asked, so they can't drift out of sync.
-- **Plays are saved by start time and by track,** so plays logged later with a past date still count for the right stylus, and song-level stats or Last.fm scrobbling can be added later without reshaping the data.
+- **Secrets never reach the browser.** The website only talks to its own server, which talks to Discogs and Last.fm. It stays under Discogs' limit of 60 requests a minute and remembers recent answers.
+- **Derived numbers are never stored.** Play counts, "last played", dust status, stylus wear, stats, ratings spread and the collection's value are all worked out from the saved facts when asked, so they can't drift out of sync.
+- **Nothing is random where it can be explained.** Tonight's picks and the recommendations are scored by rules you can read, and each one comes with its reasons.
+- **Public pages share on purpose, not by accident.** A profile is built by copying only shareable fields, and a private profile answers exactly like one that doesn't exist.
 - **Charts are checked for color blindness.** The chart colors were run through a colorblind-safety checker in both light and dark mode, and every chart has a table view.
 
 ## Testing and CI
 
-- **220+ unit and integration tests** cover the server (every API route, against a temporary in-memory database) and the website (screens tested the way a person uses them).
-- **6 end-to-end tests** drive a real Chrome browser through the whole app: adding and editing records, importing from Discogs, logging a play and seeing it in the diary and stats, the dust report and the stylus warning. They run against a fake Discogs and a fresh database every time.
+- **440+ unit and integration tests** cover the server (every API route, against a temporary in-memory database) and the website (screens tested the way a person uses them).
+- **14 end-to-end tests** drive a real Chrome browser through the whole app: signing up, importing from Discogs, logging a play, rating and reviewing, tonight's picks, the wishlist, recommendations, the collection's value, and making a profile public and viewing it as a visitor. They run against a fake Discogs and Last.fm and a fresh database every time.
+- **Outside services are never called in tests.** Discogs and Last.fm answers are saved as files (recorded from the real services), so tests are fast, repeatable and need no keys.
 - **On every push, GitHub Actions** runs formatting, lint, type checks, all tests and the build on Node 22 and 24, the end-to-end tests, and builds and smoke-tests the Docker image (including that data survives a restart).
 - **The live demo only updates after all of those pass.**
 
@@ -150,17 +171,15 @@ client/   the website (React)
 server/   the server (Express) and the database
 shared/   the data rules both sides use
 e2e/      end-to-end browser tests
-docs/     guides: how it works, and how it's deployed
+docs/     guides: how it works, the architecture, and how it's deployed
 ```
 
-New to the code? **[docs/HOW-IT-WORKS.md](docs/HOW-IT-WORKS.md)** walks through every part in plain language. Deployment details are in **[docs/DEPLOY.md](docs/DEPLOY.md)**.
+New to the code? **[docs/HOW-IT-WORKS.md](docs/HOW-IT-WORKS.md)** walks through every part in plain language, **[docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)** explains the design with diagrams, and deployment details are in **[docs/DEPLOY.md](docs/DEPLOY.md)**.
 
 ## What's next
-
-The plan is to grow this into a "Letterboxd for physical music":
 
 - **Scrobbling to Last.fm:** sending vinyl plays logged here to your Last.fm history, so records count alongside streams
 
 ## Credits
 
-Record data and cover images come from [Discogs](https://www.discogs.com).
+Record data, cover images and prices come from [Discogs](https://www.discogs.com). Streaming history and similar artists come from [Last.fm](https://www.last.fm).

@@ -8,21 +8,18 @@ Portfolio project, so code quality, tests, and a clean commit history matter as 
 
 ## Status
 
-M0–M17 are done: the collection, Discogs import, listening diary, stats, dust report, stylus tracker, end-to-end tests, deployment, accounts, public profiles, ratings and reviews, the "What should I play tonight?" picker, streaming vs. shelf with a wishlist, recommendations, and collection value over time. The public demo is live at https://vinyl-tracker-qu7q.onrender.com (Render free, `DEMO_MODE`, refills itself on every start; visitors click "Try the demo"; deploys automatically after GitHub's checks pass). The next milestone is **M18 (polish)**, then M19 (Last.fm scrobbling). Update this section and the milestone checklist as work lands.
+M0–M18 are done: the collection, Discogs import, listening diary, stats, dust report, stylus tracker, end-to-end tests, deployment, accounts, public profiles, ratings and reviews, the "What should I play tonight?" picker, streaming vs. shelf with a wishlist, recommendations, collection value over time, and the polish pass (grouped menu, login introduction, README tour, architecture notes). The public demo is live at https://vinyl-tracker-qu7q.onrender.com (Render free, `DEMO_MODE`, refills itself on every start; visitors click "Try the demo"; deploys automatically after GitHub's checks pass). The only milestone left is **M19 (Last.fm scrobbling)**, which the owner asked for "later". Update this section and the milestone checklist as work lands.
 
 ## Features
 
-Built or in progress:
+All built (the milestone that added each is in brackets):
 
 - **Collection**: add records manually or import them from Discogs (search, then import), including the tracklist.
 - **Listening log (the diary)**: log a "spin" by side (A, B, C...): when it started, how long, which sides, which tracks. A full play is one click (all sides ticked). Song-level picking may come later; spins already store the tracks they covered.
-
-Planned:
-
-- **Stats**: most-played artists, genres/styles by month.
-- **Dust report**: records you own but haven't played in N days, or never.
-- **Stylus wear tracker**: logged play time against the stylus's rated lifespan.
-- **Accounts**: sign up / log in; every user has their own collection and diary. The app is single-user until then; records will gain a user owner and spins inherit it through their record.
+- **Stats** (M6): most-played artists, genres/styles by month.
+- **Dust report** (M7): records you own but haven't played in N days, or never.
+- **Stylus wear tracker** (M8): logged play time against the stylus's rated lifespan.
+- **Accounts** (M11): sign up / log in; every user has their own collection and diary. Records have a user owner and spins inherit it through their record.
 - **Public profiles** (M12, built): `/u/username` shows the shelf, most-played records and artists, recent plays and a "year in records" per year. Private until the owner turns on `profilePublic`.
 - **Ratings and reviews** (M13, built): a record has a star rating (0.5-5) and a written review; a spin can have its own star rating. Reviews are public with the profile; notes stay private.
 - **"What should I play tonight?"** (M14, built): `/tonight` suggests three records from your own shelf by time available, genre and mood, scored by dust and rating.
@@ -50,8 +47,9 @@ npm workspaces monorepo:
 client/          React app (Vite)
   src/
     api/         typed fetch wrappers + TanStack Query hooks
-    components/  shared UI components
-    features/    one folder per feature: collection/, discogs/, spins/, stats/, dust/, stylus/
+    components/  the page frame (Layout.tsx: header, grouped menu, footer) and page titles
+    features/    one folder per feature: auth/, collection/, discogs/, spins/, ratings/, stats/,
+                 value/, dust/, stylus/, tonight/, streaming/, profiles/
     pages/       route-level components
 server/
   src/
@@ -59,24 +57,26 @@ server/
     index.ts     entry point: loads config, calls listen()
     config.ts    env parsing (Zod), the only place that reads process.env
     paths.ts     SERVER_ROOT / REPO_ROOT; derive every filesystem path from these
-    db/          schema.ts, client.ts (createDb), migrate.ts, seed.ts
+    db/          schema.ts, client.ts (createDb), migrate.ts, seed.ts, demo.ts (public demo data)
     routes/      thin Express routers: parse input, call a service, send the response
-    services/    business logic + SQL queries (stats, dust, stylus live here)
+    services/    business logic + SQL queries (stats, dust, stylus, suggestions, value... live here)
     integrations/ discogs/, lastfm/: HTTP clients, rate limiting, response mapping
-    middleware/  error handler, request validation
+    middleware/  sessions, same-origin check, password lock, error handler, serving the built client
   drizzle/       generated SQL migrations (committed; never edit after commit)
   test/          API tests via Supertest; helpers.ts gives an in-memory app
 shared/          Zod schemas + inferred TS types for API contracts. Ships .ts source (no
                  build step); Vite bundles it for the client, tsup bundles it into server/dist
-e2e/             Playwright specs + fixtures (Discogs mocked)
+e2e/             Playwright specs + fixtures (Discogs and Last.fm faked by one small server)
+docs/            HOW-IT-WORKS.md (plain-language tour), ARCHITECTURE.md (design + diagrams),
+                 DEPLOY.md, screenshots/ (README images and tour.gif)
 .github/workflows/
 ```
 
 ## Data model (SQLite)
 
-Single user, no auth. Timestamps are ISO-8601 UTC strings. Durations are stored in seconds.
+Multi-user (accounts since M11). Timestamps are ISO-8601 UTC strings. Durations are stored in seconds.
 
-Built so far (M2), defined in `server/src/db/schema.ts`:
+Defined in `server/src/db/schema.ts` (the first four tables date from M2; later ones say which milestone):
 
 - `records`: id, discogs_release_id (unique, nullable for manual entries; set only by the server, never from client input), title, year, label, catalog_number, format, cover_image_url, runtime_seconds (summed from the Discogs tracklist and used as the default spin length), media_condition, sleeve_condition (Goldmine grades `M`…`P`, see `CONDITION_GRADES`), notes, added_at, updated_at
 - `artists`: id, discogs_artist_id (unique, nullable), name (unique case-insensitively via an index on `lower(name)`). Artists are found-or-created by name; ones left with no records are deleted.
@@ -120,6 +120,7 @@ Derived values (stylus hours used, last-played date, dust status, stats) are **c
 - **Streaming vs. shelf (M15):** `integrations/lastfm/client.ts` (`LastfmClient implements LastfmSource`; `user.gettopalbums`, 1 h cache, key in `LASTFM_API_KEY`, never sent to the client); `integrations/lastfm/sample.ts` is a stand-in used only when `DEMO_MODE` is on: the demo account's username (`DEMO_LASTFM_USERNAME`) always gets the samples, and without a key every username does; other usernames go to the real client (`isSample(username)` → `sample: true` in the answer, labelled in the UI). Matching in `services/streaming.ts`: `exactKey()` (plain text: no accents, punctuation or leading "The") decides `ownedRecordId` and `wishlistItemId`; `albumKey()` (also strips edition words in brackets or after " - ") only fills `otherEdition: { recordId, title }`, shown as "You own a different edition" with price and wishlist still offered (the owner wants deluxe and regular kept apart: collectors may own both). Prices: `DiscogsClient.searchAlbum` + `getMarketplaceStats`; the client auto-loads only the first 5 (streaming) / 8 (wishlist) and offers "Check price" for the rest, to respect 60 req/min. Last.fm fixtures in `test/fixtures/lastfm/` are hand-written in Last.fm's format (no key was available to record them). E2E: the fake Discogs server also answers as Last.fm at `/2.0/` (`LASTFM_API_URL`).
 - **Recommendations (M16):** `services/recommendations.ts`: `pickKeyArtists()` (per record: 1 + min(spins,5)/5 + (rating ?? 2.5)/5 points to each of its artists; top 6, weight relative to the top) → `lastfm.getSimilarArtists` for each (`allSettled`; partial failures tolerated) → drop owned artists and names that contain an owned artist's name → score = Σ match × key-artist weight → one line of candidates per key artist (by score), front of each line (`perKeyArtist` + 2 spare, where `perKeyArtist` = max(2, ⌈10 / key artists⌉)) looked up with `lastfm.getArtistTopAlbums`: first title not matching `NOT_AN_ALBUM` and not owned in ANY edition (`albumKey`), shown via `stripEdition()` → round-robin: each key artist gets one pick per round (so every key artist is represented, and one with owned/album-less top matches falls through to the next in its line), 10 total, `because[0]` = that turn's key artist. `getSimilarArtists` asks for 30. Up to 6 + ~24 Last.fm requests on a cold cache, all cached 24 h in the client. `LastfmSource.sampleArtists` is true only for the demo stand-in without a key. The fixtures `similar-miles-davis.json`, `artist-top-albums-john-coltrane.json` and `artist-not-found.json` are REAL recorded Last.fm answers (note: "not found" is HTTP 200 with `error: 6`); `top-albums.json` is still hand-written. E2E: the fake Last.fm picks its answer from the `method` parameter.
 - **Collection value (M17):** `services/value.ts`. `snapshotPrices(db, discogs, { userId?, exceptUserId?, limit, now })` prices records with a `discogs_release_id` whose latest snapshot is missing or older than 20 h (never-priced first), one `getMarketplaceStats` each, stopping on Discogs errors (a 404 release gets a null snapshot so it can't block the queue). `index.ts` runs it every 10 min for 15 records (and 30 s after start), skipping the demo user and `NODE_ENV=test`; `POST /api/value/refresh` runs it for the caller (limit 20). `getCollectionValue` walks snapshots in time order carrying each record's last price forward: one history point per UTC day with a snapshot; `movement` only counts records priced on 2+ days (so adding records isn't "growth"); prices not in the most common currency are ignored. Demo: `seedDemoPrices` writes 27 weekly made-up snapshots per record (own seeded PRNG, so plays are unchanged) and the route marks the demo account `sample: true`. Client: lazy `ValuePage` + `features/value/ValueChart.tsx` (Recharts area chart, single series, table view).
+- **Polish (M18):** `components/Layout.tsx` draws the header in two rows: brand + account on top, then the menu from `NAV_GROUPS` ("Your records" / "Insights" / "Find more", each a `role="group"`) plus "Add from Discogs". Add new pages to a group there, and their tab title to `components/page-title.ts` (`titleFor(pathname)`, set by an effect in Layout). Below 46rem the menu is hidden behind a "Menu" button; its open state is "the pathname it was opened on", so navigating closes it without an effect. A "Skip to content" link targets `<main id="main">`. The login page shows `features/auth/AppIntro.tsx` beside the form. `client/public/favicon.svg` + description/Open Graph tags in `index.html`. README images live in `docs/screenshots/`; they were taken with Playwright against the built app in `DEMO_MODE` (1280px wide JPEGs; `tour.gif` = 900×560 frames encoded with `gifenc` in the scratchpad, not a repo dependency). Retake them when a page's look changes. `docs/ARCHITECTURE.md` holds the design notes and Mermaid diagrams; keep it in step with real behavior.
 - **Frontend patterns (M3):** routes are listed in `client/src/App.tsx` (React Router v8, declarative `<Routes>`); pages live in `pages/`, feature pieces in `features/<feature>/`. Data goes through hooks in `api/` (TanStack Query; mutations invalidate `["records", ...]` keys). Forms keep text in state and validate with the shared Zod schema before sending (see `features/collection/form-values.ts`). Show errors with `describeError()`. Page tests render the whole app with `renderApp(route)` from `test/render.tsx` and fake the server with `mockApi()` from `test/fake-api.ts`; `data-testid="location"` shows the current address.
 - **Tests:** every service and route gets Vitest coverage. Server tests use `makeTestApp()` → `{ app, db, user, api }`, where `api.get/post/put/delete` send the test account's login cookie (`addUser()` makes more accounts). Any new data feature needs an isolation test in `test/isolation.test.ts`. API tests run against an in-memory SQLite DB through `app.ts`. Add a Playwright spec when a user-facing flow is completed.
 - **Commits:** solo project, so commit directly to `main` (no feature branches or PRs unless asked). Write messages in plain, simple language with no "you", "your" or "I": a short past-tense title saying what changed (e.g. "Added record delete button"), then a few short bullets in the same style (e.g. "- Added a search box for title and artist"), in everyday words with no jargon. Keep commits small; one milestone may span several.
@@ -220,5 +221,5 @@ Validation errors are 400 `VALIDATION` with `field: message` pairs joined by `; 
 - [x] M15 Streaming vs. shelf with Discogs prices (Last.fm) + wishlist (scrobbling left out)
 - [x] M16 Recommendations based on what you own
 - [x] M17 Collection value over time (scheduled price snapshots)
-- [ ] M18 Polish: README with screenshots/GIF, demo data, architecture notes
+- [x] M18 Polish: README with screenshots/GIF, demo data, architecture notes
 - [ ] M19 Last.fm scrobbling of logged plays (the owner asked for this "later"): needs Last.fm's web-auth flow (callback URL + the API account's shared secret, stored as a server secret), a per-user session key, and one scrobble per track of a spin (only spins with a tracklist; Last.fm rejects timestamps older than about two weeks)
