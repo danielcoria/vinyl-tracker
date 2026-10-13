@@ -173,7 +173,7 @@ This is only for whoever runs the site. The key identifies the app to Last.fm; i
    - **Application description:** a sentence, e.g. "Compares my most-streamed albums with the records I own."
    - **Callback URL:** leave empty
    - **Application homepage:** the site's address (or leave empty)
-3. Click Submit. Last.fm shows an **API key** and a **Shared secret**. The API key is needed for everything; the shared secret only for scrobbling. (Both can be found again later at [last.fm/api/accounts](https://www.last.fm/api/accounts).)
+3. Click Submit. Last.fm shows an **API key** and a **Shared secret**. The API key is needed for everything; the shared secret only for scrobbling. **Copy both from this page before leaving it:** the list at [last.fm/api/accounts](https://www.last.fm/api/accounts) may show only the API key afterwards. If the secret is lost, create a new API account and use its key and secret together.
 4. **On your computer:** open the `.env` file in the project folder and add a line (no quotes, no spaces):
 
    ```
